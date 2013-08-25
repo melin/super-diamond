@@ -3,9 +3,6 @@
  */    
 package com.github.diamond.web.controller;
 
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -38,19 +35,13 @@ public class ProfileController {
 		return "/profile/" + type;
 	}
 	
-	@RequestMapping("/profile/preview/{type}/{projectId}")
-	public String preview(@PathVariable("type") String type, @PathVariable("projectId") Long projectId, ModelMap modelMap) {
-		List<Map<String, Object>> configs = configService.queryConfigs(projectId, null);
-		
-		String message = "";
-		for(Map<String, Object> map : configs) {
-			String desc = (String)map.get("CONFIG_DESC");
-			message += "# " + desc + "\r\n";
-			message += map.get("CONFIG_KEY") + " = " + map.get("CONFIG_VALUE") + "\r\n";
-		}
+	@RequestMapping("/profile/preview/{projectCode}/{type}")
+	public String preview(@PathVariable("type") String type, @PathVariable("projectCode") String projectCode, 
+			Long projectId, ModelMap modelMap) {
+		String config = configService.queryConfigs(projectCode, type);
 		
 		modelMap.addAttribute("project", projectService.queryProject(projectId));
-		modelMap.addAttribute("message", message);
+		modelMap.addAttribute("message", config);
 		return "/profile/preview";
 	}
 }

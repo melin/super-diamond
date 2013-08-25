@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.github.diamond.netty.DiamondServerHandler;
 import com.github.diamond.utils.SessionHolder;
 import com.github.diamond.web.model.User;
 import com.github.diamond.web.service.ConfigService;
@@ -24,6 +25,8 @@ public class ConfigController {
 	private ConfigService configService;
 	@Autowired
 	private ProjectService projectService;
+	@Autowired
+	private DiamondServerHandler diamondServerHandler;
 	
 	@RequestMapping("/config/save")
 	public String saveConfig(String type, Long configId, String configKey, String configValue, String configDesc, Long projectId, Long moduleId) {
@@ -33,12 +36,20 @@ public class ConfigController {
 		} else {
 			configService.updateConfig(type, configId, configKey, configValue, configDesc, projectId, moduleId, user.getUserCode());
 		}
+
+		String projCode = (String)projectService.queryProject(projectId).get("PROJ_CODE");
+		String config = configService.queryConfigs(projCode, type);
+		diamondServerHandler.pushConfig(projCode, type, config);
 		return "redirect:/profile/" + type + "/" + projectId;
 	}
 	
 	@RequestMapping("/config/delete/{id}")
 	public String deleteConfig(String type, Long projectId, @PathVariable Long id) {
 		configService.deleteConfig(id, projectId);
+		
+		String projCode = (String)projectService.queryProject(projectId).get("PROJ_CODE");
+		String config = configService.queryConfigs(projCode, type);
+		diamondServerHandler.pushConfig(projCode, type, config);
 		return "redirect:/profile/" + type + "/" + projectId;
 	}
 }

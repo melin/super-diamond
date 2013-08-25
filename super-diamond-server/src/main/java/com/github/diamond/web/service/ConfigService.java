@@ -26,12 +26,22 @@ public class ConfigService {
 	
 	public List<Map<String, Object>> queryConfigs(Long projectId, Long moduleId) {
 		String sql = "SELECT * FROM conf_project_config a, conf_project_module b WHERE a.MODULE_ID = b.MODULE_ID AND a.DELETE_FLAG =0 AND a.PROJECT_ID=?";
+		
 		if(moduleId != null) {
 			sql = sql + " AND a.MODULE_ID = ?";
 			return jdbcTemplate.queryForList(sql, projectId, moduleId);
 		} else {
 			return jdbcTemplate.queryForList(sql, projectId);
 		}
+		
+	}
+	
+	public String queryConfigs(String projectCode, String type) {
+		String sql = "SELECT * FROM conf_project_config a, conf_project_module b, conf_project c " +
+				"WHERE a.MODULE_ID = b.MODULE_ID AND a.PROJECT_ID=c.id AND a.DELETE_FLAG =0 AND c.PROJ_CODE=?";
+		List<Map<String, Object>> configs = jdbcTemplate.queryForList(sql, projectCode);
+		
+		return viewConfig(configs, type);
 	}
 	
 	@Transactional
@@ -66,5 +76,37 @@ public class ConfigService {
 		String sql = "update conf_project_config set DELETE_FLAG=1 where CONFIG_ID=?";
 		jdbcTemplate.update(sql, id);
 		projectService.updateVersion(projectId);
+	}
+	
+	private String viewConfig(List<Map<String, Object>> configs, String type) {
+		String message = "";
+		
+		boolean versionFlag = true;
+		for(Map<String, Object> map : configs) {
+			if(versionFlag) {
+				if("development".equals(type)) {
+					message += "#version = " + map.get("DEVELOPMENT_VERSION") + "\r\n";
+				} else if("production".equals(type)) {
+					message += "#version = " + map.get("PRODUCTION_VERSION") + "\r\n";
+				} else if("test".equals(type)) {
+					message += "#version = " + map.get("TEST_VERSION") + "\r\n";
+				}
+				
+				versionFlag = false;
+			}
+			
+			String desc = (String)map.get("CONFIG_DESC");
+			message += "#" + desc + "\r\n";
+			
+			if("development".equals(type)) {
+				message += map.get("CONFIG_KEY") + " = " + map.get("CONFIG_VALUE") + "\r\n";
+			} else if("production".equals(type)) {
+				message += map.get("CONFIG_KEY") + " = " + map.get("PRODUCTION_VALUE") + "\r\n";
+			} else if("test".equals(type)) {
+				message += map.get("CONFIG_KEY") + " = " + map.get("TEST_VALUE") + "\r\n";
+			}
+		}
+		
+		return message;
 	}
 }

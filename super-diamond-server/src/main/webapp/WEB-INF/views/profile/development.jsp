@@ -155,7 +155,7 @@ $(document).ready(function () {
 	$("#sel-queryModule").val(<c:out value="${moduleId}"/>);
 	
 	$("#preview").click(function(e) {
-		window.location.href = '/superdiamond/profile/preview/<c:out value="${type}"/>/<c:out value="${projectId}"/>';
+		window.location.href = '/superdiamond/profile/preview/<c:out value="${project.PROJ_CODE}"/>/<c:out value="${type}"/>?projectId=<c:out value="${projectId}"/>';
 	});
 	
 	$("a.deleteConfig").click(function(e) {

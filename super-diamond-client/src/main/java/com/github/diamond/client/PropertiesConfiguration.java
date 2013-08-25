@@ -22,6 +22,8 @@ import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.PropertyConverter;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.ObjectUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.github.diamond.client.config.PropertiesReader;
 import com.github.diamond.client.netty.ClientChannelInitializer;
@@ -34,6 +36,8 @@ import com.github.diamond.client.netty.Netty4Client;
  * @author bsli@ustcinfo.com
  */
 public class PropertiesConfiguration {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesConfiguration.class);
 
 	private static char defaultListDelimiter = ',';
 
@@ -45,7 +49,7 @@ public class PropertiesConfiguration {
 	
 	private static final ExecutorService reloadExecutorService = Executors.newSingleThreadExecutor(new NamedThreadFactory("ReloadConfigExecutorService", true));
 
-	public PropertiesConfiguration(String host, int port, String projCode, String profile) {
+	public PropertiesConfiguration(String host, int port, final String projCode, final String profile) {
 		final String clientMsg = "superdiamond," + projCode + "," + profile;
 		try {
 			client = new Netty4Client(host, port, new ClientChannelInitializer());
@@ -53,6 +57,9 @@ public class PropertiesConfiguration {
 			if(client.isConnected()) {
 				client.sendMessage(clientMsg);
 				String message = client.receiveMessage();
+				String versionStr = message.substring(0, message.indexOf("\r\n"));
+				
+				LOGGER.info("加载配置信息，项目编码：{}，Profile：{}, Version：{}", projCode, profile, versionStr.split(" = ")[1]);
 				if(message != null)
 					load(new StringReader(message));
 			} else {
@@ -67,6 +74,9 @@ public class PropertiesConfiguration {
 						try {
 							if(client.isConnected()) {
 								String message = client.receiveMessage();
+								String versionStr = message.substring(0, message.indexOf("\r\n"));
+								
+								LOGGER.info("重新加载配置信息，项目编码：{}，Profile：{}, Version：{}", projCode, profile, versionStr.split(" = ")[1]);
 								if(message != null)
 									load(new StringReader(message));
 							} else {

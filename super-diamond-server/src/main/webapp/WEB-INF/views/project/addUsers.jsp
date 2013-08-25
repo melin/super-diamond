@@ -34,11 +34,11 @@
                   	</c:forEach>
               	</td>
               	<c:url var="deleteProjectUrl" value="/project/deleteUser" >
-                  	<c:param name="projectId" value="${project.id}" />
+                  	<c:param name="projectId" value="${project.ID}" />
                   	<c:param name="userId" value="${user.id}" />
               	</c:url>
               	<td>
-              		<c:if test="${user.id != project.ownerId}">
+              		<c:if test="${user.id != project.OWNER_ID}">
               			<a href="${deleteProjectUrl}" class="deleteProject">删除</a>
               		</c:if>
               	</td>
@@ -61,7 +61,7 @@
     	<c:forEach items="${users}" var="user">
     		<form class="form-horizontal" method="post" action='<c:url value="/project/saveUser" />' autocomplete="off" >
     			<input type="hidden" name="userId" value='<c:out value="${user.id}" />'>
-    			<input type="hidden" name="projectId" value='<c:out value="${project.id}" />'>
+    			<input type="hidden" name="projectId" value='<c:out value="${project.ID}" />'>
 	       		<tr>
 	               	<td>
 	                  	<c:out value="${user.userCode}"/>

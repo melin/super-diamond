@@ -19,8 +19,14 @@ import io.netty.util.CharsetUtil;
 public class DiamondServerInitializer extends ChannelInitializer<SocketChannel> {
     private static final StringDecoder DECODER = new StringDecoder(CharsetUtil.UTF_8);
     private static final StringEncoder ENCODER = new StringEncoder(CharsetUtil.UTF_8);
+    
+    private DiamondServerHandler serverHandler;
 
-    @Override
+	public DiamondServerInitializer(DiamondServerHandler serverHandler) {
+		this.serverHandler = serverHandler;
+	}
+
+	@Override
     public void initChannel(SocketChannel ch) throws Exception {
         ChannelPipeline pipeline = ch.pipeline();
 
@@ -32,6 +38,6 @@ public class DiamondServerInitializer extends ChannelInitializer<SocketChannel> 
         pipeline.addLast("encoder", ENCODER);
 
         // and then business logic.
-        pipeline.addLast("handler", DiamondServerHandler.getInstance());
+        pipeline.addLast("handler", serverHandler);
     }
 }

@@ -13,6 +13,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.github.diamond.web.service.ConfigService;
 
 /**
  * Create on @2013-8-24 @上午10:05:25 
@@ -29,13 +32,8 @@ public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
 
     private static final Logger logger = LoggerFactory.getLogger(DiamondServerHandler.class);
     
-    private static DiamondServerHandler instance = new DiamondServerHandler();
-    
-    private DiamondServerHandler() {};
-    
-    public static DiamondServerHandler getInstance() {
-    	return instance;
-    }
+    @Autowired
+    private ConfigService configService;
     
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -57,9 +55,7 @@ public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
         	
         	channels.put(ctx.channel().remoteAddress().toString(), ctx);
         	
-            response = "jdbc.url=jdbc:mysql://192.168.205.31:3306/usi_tdp?useUnicode=true&amp;characterEncoding=UTF-8\r\n";
-            response += "jdbc.username=roo\r\n";
-            response += "\r\n";
+            response = configService.queryConfigs(params[1], params[2]);
         } else {
         	response = "";
         }
@@ -95,15 +91,20 @@ public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
      */
     public void pushConfig(String projCode, String profile, String config) {
     	List<String> addrs = clients.get(projCode + "-" + profile);
+    	List<String> newAddrs = new ArrayList<String>();
     	if(addrs != null) {
     		for(String address : addrs) {
     			ChannelHandlerContext ctx = channels.get(address);
     			if(ctx != null) {
     				ctx.writeAndFlush(config);
+    				newAddrs.add(address);
     			} else {
     				addrs.remove(address);
     			}
     		}
     	}
+    	
+    	addrs.clear();
+    	clients.put(projCode + "-" + profile, newAddrs);
     }
 }

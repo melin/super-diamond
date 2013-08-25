@@ -57,5 +57,8 @@
 
 	<context:component-scan base-package="com.github.diamond.web"/>
 	
-	<bean class="com.github.diamond.netty.DiamondServer"></bean>
+	<bean id="diamondServerHandler" class="com.github.diamond.netty.DiamondServerHandler" />
+	<bean class="com.github.diamond.netty.DiamondServer">
+		<property name="serverHandler" ref="diamondServerHandler" />
+	</bean>
 </beans>

@@ -5,6 +5,8 @@
  */
 package com.github.diamond.client;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  *
  * @author <a href="mailto:bsli@ustcinfo.com">li.binsong</a>
@@ -21,7 +23,7 @@ public class Test {
 		
 		System.out.println(config.getString("jdbc.url"));
 		
-		config.close();
+		System.in.read();
 	}
 
 }

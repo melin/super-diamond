@@ -12,6 +12,10 @@
 </select>
 <button type="button" id="queryModule" class="btn btn-primary">查询</button>
 
+<div class="pull-right">
+	<button type="button" id="preview" class="btn btn-primary">预览</button>
+</div>
+
 <div id="addConfigWin" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   	<div class="modal-header">
     	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
@@ -121,6 +125,10 @@ function updateConfig(id) {
 
 $(document).ready(function () {
 	$("#sel-queryModule").val(<c:out value="${moduleId}"/>);
+	
+	$("#preview").click(function(e) {
+		window.location.href = '/superdiamond/profile/preview/<c:out value="${project.PROJ_CODE}"/>/<c:out value="${type}"/>?projectId=<c:out value="${projectId}"/>';
+	});
 	
 	$("#queryModule").click(function(e) {
 		var moduleId = $("#sel-queryModule").val();

@@ -85,25 +85,6 @@ public class ProjectService {
 		return users;
 	}
 	
-	public Project queryProject(long projectId) {
-		String sql = "SELECT b.ID, b.PROJ_CODE, b.PROJ_NAME, b.OWNER_ID FROM CONF_PROJECT b " +
-				"WHERE b.ID=? AND b.DELETE_FLAG = 0";
-		List<Project> projects = jdbcTemplate.query(sql, new RowMapper<Project>() {
-
-			public Project mapRow(ResultSet rs, int rowNum) throws SQLException,
-					DataAccessException {
-				Project project = new Project();
-				project.setId(rs.getLong(1));
-				project.setCode(rs.getString(2));
-				project.setName(rs.getString(3));
-				project.setOwnerId(rs.getLong(4));
-				return project;
-			}
-		}, projectId);
-		
-		return projects.get(0);
-	}
-	
 	public List<String> queryRoles(long projectId, long userId) {
 		String sql = "SELECT a.ROLE_CODE FROM conf_project_user_role a WHERE a.PROJ_ID=? AND a.USER_ID=? ORDER BY a.ROLE_CODE";
 		return jdbcTemplate.queryForList(sql, String.class, projectId, userId);
