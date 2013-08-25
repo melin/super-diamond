@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<decorators defaultdir="/decorators">  
+    <decorator name="common" page="/WEB-INF/layout/_common.jsp">
+    	<pattern>/index</pattern>
+        <pattern>/user/*</pattern>
+        <pattern>/project/*</pattern>
+    </decorator>
+    
+    <decorator name="profile" page="/WEB-INF/layout/_profile.jsp">
+        <pattern>/profile/*</pattern>
+    </decorator>
+</decorators>
