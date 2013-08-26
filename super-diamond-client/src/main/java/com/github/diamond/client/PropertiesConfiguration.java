@@ -14,6 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -148,8 +149,17 @@ public class PropertiesConfiguration {
 		}
 	}
 
-	public Object getProperty(String key) {
+	private Object getProperty(String key) {
 		return store.get(key);
+	}
+	
+	public Properties getProperties() {
+		Properties properties = new Properties();
+		
+		for(String key : store.keySet()) {
+			properties.setProperty(key, getString(key));
+		}
+		return null;
 	}
 
 	// --------------------------------------------------------------------
