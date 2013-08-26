@@ -20,10 +20,20 @@ config.getString("jdbc.url")
 <b>spring 使用方式</b>
 
 ```xml
-	<bean class="com.github.diamond.client.PropertiesConfigurationFactoryBean">
+	<bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+		<property name="properties" ref="propertiesConfiguration" />
+	</bean>
+	
+	<bean id="propertiesConfiguration" class="com.github.diamond.client.PropertiesConfigurationFactoryBean">
 		<constructor-arg index="0" value="localhost" />
 		<constructor-arg index="1" value="5001" />
 		<constructor-arg index="2" value="test" />
 		<constructor-arg index="3" value="development" />
 	</bean>
+```
+
+```java
+ApplicationContext applicationContext = new ClassPathXmlApplicationContext("bean.xml");
+PropertiesConfiguration config = PropertiesConfigurationFactoryBean.getPropertiesConfiguration();
+config.getString("jdbc.url")
 ```
