@@ -1,1 +1,1 @@
-构建部署包：mvn assembly:single -Pproduction
+构建部署包：mvn install assembly:single -Pproduction
