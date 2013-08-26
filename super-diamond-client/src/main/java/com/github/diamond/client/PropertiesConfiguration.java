@@ -30,6 +30,7 @@ import com.github.diamond.client.config.PropertiesReader;
 import com.github.diamond.client.netty.ClientChannelInitializer;
 import com.github.diamond.client.netty.NamedThreadFactory;
 import com.github.diamond.client.netty.Netty4Client;
+import com.github.diamond.client.util.FileUtils;
 
 /**
  * Create on @2013-8-25 @下午1:17:38
@@ -57,8 +58,8 @@ public class PropertiesConfiguration {
 	 * @param profile
 	 */
 	public PropertiesConfiguration(final String projCode, final String profile) {
-		String host = System.getProperty("diamond.host", "localhost");
-		int port = Integer.valueOf(System.getProperty("diamond.port", "5001"));
+		String host = System.getProperty("spuerdiamond.host", "localhost");
+		int port = Integer.valueOf(System.getProperty("spuerdiamond.port", "5001"));
 		
 		init(host, port, projCode, profile);
 	}
@@ -76,12 +77,20 @@ public class PropertiesConfiguration {
 				client.sendMessage(clientMsg);
 				String message = client.receiveMessage();
 				String versionStr = message.substring(0, message.indexOf("\r\n"));
-				
 				LOGGER.info("加载配置信息，项目编码：{}，Profile：{}, Version：{}", projCode, profile, versionStr.split(" = ")[1]);
+				
+				FileUtils.saveData(projCode, profile, message);
 				if(message != null)
 					load(new StringReader(message));
 			} else {
-				throw new RuntimeException("连接失败");
+				String message = FileUtils.readConfigFromLocal(projCode, profile);
+				if(message != null) {
+					String versionStr = message.substring(0, message.indexOf("\r\n"));
+					LOGGER.info("加载本地备份配置信息，项目编码：{}，Profile：{}, Version：{}", projCode, profile, versionStr.split(" = ")[1]);
+					
+					load(new StringReader(message));
+				} else
+					throw new Exception("本地没有备份配置数据，PropertiesConfiguration 初始化失败。");
 			}
 			
 			reloadExecutorService.submit(new Runnable() {
@@ -95,8 +104,10 @@ public class PropertiesConfiguration {
 								String versionStr = message.substring(0, message.indexOf("\r\n"));
 								
 								LOGGER.info("重新加载配置信息，项目编码：{}，Profile：{}, Version：{}", projCode, profile, versionStr.split(" = ")[1]);
-								if(message != null)
+								if(message != null) {
+									FileUtils.saveData(projCode, profile, message);
 									load(new StringReader(message));
+								}
 							} else {
 								TimeUnit.SECONDS.sleep(1);
 							}
@@ -107,6 +118,9 @@ public class PropertiesConfiguration {
 				}
 			});
 		} catch (Exception e) {
+			if(client != null) {
+				client.close();
+			}
 			throw new RuntimeException(e.getMessage(), e);
 		}
 	}
@@ -124,8 +138,7 @@ public class PropertiesConfiguration {
 		PropertiesReader reader = new PropertiesReader(in, defaultListDelimiter);
 		try {
 			while (reader.nextProperty()) {
-				propertyLoaded(reader.getPropertyName(),
-						reader.getPropertyValue());
+				propertyLoaded(reader.getPropertyName(), reader.getPropertyValue());
 			}
 		} catch (IOException ioex) {
 			throw new Exception(ioex);
@@ -147,22 +160,20 @@ public class PropertiesConfiguration {
 	}
 
 	private void addPropertyDirect(String key, Object value) {
-		synchronized (PropertiesConfiguration.class) {
-			Object previousValue = getProperty(key);
+		Object previousValue = getProperty(key);
 
-			if (previousValue == null) {
-				store.put(key, value);
-			} else if (previousValue instanceof List) {
-				@SuppressWarnings("unchecked")
-				List<Object> valueList = (List<Object>) previousValue;
-				valueList.add(value);
-			} else {
-				List<Object> list = new ArrayList<Object>();
-				list.add(previousValue);
-				list.add(value);
+		if (previousValue == null) {
+			store.put(key, value);
+		} else if (previousValue instanceof List) {
+			@SuppressWarnings("unchecked")
+			List<Object> valueList = (List<Object>) previousValue;
+			valueList.add(value);
+		} else {
+			List<Object> list = new ArrayList<Object>();
+			list.add(previousValue);
+			list.add(value);
 
-				store.put(key, list);
-			}
+			store.put(key, list);
 		}
 	}
 
@@ -481,4 +492,5 @@ public class PropertiesConfiguration {
 		// TODO 待完善
 		return value;
 	}
+	
 }
