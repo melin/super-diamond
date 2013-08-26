@@ -49,8 +49,25 @@ public class PropertiesConfiguration {
 	private volatile boolean reloadable = true;
 	
 	private static final ExecutorService reloadExecutorService = Executors.newSingleThreadExecutor(new NamedThreadFactory("ReloadConfigExecutorService", true));
+	
+	/**
+	 * 从jvm参数中获取 host和port值
+	 * 
+	 * @param projCode
+	 * @param profile
+	 */
+	public PropertiesConfiguration(final String projCode, final String profile) {
+		String host = System.getProperty("diamond.host", "localhost");
+		int port = Integer.valueOf(System.getProperty("diamond.port", "5001"));
+		
+		init(host, port, projCode, profile);
+	}
 
 	public PropertiesConfiguration(String host, int port, final String projCode, final String profile) {
+		init(host, port, projCode, profile);
+	}
+	
+	private void init(String host, int port, final String projCode, final String profile) {
 		final String clientMsg = "superdiamond," + projCode + "," + profile;
 		try {
 			client = new Netty4Client(host, port, new ClientChannelInitializer());

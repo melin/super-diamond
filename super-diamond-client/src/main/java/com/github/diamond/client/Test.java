@@ -5,8 +5,6 @@
  */
 package com.github.diamond.client;
 
-import java.util.concurrent.TimeUnit;
-
 /**
  *
  * @author <a href="mailto:bsli@ustcinfo.com">li.binsong</a>

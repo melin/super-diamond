@@ -17,6 +17,11 @@ public class PropertiesConfigurationFactoryBean implements FactoryBean<Propertie
 	
 	private static boolean init = false;
 	
+	public PropertiesConfigurationFactoryBean(final String projCode, final String profile) {
+		init = true;
+		__configuration = new PropertiesConfiguration(projCode, profile);
+	}
+	
 	public PropertiesConfigurationFactoryBean(String host, int port, final String projCode, final String profile) {
 		init = true;
 		__configuration = new PropertiesConfiguration(host, port, projCode, profile);
