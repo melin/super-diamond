@@ -1,5 +1,4 @@
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
-<%@ taglib uri="http://www.opensymphony.com/sitemesh/decorator" prefix="decorator" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html lang="en">
@@ -12,13 +11,28 @@
     	<script type="text/javascript" src='<c:url value="/resources/js/bootstrap.min.js" />'></script>
     	<script type="text/javascript" src='<c:url value="/resources/js/bootbox.min.js" />'></script>
     	<style type="text/css">
-	      body {
-	        padding-top: 60px;
-	        padding-bottom: 40px;
-	      }
-	      .sidebar-nav {
-	        padding: 9px 0;
-	      }
+	      	body {
+	        	padding-top: 60px;
+	       	 	padding-bottom: 40px;
+	      	}
+	      	.sidebar-nav {
+	       		padding: 9px 0;
+	      	}
+	      	.table td {
+			    line-height: 16px;
+			    font-size: 12px;
+			    padding: 4px;
+			}
+			.form-horizontal .control-label {
+			 	width: 100px
+			}
+			
+			.form-horizontal .controls {
+			    margin-left: 120px;
+			}
+			.input-xlarge {
+				width: 360px
+			}
 	    </style>
 	    <script type="text/javascript">
 		  	$(document).ready(function () {
@@ -26,7 +40,6 @@
 				$("#" + menuId).addClass("active");
 		  	});
 		</script>
-	    <decorator:head/>
 	</head>
 
   	<body>
@@ -45,29 +58,10 @@
     	</div>
 
     	<div class="container">
-      		<div class="row-fluid">
-        		<div class="span2">
-          			<div class="well sidebar-nav">
-            			<ul class="nav nav-list">
-              				<li class="nav-header"><h3>导航菜单</h3></li>
-              				<li id="indexId"><a href='<c:url value="/index" />'>首页</a></li>
-              				<c:if test="${sessionScope.sessionUser.userCode == 'admin'}">
-              					<li id="userId"><a href='<c:url value="/user/index" />'>用户管理</a></li>
-              				</c:if>
-              				<li id="projectId"><a href='<c:url value="/project/index" />'>项目管理</a></li>
-              				<li id="passwordId"><a href='<c:url value="/user/password" />'>修改密码</a></li>
-            			</ul>
-          			</div><!--/.well -->
-        		</div><!--/span-->
-        		<div class="span10">
-          			<div class="hero-unit" style="padding: 10px;">
-          				<decorator:body></decorator:body>
-          			</div>
-        		</div><!--/span-->
-      		</div><!--/row-->
+    		<div class="alert alert-error">
+  				<c:out value="${message}"/>
+			</div>
     	</div>
     	<% request.getSession().removeAttribute("message"); %>
-    	<% request.getSession().removeAttribute("user"); %>
-    	<% request.getSession().removeAttribute("project"); %>
   	</body>
 </html>

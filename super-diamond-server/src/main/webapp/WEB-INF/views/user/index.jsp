@@ -14,7 +14,7 @@
     	<tr>
     		<th>用户账号</th>
       		<th>用户名</th>
-      		<th>操作</th>
+      		<th width="60">操作</th>
     	</tr>
   	</thead>
   	<tbody>
@@ -31,7 +31,7 @@
               	</c:url>
               	<td>
               		<c:if test="${user.userCode != 'admin'}">
-              			<a href="${deleteUserUrl}" class="deleteUser">删除</a>&nbsp;&nbsp;&nbsp;
+              			<a href="${deleteUserUrl}" class="deleteUser">删除</a>
               		</c:if>
               	</td>
             </tr>

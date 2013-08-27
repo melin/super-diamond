@@ -5,6 +5,7 @@ package com.github.diamond.web.controller;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
@@ -67,10 +68,18 @@ public class ProjectController {
 	}
 	
 	@RequestMapping("/project/delete")
-	public String deleteProject(long id, HttpSession session) {
-		projectService.deleteProject(id);
-		session.setAttribute("message", "项目删除成功");
-		return "redirect:/project/index";
+	public String deleteProject(long id, HttpSession session, HttpServletResponse response) {
+		User user = (User) SessionHolder.getSession().getAttribute("sessionUser");
+		
+		if("admin".equals(user.getUserCode())) {
+			projectService.deleteProject(id);
+			session.setAttribute("message", "项目删除成功");
+			return "redirect:/project/index";
+		} else {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			session.setAttribute("message", "无权删除项目");
+			return "redirect:/error";
+		}
 	}
 	
 	@RequestMapping("/project/addUsers")

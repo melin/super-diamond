@@ -10,20 +10,48 @@
 </c:if>
 
 <h2>新建用户</h2>
-<form class="form-horizontal" method="post" action='<c:url value="/user/save" />' autocomplete="off" >
+<form id="userForm" class="form-horizontal" method="post" action='<c:url value="/user/save" />' autocomplete="off" >
 	<div class="form-group">
  		<label class="control-label">登录账号：</label>
-     	<input type="text" class="input-xlarge" name="userCode" value='<c:out value="${user.userCode}"/>' >
+     	<input type="text" class="input-xlarge" id="userCode" name="userCode" value='<c:out value="${user.userCode}"/>' > <span id="userCodeTip" style="color: red"></span>
    	</div>
    	<div class="form-group">
  		<label class="control-label">用户名：</label>
-     	<input type="text" class="input-xlarge" name="userName" value='<c:out value="${user.userName}"/>' >
+     	<input type="text" class="input-xlarge" id="userName" name="userName" value='<c:out value="${user.userName}"/>' > <span id="userNameTip" style="color: red"></span>
    	</div>
    	<div class="form-group">
  		<label class="control-label">密码：</label>
-     	<input type="text" class="input-xlarge" name="password" value='<c:out value="${user.password}"/>' >
+     	<input type="password" class="input-xlarge" id="password" name="password" value='<c:out value="${user.password}"/>' > <span id="passwordTip" style="color: red"></span>
+   	</div>
+   	<div class="form-group">
+ 		<label class="control-label">密码确认：</label>
+     	<input type="password" class="input-xlarge" id="repassword" name="repassword" value='<c:out value="${user.password}"/>' > <span id="repasswordTip" style="color: red"></span>
    	</div>
    	<div class="form-actions">
-		<button class="btn btn-primary" type="submit">保存</button>
+		<button class="btn btn-primary" id="save" type="button">保存</button>
 	</div>
 </form>
+
+<script type="text/javascript">
+$(document).ready(function () {
+	$("#save").click(function(e) {
+		$("#userCodeTip, #userNameTips, #passwordTip, #repasswordTip").text("");
+		
+		if(!$("#userCode").val()) {
+			$("#userCodeTip").text("登录账号不能为空");
+		} else if (!$("#userName").val()) {
+			$("#userNameTip").text("用户名不能为空");
+		} else if (!$("#password").val()) {
+			$("#passwordTip").text("密码不能为空");
+		} else if ($("#password").val().length<6) {
+			$("#passwordTip").text("密码长度不能小于6");
+		} else if (!$("#repassword").val()) {
+			$("#repasswordTip").text("密码确认不能为空");
+		} else if ($("#repassword").val() != $("#password").val()) {
+			$("#repasswordTip").text("两次输入密码不一致");
+		} else {
+			$("#userForm")[0].submit();
+		}
+	});
+});
+</script>

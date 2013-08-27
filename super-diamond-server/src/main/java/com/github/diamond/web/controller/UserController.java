@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -12,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.github.diamond.utils.MD5;
+import com.github.diamond.utils.SessionHolder;
 import com.github.diamond.web.model.User;
 import com.github.diamond.web.service.UserService;
 
@@ -33,22 +33,10 @@ public class UserController {
 	}
 	
 	@RequestMapping(value="/user/save", method={RequestMethod.POST})
-	public String saveUser(User user, HttpSession session) {
-		if(StringUtils.isBlank(user.getUserCode().trim()) && StringUtils.isBlank(user.getUserName().trim())) {
-			session.setAttribute("message", "登录账号或者用户名不能为空");
-			session.setAttribute("user", user);
-			return "redirect:/user/new";
-		} else {
-			if(StringUtils.isNotBlank(user.getPassword())) {
-				session.setAttribute("message", "新建用户成功");
-				user.setPassword(MD5.getInstance().getMD5String(user.getPassword()));
-			} else {
-				session.setAttribute("message", "新建用户成功，用户默认密码为：000000");
-				user.setPassword(MD5.getInstance().getMD5String("000000"));
-			}
-			userService.saveUser(user);
-			return "redirect:/user/index";
-		}
+	public String saveUser(User user, String repassword, HttpSession session) {
+		user.setPassword(MD5.getInstance().getMD5String(user.getPassword()));
+		userService.saveUser(user);
+		return "redirect:/user/index";
 	}
 	
 	@RequestMapping("/user/delete")
@@ -56,5 +44,23 @@ public class UserController {
 		userService.deleteUser(id);
 		session.setAttribute("message", "用户删除成功");
 		return "redirect:/user/index";
+	}
+	
+	@RequestMapping("/user/password")
+	public void password() {
+	}
+	
+	@RequestMapping("/user/updatePassword")
+	public String updatePassword(String password, String newpassword, HttpSession session) {
+		String oldPassword = MD5.getInstance().getMD5String(password);
+		User user = (User) SessionHolder.getSession().getAttribute("sessionUser");
+		
+		if(!oldPassword.equals(user.getPassword()))
+			session.setAttribute("message", "原密码不正确");
+		else {
+			userService.updatePassword(user.getId(), MD5.getInstance().getMD5String(newpassword));
+			session.setAttribute("message", "密码修改成功");
+		}
+		return "redirect:/user/password";
 	}
 }

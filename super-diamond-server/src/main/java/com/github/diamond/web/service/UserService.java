@@ -67,6 +67,12 @@ public class UserService {
 		jdbcTemplate.update(sql, id);
 	}
 	
+	@Transactional
+	public void updatePassword(long id, String password) {
+		String sql = "update CONF_USER set password = ? where id = ?";
+		jdbcTemplate.update(sql, password, id);
+	}
+	
 	private class UserResultSetExtractor implements ResultSetExtractor<User> {
 
 		@Override
