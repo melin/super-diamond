@@ -51,7 +51,7 @@ public class ProjectService {
 	public void saveProject(Project project) {
 		String sql = "SELECT MAX(id)+1 FROM conf_project";
 		long id = jdbcTemplate.queryForObject(sql, Long.class);
-		sql = "insert into CONF_PROJECT (ID, PROJ_CODE, PROJ_NAME, OWNER_ID, CREATE_TIME) values (?, ?, ?, ?)";
+		sql = "insert into CONF_PROJECT (ID, PROJ_CODE, PROJ_NAME, OWNER_ID, CREATE_TIME) values (?, ?, ?, ?, ?)";
 		
 		jdbcTemplate.update(sql, id, project.getCode(), project.getName(), project.getOwnerId(), new Date());
 		this.saveUser(id, project.getOwnerId(), "development", "test", "production", "admin");

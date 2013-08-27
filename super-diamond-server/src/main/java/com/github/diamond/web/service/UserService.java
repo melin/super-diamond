@@ -55,10 +55,12 @@ public class UserService {
 	
 	@Transactional
 	public void saveUser(User user) {
-		String sql = "insert into CONF_USER (USER_CODE, USER_NAME, PASSWORD, CREATE_TIME) " +
-				"values (?, ?, ?, ?)";
+        String sql = "SELECT MAX(id)+1 FROM CONF_USER";
+        long id = jdbcTemplate.queryForObject(sql, Long.class);
+		sql = "insert into CONF_USER (ID, USER_CODE, USER_NAME, PASSWORD, CREATE_TIME) " +
+				"values (?, ?, ?, ?, ?)";
 		
-		jdbcTemplate.update(sql, user.getUserCode(), user.getUserName(), user.getPassword(), new Date());
+		jdbcTemplate.update(sql, id, user.getUserCode(), user.getUserName(), user.getPassword(), new Date());
 	}
 	
 	@Transactional

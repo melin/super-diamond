@@ -46,10 +46,13 @@ public class ConfigService {
 	
 	@Transactional
 	public void insertConfig(String configKey, String configValue, String configDesc, Long projectId, Long moduleId, String user) {
-		String sql = "INSERT INTO conf_project_config(CONFIG_KEY,CONFIG_VALUE,CONFIG_DESC,PROJECT_ID,MODULE_ID,DELETE_FLAG,OPT_USER,OPT_TIME," +
-				"PRODUCTION_VALUE,PRODUCTION_USER,PRODUCTION_TIME,TEST_VALUE,TEST_USER,TEST_TIME) VALUES (?,?,?,?,?,0,?,?,?,?,?,?,?,?)";
+        String sql = "SELECT MAX(CONFIG_ID)+1 FROM conf_project_config";
+        long id = jdbcTemplate.queryForObject(sql, Long.class);
+
+        sql = "INSERT INTO conf_project_config(CONFIG_ID,CONFIG_KEY,CONFIG_VALUE,CONFIG_DESC,PROJECT_ID,MODULE_ID,DELETE_FLAG,OPT_USER,OPT_TIME," +
+				"PRODUCTION_VALUE,PRODUCTION_USER,PRODUCTION_TIME,TEST_VALUE,TEST_USER,TEST_TIME) VALUES (?,?,?,?,?,?,0,?,?,?,?,?,?,?,?)";
 		Date time = new Date();
-		jdbcTemplate.update(sql, configKey, configValue, configDesc, projectId, moduleId, user, time,
+		jdbcTemplate.update(sql, id, configKey, configValue, configDesc, projectId, moduleId, user, time,
 				configValue, user, time, configValue, user, time);
 		
 		projectService.updateVersion(projectId);
