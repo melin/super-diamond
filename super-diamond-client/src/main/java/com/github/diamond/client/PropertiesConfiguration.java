@@ -27,6 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.diamond.client.config.PropertiesReader;
+import com.github.diamond.client.event.EventSource;
+import com.github.diamond.client.event.EventType;
 import com.github.diamond.client.netty.ClientChannelInitializer;
 import com.github.diamond.client.netty.NamedThreadFactory;
 import com.github.diamond.client.netty.Netty4Client;
@@ -37,13 +39,15 @@ import com.github.diamond.client.util.FileUtils;
  * 
  * @author bsli@ustcinfo.com
  */
-public class PropertiesConfiguration {
+public class PropertiesConfiguration extends EventSource {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesConfiguration.class);
 
 	private static char defaultListDelimiter = ',';
 
-	private Map<String, Object> store = new LinkedHashMap<String, Object>();
+	private Map<String, Object> store = null;
+	
+	private Map<String, String> strStore = null;
 	
 	private Netty4Client client;
 	
@@ -81,14 +85,14 @@ public class PropertiesConfiguration {
 				
 				FileUtils.saveData(projCode, profile, message);
 				if(message != null)
-					load(new StringReader(message));
+					load(new StringReader(message), false);
 			} else {
 				String message = FileUtils.readConfigFromLocal(projCode, profile);
 				if(message != null) {
 					String versionStr = message.substring(0, message.indexOf("\r\n"));
 					LOGGER.info("加载本地备份配置信息，项目编码：{}，Profile：{}, Version：{}", projCode, profile, versionStr.split(" = ")[1]);
 					
-					load(new StringReader(message));
+					load(new StringReader(message), false);
 				} else
 					throw new Exception("本地没有备份配置数据，PropertiesConfiguration 初始化失败。");
 			}
@@ -106,7 +110,7 @@ public class PropertiesConfiguration {
 								LOGGER.info("重新加载配置信息，项目编码：{}，Profile：{}, Version：{}", projCode, profile, versionStr.split(" = ")[1]);
 								if(message != null) {
 									FileUtils.saveData(projCode, profile, message);
-									load(new StringReader(message));
+									load(new StringReader(message), true);
 								}
 							} else {
 								TimeUnit.SECONDS.sleep(1);
@@ -132,13 +136,37 @@ public class PropertiesConfiguration {
 			client.close();
 	}
 
-	public void load(Reader in) throws Exception {
-		store.clear();
+	/**
+	 * 加载配置文件
+	 * 
+	 * @param in
+	 * @param reload 初次初始化加载为false，服务端推送加载为true。
+	 * @throws Exception
+	 */
+	public void load(Reader in, boolean reload) throws Exception {
+		Map<String, Object> tmpStore = new LinkedHashMap<String, Object>();
+		Map<String, String> tmpStrStore = new LinkedHashMap<String, String>();
 		
 		PropertiesReader reader = new PropertiesReader(in, defaultListDelimiter);
 		try {
 			while (reader.nextProperty()) {
-				propertyLoaded(reader.getPropertyName(), reader.getPropertyValue());
+				String key = reader.getPropertyName();
+				String value = reader.getPropertyValue();
+				tmpStrStore.put(key, value);
+				propertyLoaded(key, value, tmpStore);
+				if(reload) {
+					String oldValue = strStore.remove(key);
+					if(oldValue == null)
+						fireEvent(EventType.ADD, key, value);
+					else if(!oldValue.equals(value)) 
+						fireEvent(EventType.UPDATE, key, value);
+				}
+			}
+			
+			if(reload) {
+				for(String key : strStore.keySet()) {
+					fireEvent(EventType.CLEAR, key, tmpStrStore.get(key));
+				}
 			}
 		} catch (IOException ioex) {
 			throw new Exception(ioex);
@@ -149,21 +177,29 @@ public class PropertiesConfiguration {
 				;
 			}
 		}
+		
+		if(store != null)
+			store.clear();
+		
+		if(strStore != null)
+			strStore.clear();
+		
+		store = tmpStore;
+		strStore = tmpStrStore;
 	}
-
-	private void propertyLoaded(String key, String value) {
-		Iterator<?> it = PropertyConverter.toIterator(value,
-				defaultListDelimiter);
+	
+	private void propertyLoaded(String key, String value, Map<String, Object> tmpStore) {
+		Iterator<?> it = PropertyConverter.toIterator(value, defaultListDelimiter);
 		while (it.hasNext()) {
-			addPropertyDirect(key, it.next());
+			addPropertyDirect(key, it.next(), tmpStore);
 		}
 	}
 
-	private void addPropertyDirect(String key, Object value) {
-		Object previousValue = getProperty(key);
+	private void addPropertyDirect(String key, Object value, Map<String, Object> tmpStore) {
+		Object previousValue = tmpStore.get(key);
 
 		if (previousValue == null) {
-			store.put(key, value);
+			tmpStore.put(key, value);
 		} else if (previousValue instanceof List) {
 			@SuppressWarnings("unchecked")
 			List<Object> valueList = (List<Object>) previousValue;
@@ -173,10 +209,12 @@ public class PropertiesConfiguration {
 			list.add(previousValue);
 			list.add(value);
 
-			store.put(key, list);
+			tmpStore.put(key, list);
 		}
 	}
 
+	// --------------------------------------------------------------------
+	
 	private Object getProperty(String key) {
 		return store.get(key);
 	}
@@ -190,15 +228,12 @@ public class PropertiesConfiguration {
 		return null;
 	}
 
-	// --------------------------------------------------------------------
-
 	public boolean getBoolean(String key) {
 		Boolean b = getBoolean(key, null);
 		if (b != null) {
 			return b.booleanValue();
 		} else {
-			throw new NoSuchElementException('\'' + key
-					+ "' doesn't map to an existing object");
+			throw new NoSuchElementException('\'' + key + "' doesn't map to an existing object");
 		}
 	}
 
@@ -216,8 +251,7 @@ public class PropertiesConfiguration {
 			try {
 				return PropertyConverter.toBoolean(interpolate(value));
 			} catch (ConversionException e) {
-				throw new ConversionException('\'' + key
-						+ "' doesn't map to a Boolean object", e);
+				throw new ConversionException('\'' + key + "' doesn't map to a Boolean object", e);
 			}
 		}
 	}
@@ -227,8 +261,7 @@ public class PropertiesConfiguration {
 		if (b != null) {
 			return b.byteValue();
 		} else {
-			throw new NoSuchElementException('\'' + key
-					+ " doesn't map to an existing object");
+			throw new NoSuchElementException('\'' + key + " doesn't map to an existing object");
 		}
 	}
 
@@ -245,8 +278,7 @@ public class PropertiesConfiguration {
 			try {
 				return PropertyConverter.toByte(interpolate(value));
 			} catch (ConversionException e) {
-				throw new ConversionException('\'' + key
-						+ "' doesn't map to a Byte object", e);
+				throw new ConversionException('\'' + key + "' doesn't map to a Byte object", e);
 			}
 		}
 	}
@@ -274,8 +306,7 @@ public class PropertiesConfiguration {
 			try {
 				return PropertyConverter.toDouble(interpolate(value));
 			} catch (ConversionException e) {
-				throw new ConversionException('\'' + key
-						+ "' doesn't map to a Double object", e);
+				throw new ConversionException('\'' + key + "' doesn't map to a Double object", e);
 			}
 		}
 	}
@@ -285,8 +316,7 @@ public class PropertiesConfiguration {
 		if (f != null) {
 			return f.floatValue();
 		} else {
-			throw new NoSuchElementException('\'' + key
-					+ "' doesn't map to an existing object");
+			throw new NoSuchElementException('\'' + key + "' doesn't map to an existing object");
 		}
 	}
 
@@ -303,8 +333,7 @@ public class PropertiesConfiguration {
 			try {
 				return PropertyConverter.toFloat(interpolate(value));
 			} catch (ConversionException e) {
-				throw new ConversionException('\'' + key
-						+ "' doesn't map to a Float object", e);
+				throw new ConversionException('\'' + key + "' doesn't map to a Float object", e);
 			}
 		}
 	}
@@ -337,8 +366,7 @@ public class PropertiesConfiguration {
 			try {
 				return PropertyConverter.toInteger(interpolate(value));
 			} catch (ConversionException e) {
-				throw new ConversionException('\'' + key
-						+ "' doesn't map to an Integer object", e);
+				throw new ConversionException('\'' + key + "' doesn't map to an Integer object", e);
 			}
 		}
 	}
@@ -348,8 +376,7 @@ public class PropertiesConfiguration {
 		if (l != null) {
 			return l.longValue();
 		} else {
-			throw new NoSuchElementException('\'' + key
-					+ "' doesn't map to an existing object");
+			throw new NoSuchElementException('\'' + key + "' doesn't map to an existing object");
 		}
 	}
 
@@ -366,8 +393,7 @@ public class PropertiesConfiguration {
 			try {
 				return PropertyConverter.toLong(interpolate(value));
 			} catch (ConversionException e) {
-				throw new ConversionException('\'' + key
-						+ "' doesn't map to a Long object", e);
+				throw new ConversionException('\'' + key + "' doesn't map to a Long object", e);
 			}
 		}
 	}
@@ -377,8 +403,7 @@ public class PropertiesConfiguration {
 		if (s != null) {
 			return s.shortValue();
 		} else {
-			throw new NoSuchElementException('\'' + key
-					+ "' doesn't map to an existing object");
+			throw new NoSuchElementException('\'' + key + "' doesn't map to an existing object");
 		}
 	}
 
@@ -395,8 +420,7 @@ public class PropertiesConfiguration {
 			try {
 				return PropertyConverter.toShort(interpolate(value));
 			} catch (ConversionException e) {
-				throw new ConversionException('\'' + key
-						+ "' doesn't map to a Short object", e);
+				throw new ConversionException('\'' + key + "' doesn't map to a Short object", e);
 			}
 		}
 	}

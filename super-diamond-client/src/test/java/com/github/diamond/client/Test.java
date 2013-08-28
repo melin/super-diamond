@@ -4,6 +4,8 @@
  * Test.java Create on 2013-7-11 下午4:48:04
  */
 package com.github.diamond.client;
+import com.github.diamond.client.event.ConfigurationEvent;
+import com.github.diamond.client.event.ConfigurationListener;
 
 /**
  *
@@ -18,7 +20,7 @@ public class Test {
 	 */
 	public static void main(String[] args) throws Exception {
 		PropertiesConfiguration config = new PropertiesConfiguration("localhost", 5001, "test", "development");
-		
+		config.addConfigurationListener(new ConfigurationListenerTest());
 		System.out.println(config.getString("jdbc.url"));
 		
 		System.in.read();

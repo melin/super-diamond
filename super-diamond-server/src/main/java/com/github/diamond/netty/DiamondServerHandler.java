@@ -98,8 +98,6 @@ public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
     			if(ctx != null) {
     				ctx.writeAndFlush(config);
     				newAddrs.add(address);
-    			} else {
-    				addrs.remove(address);
     			}
     		}
     	}
