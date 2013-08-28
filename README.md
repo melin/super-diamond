@@ -9,6 +9,8 @@ super-diamond
 - client 备份配置信息到本地文件系统，如果server不可用，可以使用本地备份。client 能够定时重连server，保证client高可用。
 - server 备份配置文件系统系统，如果数据库不用，能够保证对客户端提供数据（待完善）。
 
+系统功能截图：http://melin.iteye.com/picture/127359
+
 项目profile请参考：http://melin.iteye.com/blog/1339060
 
 super-diamond-server
