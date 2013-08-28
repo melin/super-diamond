@@ -47,12 +47,14 @@
       		<div class="navbar-inner">
         		<div class="container">
           			<a class="brand" href="/superdiamond/index">SuperDiamond 配置管理服务器</a>
-          			<div class="pull-right">
-          				<p class="navbar-text">
-          					欢迎：<c:out value="${sessionScope.sessionUser.userName}"></c:out>&nbsp;&nbsp;&nbsp;
-          					<a href='<c:url value="/logout" />'>注销</a>
-          				</p>
-          			</div>
+          			<c:if test="${sessionScope.sessionUser != null}">
+	          			<div class="pull-right">
+	          				<p class="navbar-text">
+	          					欢迎：<c:out value="${sessionScope.sessionUser.userName}"></c:out>&nbsp;&nbsp;&nbsp;
+	          					<a href='<c:url value="/logout" />'>注销</a>
+	          				</p>
+	          			</div>
+          			</c:if>
         		</div>
       		</div>
     	</div>

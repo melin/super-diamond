@@ -20,7 +20,7 @@ import com.github.diamond.web.service.ProjectService;
  * @author bsli@ustcinfo.com
  */
 @Controller
-public class IndexContoller {
+public class IndexContoller extends BaseController {
 	
 	@Autowired
 	private ProjectService projectService;

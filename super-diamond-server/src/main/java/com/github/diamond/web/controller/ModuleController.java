@@ -14,7 +14,7 @@ import com.github.diamond.web.service.ModuleService;
  * @author bsli@ustcinfo.com
  */
 @Controller
-public class ModuleController {
+public class ModuleController extends BaseController {
 	
 	@Autowired
 	private ModuleService moduleService;

@@ -19,8 +19,7 @@ import com.github.diamond.web.service.ProjectService;
  * @author bsli@ustcinfo.com
  */
 @Controller
-public class ConfigController {
-	
+public class ConfigController extends BaseController {
 	@Autowired
 	private ConfigService configService;
 	@Autowired

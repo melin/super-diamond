@@ -18,7 +18,7 @@ import com.github.diamond.web.service.ProjectService;
  * @author bsli@ustcinfo.com
  */
 @Controller
-public class ProfileController {
+public class ProfileController extends BaseController {
 	@Autowired
 	private ModuleService moduleService;
 	@Autowired

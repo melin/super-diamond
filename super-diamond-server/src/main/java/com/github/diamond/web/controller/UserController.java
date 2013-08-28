@@ -16,7 +16,7 @@ import com.github.diamond.web.model.User;
 import com.github.diamond.web.service.UserService;
 
 @Controller
-public class UserController {
+public class UserController extends BaseController {
 	
 	@Autowired
 	private UserService userService;
