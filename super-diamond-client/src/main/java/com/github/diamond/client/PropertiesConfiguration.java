@@ -222,7 +222,7 @@ public class PropertiesConfiguration extends EventSource {
 	public Properties getProperties() {
 		Properties properties = new Properties();
 		
-		for(String key : store.keySet()) {
+		for(String key : strStore.keySet()) {
 			properties.setProperty(key, getString(key));
 		}
 		return null;
