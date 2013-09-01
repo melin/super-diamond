@@ -11,10 +11,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.configuration.AbstractConfiguration;
-import org.apache.commons.configuration.ConfigurationRuntimeException;
-import org.apache.commons.lang.StringEscapeUtils;
-
 /**
  * This class is used to read properties lines. These lines do not terminate
  * with new-line chars but rather when there is no backslash sign a the end of
@@ -58,17 +54,9 @@ public class PropertiesReader extends LineNumberReader {
 	/** Stores the property separator of the last read property. */
 	private String propertySeparator = DEFAULT_SEPARATOR;
 
-	/** Stores the list delimiter character. */
-	private char delimiter;
-
 	public PropertiesReader(Reader reader) {
-		this(reader, AbstractConfiguration.getDefaultListDelimiter());
-	}
-
-	public PropertiesReader(Reader reader, char listDelimiter) {
 		super(reader);
 		commentLines = new ArrayList<String>();
-		delimiter = listDelimiter;
 	}
 
 	/**
@@ -178,7 +166,7 @@ public class PropertiesReader extends LineNumberReader {
 	 * It also ensures that the property key is correctly escaped.
 	 */
 	protected void initPropertyName(String name) {
-		propertyName = StringEscapeUtils.unescapeJava(name);
+		propertyName = unescapeJava(name);
 	}
 
 	/**
@@ -187,7 +175,7 @@ public class PropertiesReader extends LineNumberReader {
 	 * It also ensures that the property value is correctly escaped.
 	 */
 	protected void initPropertyValue(String value) {
-		propertyValue = unescapeJava(value, delimiter);
+		propertyValue = unescapeJava(value);
 	}
 
 	/**
@@ -245,7 +233,7 @@ public class PropertiesReader extends LineNumberReader {
 	 * StringEscapeUtils.unescapeJava() function in commons-lang that doesn't
 	 * drop escaped separators (i.e '\,').
 	 */
-	protected static String unescapeJava(String str, char delimiter) {
+	protected static String unescapeJava(String str) {
 		if (str == null) {
 			return null;
 		}
@@ -271,7 +259,7 @@ public class PropertiesReader extends LineNumberReader {
 						inUnicode = false;
 						hadSlash = false;
 					} catch (NumberFormatException nfe) {
-						throw new ConfigurationRuntimeException(
+						throw new RuntimeException(
 								"Unable to parse unicode value: " + unicode,
 								nfe);
 					}
@@ -299,9 +287,6 @@ public class PropertiesReader extends LineNumberReader {
 					out.append('\n');
 				} else if (ch == 'b') {
 					out.append('\b');
-				} else if (ch == delimiter) {
-					out.append('\\');
-					out.append(delimiter);
 				} else if (ch == 'u') {
 					// uh-oh, we're in unicode country....
 					inUnicode = true;

@@ -45,7 +45,7 @@ public class PropertiesConfigurationFactoryBean implements FactoryBean<Propertie
 
 	public static PropertiesConfiguration getPropertiesConfiguration() {
 		if(!init) {
-			throw new RuntimeException("PropertiesConfigurationFactoryBean 没有初始化");
+			throw new ConfigurationRuntimeException("PropertiesConfigurationFactoryBean 没有初始化");
 		}
 		return __configuration;
 	}

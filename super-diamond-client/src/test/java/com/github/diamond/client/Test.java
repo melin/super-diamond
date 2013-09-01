@@ -4,8 +4,7 @@
  * Test.java Create on 2013-7-11 下午4:48:04
  */
 package com.github.diamond.client;
-import com.github.diamond.client.event.ConfigurationEvent;
-import com.github.diamond.client.event.ConfigurationListener;
+import javax.naming.ConfigurationException;
 
 /**
  *
