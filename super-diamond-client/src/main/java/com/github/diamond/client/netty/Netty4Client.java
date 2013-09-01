@@ -21,6 +21,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.diamond.client.util.NamedThreadFactory;
+
 /**
  * Create on @2013-8-24 @下午6:48:30 
  * @author bsli@ustcinfo.com

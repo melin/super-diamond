@@ -30,9 +30,9 @@ import com.github.diamond.client.config.PropertiesReader;
 import com.github.diamond.client.event.EventSource;
 import com.github.diamond.client.event.EventType;
 import com.github.diamond.client.netty.ClientChannelInitializer;
-import com.github.diamond.client.netty.NamedThreadFactory;
 import com.github.diamond.client.netty.Netty4Client;
 import com.github.diamond.client.util.FileUtils;
+import com.github.diamond.client.util.NamedThreadFactory;
 
 /**
  * Create on @2013-8-25 @下午1:17:38

@@ -8,6 +8,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import com.github.diamond.client.util.NamedThreadFactory;
 
 /**
  * Create on @2013-8-28 @下午9:25:08
@@ -16,6 +20,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class EventSource {
 	private Collection<ConfigurationListener> listeners;
+	
+	private ExecutorService executorService = 
+			Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), new NamedThreadFactory("config-event"));
 
 	public EventSource() {
 		initListeners();
@@ -40,12 +47,25 @@ public class EventSource {
 		listeners.clear();
 	}
 
+	/**
+	 * 异步执行ConfigurationListener。
+	 * 
+	 * @param type
+	 * @param propName
+	 * @param propValue
+	 */
 	protected void fireEvent(EventType type, String propName, Object propValue) {
-		Iterator<ConfigurationListener> it = listeners.iterator();
+		final Iterator<ConfigurationListener> it = listeners.iterator();
 		if (it.hasNext()) {
-			ConfigurationEvent event = createEvent(type, propName, propValue);
+			final ConfigurationEvent event = createEvent(type, propName, propValue);
 			while (it.hasNext()) {
-				it.next().configurationChanged(event);
+				executorService.submit(new Runnable() {
+					
+					@Override
+					public void run() {
+						it.next().configurationChanged(event);
+					}
+				});
 			}
 		}
 	}

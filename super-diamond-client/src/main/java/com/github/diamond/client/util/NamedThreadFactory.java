@@ -1,7 +1,7 @@
 /**        
  * Copyright (c) 2013 by 苏州科大国创信息技术有限公司.    
  */
-package com.github.diamond.client.netty;
+package com.github.diamond.client.util;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
