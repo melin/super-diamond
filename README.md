@@ -25,6 +25,64 @@ super-diamond-server中嵌入tomcat运行，构建部署包：mvn install assemb
 super-diamond-client
 --------------------
 
+客户端参考apache configuration，实现其中的部分功能。例如：
+```java
+public class PropertiesConfigurationTest {
+
+	@Test
+	public void testConfig() throws ConfigurationRuntimeException  {
+		String config = "username = melin \r\n";
+		config += "port=8000 \r\n";
+		config += "reload=true \r\n";
+
+		PropertiesConfiguration configuration = new PropertiesConfiguration();
+		configuration.load(config);
+
+		Assert.assertEquals("melin", configuration.getString("username"));
+		Assert.assertEquals(8000, configuration.getInt("port"));
+		Assert.assertTrue(configuration.getBoolean("reload"));
+	}
+
+	@Test
+	public void testInterpolator() throws ConfigurationRuntimeException  {
+		String config = "app.home = /tmp/home \r\n";
+		config += "zk.home=${app.home}/zk \r\n";
+		config += "hbase.home=${app.home}/hbase \r\n";
+
+		PropertiesConfiguration configuration = new PropertiesConfiguration();
+		configuration.load(config);
+
+		Assert.assertEquals("/tmp/home", configuration.getString("app.home"));
+		Assert.assertEquals("/tmp/home/zk", configuration.getString("zk.home"));
+		Assert.assertEquals("/tmp/home/hbase", configuration.getString("hbase.home"));
+	}
+
+	@Test
+	public void testSysProperties() throws ConfigurationRuntimeException  {
+		String config = "javaVersion = ${sys:java.version} \r\n";
+
+		PropertiesConfiguration configuration = new PropertiesConfiguration();
+		configuration.load(config);
+
+		Assert.assertEquals(System.getProperty("java.version"), configuration.getString("javaVersion"));
+	}
+
+	@Test
+	public void testSysEvns() throws ConfigurationRuntimeException  {
+		String config = "javaHome = ${env:JAVA_HOME}/lib \r\n";
+
+		PropertiesConfiguration configuration = new PropertiesConfiguration();
+		configuration.load(config);
+
+		Assert.assertEquals(System.getenv("JAVA_HOME") + "/lib", configuration.getString("javaHome"));
+	}
+}
+```
+
+客户端连接服务器端方式：
+----------------------
+
+
 ```java
 PropertiesConfiguration config = new PropertiesConfiguration("localhost", 5001, "test", "development");
 config.addConfigurationListener(new ConfigurationListenerTest());
