@@ -59,6 +59,7 @@
 	
 	<bean id="diamondServerHandler" class="com.github.diamond.netty.DiamondServerHandler" />
 	<bean class="com.github.diamond.netty.DiamondServer">
+		<property name="port" value="${netty.server.port}" />
 		<property name="serverHandler" ref="diamondServerHandler" />
 	</bean>
 </beans>
