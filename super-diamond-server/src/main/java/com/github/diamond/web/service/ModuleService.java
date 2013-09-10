@@ -28,7 +28,12 @@ public class ModuleService {
 	@Transactional
 	public void save(Long projectId, String name) {
         String sql = "SELECT MAX(MODULE_ID)+1 FROM conf_project_module";
-        long id = jdbcTemplate.queryForObject(sql, Long.class);
+        long id = 1;
+		try {
+			id = jdbcTemplate.queryForObject(sql, Long.class);
+		} catch(NullPointerException e) {
+			;
+		}
 		sql = "INSERT INTO conf_project_module(MODULE_ID, PROJ_ID, MODULE_NAME) values(?, ?, ?)";
 		jdbcTemplate.update(sql, id, projectId, name);
 	}

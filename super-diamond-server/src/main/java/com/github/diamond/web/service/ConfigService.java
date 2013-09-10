@@ -47,7 +47,12 @@ public class ConfigService {
 	@Transactional
 	public void insertConfig(String configKey, String configValue, String configDesc, Long projectId, Long moduleId, String user) {
         String sql = "SELECT MAX(CONFIG_ID)+1 FROM conf_project_config";
-        long id = jdbcTemplate.queryForObject(sql, Long.class);
+        long id = 1;
+		try {
+			id = jdbcTemplate.queryForObject(sql, Long.class);
+		} catch(NullPointerException e) {
+			;
+		}
 
         sql = "INSERT INTO conf_project_config(CONFIG_ID,CONFIG_KEY,CONFIG_VALUE,CONFIG_DESC,PROJECT_ID,MODULE_ID,DELETE_FLAG,OPT_USER,OPT_TIME," +
 				"PRODUCTION_VALUE,PRODUCTION_USER,PRODUCTION_TIME,TEST_VALUE,TEST_USER,TEST_TIME) VALUES (?,?,?,?,?,?,0,?,?,?,?,?,?,?,?)";
