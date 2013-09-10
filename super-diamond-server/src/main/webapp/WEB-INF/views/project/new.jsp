@@ -13,7 +13,7 @@
 <form class="form-horizontal" method="post" action='<c:url value="/project/save" />' autocomplete="off" >
 	<div class="form-group">
  		<label class="control-label">项目编码：</label>
-     	<input type="text" class="input-xlarge" name="name" value='<c:out value="${project.code}"/>' >
+     	<input type="text" class="input-xlarge" name="code" value='<c:out value="${project.code}"/>' >
    	</div>
 	<div class="form-group">
  		<label class="control-label">项目名称：</label>

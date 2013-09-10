@@ -43,13 +43,13 @@ public class ProjectController extends BaseController {
 	
 	@RequestMapping(value="/project/save", method={RequestMethod.POST})
 	public String saveProject(Project project, HttpSession session) {
-		if(StringUtils.isBlank(project.getCode().trim())) {
+		if(StringUtils.isBlank(project.getCode())) {
 			session.setAttribute("project", project);
 			session.setAttribute("message", "项目编码不能为空");
-		} else if(StringUtils.isBlank(project.getName().trim())) {
+		} else if(StringUtils.isBlank(project.getName())) {
 			session.setAttribute("project", project);
 			session.setAttribute("message", "项目名称不能为空");
-		} else if(StringUtils.isBlank(project.getUserCode().trim())) {
+		} else if(StringUtils.isBlank(project.getUserCode())) {
 			session.setAttribute("project", project);
 			session.setAttribute("message", "项目管理者不能为空");
 		} else {

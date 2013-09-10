@@ -11,6 +11,7 @@ CREATE TABLE `conf_user` (
 
 CREATE TABLE `conf_project` (
   `ID` int(11) NOT NULL,
+  `PROJ_CODE` varchar(32) DEFAULT NULL,
   `PROJ_NAME` varchar(32) DEFAULT NULL,
   `OWNER_ID` int(11) DEFAULT NULL COMMENT '项目拥有者ID',
   `DEVELOPMENT_VERSION` INT(11) DEFAULT 0  NULL,
