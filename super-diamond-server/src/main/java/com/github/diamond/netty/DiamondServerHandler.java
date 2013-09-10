@@ -102,7 +102,8 @@ public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
     		}
     	}
     	
-    	addrs.clear();
+    	if(addrs != null)
+    		addrs.clear();
     	clients.put(projCode + "-" + profile, newAddrs);
     }
 }
