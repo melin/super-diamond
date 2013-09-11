@@ -22,6 +22,8 @@ super-diamond-server中嵌入tomcat运行，构建部署包：mvn install assemb
 
 在conf\META-INF\scripts目录中，提供mysql和oracle建表脚本，理论也支持其它数据库，在conf\META-INF\res\config-production.properties文件中修改数据库配置。
 
+在conf_user表中添加用户admin，密码000000的加密值为：670b14728ad9902aecba32e22fa4f6bd
+
 super-diamond-client
 --------------------
 
