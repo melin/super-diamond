@@ -61,7 +61,7 @@ public class PropertiesConfiguration extends EventSource {
 	 */
 	public PropertiesConfiguration(final String projCode, final String profile) {
 		String host = System.getProperty("spuerdiamond.host", "localhost");
-		int port = Integer.valueOf(System.getProperty("spuerdiamond.port", "5001"));
+		int port = Integer.valueOf(System.getProperty("spuerdiamond.port", "8283"));
 		
 		connectServer(host, port, projCode, profile);
 		substitutor = new StrSubstitutor(createInterpolator());
@@ -198,7 +198,7 @@ public class PropertiesConfiguration extends EventSource {
 		for(String key : store.keySet()) {
 			properties.setProperty(key, getString(key));
 		}
-		return null;
+		return properties;
 	}
 
 	public boolean getBoolean(String key) {

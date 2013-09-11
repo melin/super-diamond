@@ -9,8 +9,12 @@
 	
 	<bean id="propertiesConfiguration" class="com.github.diamond.client.PropertiesConfigurationFactoryBean">
 		<constructor-arg index="0" value="localhost" />
-		<constructor-arg index="1" value="5001" />
+		<constructor-arg index="1" value="8283" />
 		<constructor-arg index="2" value="test" />
 		<constructor-arg index="3" value="development" />
+	</bean>
+	
+	<bean class="com.github.diamond.client.DatasourceTest">
+		<property name="url" value="${jdbc.url}" />
 	</bean>
 </beans>
