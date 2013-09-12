@@ -110,8 +110,8 @@ host和port可以在启动jvm时，通过参数配置 -Dspuerdiamond.host=127.0.
 
 ```xml
 <bean id="propertiesConfiguration" class="com.github.diamond.client.PropertiesConfigurationFactoryBean">
-	<constructor-arg index="1" value="test" />
-	<constructor-arg index="2" value="development" />
+	<constructor-arg index="0" value="test" />
+	<constructor-arg index="1" value="development" />
 </bean>
 ```
 
