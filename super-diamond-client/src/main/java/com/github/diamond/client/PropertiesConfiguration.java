@@ -82,10 +82,6 @@ public class PropertiesConfiguration extends EventSource {
 				String message = client.receiveMessage();
 				
 				if(message != null) {
-					if(!message.endsWith("#end#\r\n")) {
-						message += client.receiveMessage();
-					}
-						
 					String versionStr = message.substring(0, message.indexOf("\r\n"));
 					LOGGER.info("加载配置信息，项目编码：{}，Profile：{}, Version：{}", projCode, profile, versionStr.split(" = ")[1]);
 					
@@ -113,10 +109,6 @@ public class PropertiesConfiguration extends EventSource {
 								String message = client.receiveMessage();
 								
 								if(message != null) {
-									if(!message.endsWith("#end#\r\n")) {
-										message += client.receiveMessage();
-									}
-									
 									String versionStr = message.substring(0, message.indexOf("\r\n"));
 									LOGGER.info("重新加载配置信息，项目编码：{}，Profile：{}, Version：{}", projCode, profile, versionStr.split(" = ")[1]);
 									FileUtils.saveData(projCode, profile, message);
