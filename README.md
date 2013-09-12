@@ -106,6 +106,15 @@ config.getString("jdbc.url")
 </bean>
 ```
 
+host和port可以在启动jvm时，通过参数配置 -Dspuerdiamond.host=127.0.0.1 -Dspuerdiamond.port=8283
+
+```xml
+<bean id="propertiesConfiguration" class="com.github.diamond.client.PropertiesConfigurationFactoryBean">
+	<constructor-arg index="1" value="test" />
+	<constructor-arg index="2" value="development" />
+</bean>
+```
+
 ```java
 ApplicationContext applicationContext = new ClassPathXmlApplicationContext("bean.xml");
 PropertiesConfiguration config = PropertiesConfigurationFactoryBean.getPropertiesConfiguration();
