@@ -24,7 +24,7 @@ public class ClientChannelInitializer extends ChannelInitializer<SocketChannel> 
     public void initChannel(SocketChannel ch) throws Exception {
         ChannelPipeline pipeline = ch.pipeline();
 
-        pipeline.addLast("framer", new DelimiterBasedFrameDecoder(8192, Unpooled.wrappedBuffer("#end#\r\n".getBytes())));
+        pipeline.addLast("framer", new DelimiterBasedFrameDecoder(1024 * 1024, false, Unpooled.wrappedBuffer("#end#\r\n".getBytes())));
         pipeline.addLast("decoder", DECODER);
         pipeline.addLast("encoder", ENCODER);
 
