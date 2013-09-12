@@ -80,12 +80,18 @@ public class PropertiesConfiguration extends EventSource {
 			if(client.isConnected()) {
 				client.sendMessage(clientMsg);
 				String message = client.receiveMessage();
-				String versionStr = message.substring(0, message.indexOf("\r\n"));
-				LOGGER.info("加载配置信息，项目编码：{}，Profile：{}, Version：{}", projCode, profile, versionStr.split(" = ")[1]);
 				
-				FileUtils.saveData(projCode, profile, message);
-				if(message != null)
+				if(message != null) {
+					if(!message.endsWith("#end#\r\n")) {
+						message += client.receiveMessage();
+					}
+						
+					String versionStr = message.substring(0, message.indexOf("\r\n"));
+					LOGGER.info("加载配置信息，项目编码：{}，Profile：{}, Version：{}", projCode, profile, versionStr.split(" = ")[1]);
+					
+					FileUtils.saveData(projCode, profile, message);
 					load(new StringReader(message), false);
+				}
 			} else {
 				String message = FileUtils.readConfigFromLocal(projCode, profile);
 				if(message != null) {
@@ -105,10 +111,14 @@ public class PropertiesConfiguration extends EventSource {
 						try {
 							if(client.isConnected()) {
 								String message = client.receiveMessage();
-								String versionStr = message.substring(0, message.indexOf("\r\n"));
 								
-								LOGGER.info("重新加载配置信息，项目编码：{}，Profile：{}, Version：{}", projCode, profile, versionStr.split(" = ")[1]);
 								if(message != null) {
+									if(!message.endsWith("#end#\r\n")) {
+										message += client.receiveMessage();
+									}
+									
+									String versionStr = message.substring(0, message.indexOf("\r\n"));
+									LOGGER.info("重新加载配置信息，项目编码：{}，Profile：{}, Version：{}", projCode, profile, versionStr.split(" = ")[1]);
 									FileUtils.saveData(projCode, profile, message);
 									load(new StringReader(message), true);
 								}

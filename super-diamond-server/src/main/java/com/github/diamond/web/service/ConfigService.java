@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -104,7 +105,8 @@ public class ConfigService {
 			}
 			
 			String desc = (String)map.get("CONFIG_DESC");
-			message += "#" + desc + "\r\n";
+			if(StringUtils.isNotBlank(desc))
+				message += "#" + desc + "\r\n";
 			
 			if("development".equals(type)) {
 				message += map.get("CONFIG_KEY") + " = " + map.get("CONFIG_VALUE") + "\r\n";
@@ -114,6 +116,8 @@ public class ConfigService {
 				message += map.get("CONFIG_KEY") + " = " + map.get("TEST_VALUE") + "\r\n";
 			}
 		}
+
+		message += "#end#\r\n";
 		
 		return message;
 	}
