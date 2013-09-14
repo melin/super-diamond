@@ -21,7 +21,7 @@ public class ModuleService {
 	private JdbcTemplate jdbcTemplate;
 	
 	public List<Map<String, Object>> queryModules(long projectId) {
-        String sql = "SELECT * FROM conf_project_module a WHERE a.PROJ_ID = ?";
+        String sql = "SELECT * FROM conf_project_module a WHERE a.PROJ_ID = ? order by a.MODULE_ID";
 		return jdbcTemplate.queryForList(sql, projectId);
 	}
 	

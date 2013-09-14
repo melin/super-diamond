@@ -26,12 +26,13 @@ public class ConfigService {
 	private ProjectService projectService;
 	
 	public List<Map<String, Object>> queryConfigs(Long projectId, Long moduleId) {
-		String sql = "SELECT * FROM conf_project_config a, conf_project_module b WHERE a.MODULE_ID = b.MODULE_ID AND a.DELETE_FLAG =0 AND a.PROJECT_ID=?";
+		String sql = "SELECT * FROM conf_project_config a, conf_project_module b WHERE a.MODULE_ID = b.MODULE_ID AND a.DELETE_FLAG =0 AND a.PROJECT_ID=? ";
 		
 		if(moduleId != null) {
-			sql = sql + " AND a.MODULE_ID = ?";
+			sql = sql + " AND a.MODULE_ID = ? order by a.MODULE_ID";
 			return jdbcTemplate.queryForList(sql, projectId, moduleId);
 		} else {
+			sql = sql + " order by a.MODULE_ID";
 			return jdbcTemplate.queryForList(sql, projectId);
 		}
 		

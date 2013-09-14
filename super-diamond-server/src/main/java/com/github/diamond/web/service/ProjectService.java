@@ -28,7 +28,7 @@ public class ProjectService {
 	
 	public List<Project> queryProjects(User user) {
 		String sql = "SELECT b.ID, b.PROJ_CODE, b.PROJ_NAME, a.USER_NAME, b.OWNER_ID FROM CONF_USER a, CONF_PROJECT b " +
-				"WHERE a.ID=b.OWNER_ID AND b.DELETE_FLAG = 0";
+				"WHERE a.ID=b.OWNER_ID AND b.DELETE_FLAG = 0 ORDER BY b.id";
 		
 		if(!"admin".equals(user.getUserCode())) {
 			sql = sql + " AND b.OWNER_ID = ?";
