@@ -12,6 +12,7 @@
 </select>
 <button type="button" id="queryModule" class="btn btn-primary">查询</button>
 <a id="addModule" href="javascript:void(0)">添加Module</a>
+<a id="delModule" href="javascript:void(0)">删除Module</a>
 <!-- <a id="deleteModule" href="javascript:void(0)">删除Module</a> -->
 <div class="pull-right">
 	<button type="button" id="addConfig" class="btn btn-primary">添加配置</button>
@@ -137,6 +138,13 @@
      	</c:forEach>
 	</tbody>
 </table>
+
+<c:if test="${sessionScope.message != null}">
+	<div class="alert alert-error clearfix" style="margin-bottom: 5px;width: 400px; padding: 2px 15px 2px 10px;">
+		${sessionScope.message}
+	</div>
+</c:if>
+
 <script type="text/javascript">
 function updateConfig(id) {
 	var tds = $("#row-" + id + " > td");
@@ -181,6 +189,15 @@ $(document).ready(function () {
 		$('#addModalWin').modal({
 			keyboard: false
 		})
+	});
+	
+	$("#delModule").click(function(e) {
+		var moduleId = $("#sel-queryModule").val();
+		if(moduleId) {
+			window.location.href = '/superdiamond/module/delete/<c:out value="${type}"/>/<c:out value="${projectId}"/>/' + moduleId;
+		} else {
+			bootbox.alert("请选择一个模块！");
+		}
 	});
 	
 	$("#saveModule").click(function(e) {

@@ -37,4 +37,18 @@ public class ModuleService {
 		sql = "INSERT INTO conf_project_module(MODULE_ID, PROJ_ID, MODULE_NAME) values(?, ?, ?)";
 		jdbcTemplate.update(sql, id, projectId, name);
 	}
+	
+	@Transactional
+	public boolean delete(long moduleId, long projectId) {
+		String sql = "select count(*) from conf_project_config where MODULE_ID = ? and PROJECT_ID = ?";
+		
+		int count = jdbcTemplate.queryForObject(sql, Integer.class, moduleId, projectId);
+		if(count == 0) {
+			sql = "delete from conf_project_module where MODULE_ID = ? and PROJ_ID = ?";
+			jdbcTemplate.update(sql, moduleId, projectId);
+			return true;
+		} else {
+			return false;
+		}
+	}
 }
