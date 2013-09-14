@@ -4,15 +4,20 @@
 <input type="hidden" value="indexId" id="pageId" />
 
 <table class="table table-bordered table-striped">
+	<caption>我的项目</caption>
   	<thead>
     	<tr>
-    		<th>我的项目</th>
+    		<th>项目编码</th>
+    		<th>项目名称</th>
     		<th>Profiles</th>
     	</tr>
   	</thead>
   	<tbody>
     	<c:forEach items="${projects}" var="project">
        		<tr>
+       			<td>
+                  	<c:out value="${project.code}"/>
+               	</td>
                	<td>
                   	<c:out value="${project.name}"/>
                	</td>

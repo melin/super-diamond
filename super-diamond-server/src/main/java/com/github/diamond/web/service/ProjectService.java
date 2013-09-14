@@ -134,7 +134,7 @@ public class ProjectService {
 	 */
 	public List<Project> queryProjectForUser(User user) {
 		if("admin".equals(user.getUserCode())) {
-			String sql = "SELECT distinct b.ID, b.PROJ_NAME FROM CONF_PROJECT_USER a, CONF_PROJECT b " +
+			String sql = "SELECT distinct b.ID, b.PROJ_CODE, b.PROJ_NAME FROM CONF_PROJECT_USER a, CONF_PROJECT b " +
 					"WHERE a.PROJ_ID = b.ID AND b.DELETE_FLAG = 0";
 			List<Project> projects = jdbcTemplate.query(sql, new RowMapper<Project>() {
 	
@@ -142,13 +142,14 @@ public class ProjectService {
 						DataAccessException {
 					Project project = new Project();
 					project.setId(rs.getLong(1));
-					project.setName(rs.getString(2));
+					project.setCode(rs.getString(2));
+					project.setName(rs.getString(3));
 					return project;
 				}
 			});
 			return projects;
 		} else {
-			String sql = "SELECT distinct b.ID, b.PROJ_NAME FROM CONF_PROJECT_USER a, CONF_PROJECT b " +
+			String sql = "SELECT distinct b.ID, b.PROJ_CODE, b.PROJ_NAME FROM CONF_PROJECT_USER a, CONF_PROJECT b " +
 					"WHERE a.PROJ_ID = b.ID and a.USER_ID=? AND b.DELETE_FLAG = 0";
 			List<Project> projects = jdbcTemplate.query(sql, new RowMapper<Project>() {
 	
@@ -156,7 +157,8 @@ public class ProjectService {
 						DataAccessException {
 					Project project = new Project();
 					project.setId(rs.getLong(1));
-					project.setName(rs.getString(2));
+					project.setCode(rs.getString(2));
+					project.setName(rs.getString(3));
 					return project;
 				}
 			}, user.getId());
