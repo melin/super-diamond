@@ -27,6 +27,7 @@ LOG_DIR="$BASE_DIR/logs"
 LOG_FILE="$LOG_DIR/server.log"
 PID_DIR="$BASE_DIR/logs"
 PID_FILE="$PID_DIR/.run.pid"
+HOST_NAME=`hostname`
 
 function running(){
 	if [ -f "$PID_FILE" ]; then
@@ -54,10 +55,10 @@ function start_server() {
     chown -R $AS_USER $PID_DIR
     chown -R $AS_USER $LOG_DIR
     
-    echo "$JAVA $APP_JVM_ARGS -DBASE_HOME=$BASE_HOME -DSERVER_NAME=$SERVER_NAME -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false \
-   	  -Dcom.sun.management.jmxremote.port=$JMX_PORT -DSERVER_NAME=$SERVER_NAME $BASE_APP_ARGS com.github.runner.ServerStartup"
+    echo "$JAVA $APP_JVM_ARGS -DBASE_HOME=$BASE_HOME -DSERVER_NAME=$SERVER_NAME-$HOST_NAME -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false \
+   	  -Dcom.sun.management.jmxremote.port=$JMX_PORT $BASE_APP_ARGS com.github.runner.ServerStartup"
     sleep 1
-    nohup $JAVA $APP_JVM_ARGS -DBASE_HOME=$BASE_HOME -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false \
+    nohup $JAVA $APP_JVM_ARGS -DBASE_HOME=$BASE_HOME -DSERVER_NAME=$SERVER_NAME-$HOST_NAME -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false \
    	  -Dcom.sun.management.jmxremote.port=$JMX_PORT $BASE_APP_ARGS com.github.runner.ServerStartup 2>&1 >>$LOG_FILE &	
     echo $! > $PID_FILE
     
