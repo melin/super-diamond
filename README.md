@@ -110,7 +110,7 @@ config.getString("jdbc.url")
 </bean>
 ```
 
-netty server的host和port可以通过环境变量和jvm参数两种方式设置。
+netty server的host和port可以通过环境变量和jvm参数两种方式设置，避免固定在工程配置文件中。
 
 ```shell
 export SPUERDIAMOND_HOST=192.168.0.1
