@@ -110,7 +110,16 @@ config.getString("jdbc.url")
 </bean>
 ```
 
-host和port可以在启动jvm时，通过参数配置 -Dspuerdiamond.host=127.0.0.1 -Dspuerdiamond.port=8283
+netty server的host和port可以通过环境变量和jvm参数两种方式设置。
+
+```shell
+export SPUERDIAMOND_PORT=192.168.0.1
+export SPUERDIAMOND_PORT=8283
+```
+或者
+```shell
+ -Dspuerdiamond.host=127.0.0.1 -Dspuerdiamond.port=8283
+```
 
 ```xml
 <bean id="propertiesConfiguration" class="com.github.diamond.client.PropertiesConfigurationFactoryBean">
