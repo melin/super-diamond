@@ -113,7 +113,7 @@ config.getString("jdbc.url")
 netty server的host和port可以通过环境变量和jvm参数两种方式设置。
 
 ```shell
-export SPUERDIAMOND_PORT=192.168.0.1
+export SPUERDIAMOND_HOST=192.168.0.1
 export SPUERDIAMOND_PORT=8283
 ```
 或者
