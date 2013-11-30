@@ -22,7 +22,7 @@ public class EventSource {
 	private Collection<ConfigurationListener> listeners;
 	
 	private ExecutorService executorService = 
-			Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), new NamedThreadFactory("config-event"));
+			Executors.newFixedThreadPool(1, new NamedThreadFactory("config-event"));
 
 	public EventSource() {
 		initListeners();
