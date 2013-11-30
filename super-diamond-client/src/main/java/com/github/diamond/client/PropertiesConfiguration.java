@@ -15,6 +15,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrLookup;
 import org.apache.commons.lang.text.StrSubstitutor;
 import org.slf4j.Logger;
@@ -60,8 +61,8 @@ public class PropertiesConfiguration extends EventSource {
 	 * @param profile
 	 */
 	public PropertiesConfiguration(final String projCode, final String profile) {
-		String host = System.getProperty("spuerdiamond.host", "localhost");
-		int port = Integer.valueOf(System.getProperty("spuerdiamond.port", "8283"));
+		String host = getHost();
+		int port = getPort();
 		
 		connectServer(host, port, projCode, profile);
 		substitutor = new StrSubstitutor(createInterpolator());
@@ -186,6 +187,24 @@ public class PropertiesConfiguration extends EventSource {
 			store.clear();
 		
 		store = tmpStore;
+	}
+	
+	private String getHost() {
+		String value = System.getenv("SPUERDIAMOND_HOST");
+		if(StringUtils.isBlank(value)) {
+			return System.getProperty("spuerdiamond.host", "localhost");
+		} else {
+			return value;
+		}
+	}
+	
+	private int getPort() {
+		String value = System.getenv("SPUERDIAMOND_PORT");
+		if(StringUtils.isBlank(value)) {
+			return Integer.valueOf(System.getProperty("spuerdiamond.port", "8283"));
+		} else {
+			return Integer.valueOf(value);
+		}
 	}
 	
 	// --------------------------------------------------------------------
