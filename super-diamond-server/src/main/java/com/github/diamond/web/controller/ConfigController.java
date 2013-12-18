@@ -28,7 +28,8 @@ public class ConfigController extends BaseController {
 	private DiamondServerHandler diamondServerHandler;
 	
 	@RequestMapping("/config/save")
-	public String saveConfig(String type, Long configId, String configKey, String configValue, String configDesc, Long projectId, Long moduleId) {
+	public String saveConfig(String type, Long configId, String configKey, String configValue, 
+			String configDesc, Long projectId, Long moduleId, Long selModuleId) {
 		User user = (User) SessionHolder.getSession().getAttribute("sessionUser");
 		if(configId == null) {
 			configService.insertConfig(configKey, configValue, configDesc, projectId, moduleId, user.getUserCode());
@@ -39,7 +40,10 @@ public class ConfigController extends BaseController {
 		String projCode = (String)projectService.queryProject(projectId).get("PROJ_CODE");
 		String config = configService.queryConfigs(projCode, type);
 		diamondServerHandler.pushConfig(projCode, type, config);
-		return "redirect:/profile/" + type + "/" + projectId;
+		if(selModuleId != null)
+			return "redirect:/profile/" + type + "/" + projectId + "?moduleId=" + selModuleId;
+		else
+			return "redirect:/profile/" + type + "/" + projectId;
 	}
 	
 	@RequestMapping("/config/delete/{id}")

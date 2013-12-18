@@ -10,7 +10,7 @@
 		<option value='<c:out value="${module.MODULE_ID}"/>'><c:out value="${module.MODULE_NAME}"/></option>
 	</c:forEach>
 </select>
-<button type="button" id="queryModule" class="btn btn-primary">查询</button>
+<!-- <button type="button" id="queryModule" class="btn btn-primary">查询</button> -->
 
 <div class="pull-right">
 	<button type="button" id="preview" class="btn btn-primary">预览</button>
@@ -19,7 +19,7 @@
 <div id="addConfigWin" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   	<div class="modal-header">
     	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-    	<h3 id="myModalLabel">添加Module</h3>
+    	<h3 id="myModalLabel">参数配置</h3>
   	</div>
   	<div class="modal-body">
     	<form id="configForm" class="form-horizontal" action='<c:url value="/config/save" />' method="post">
@@ -38,6 +38,7 @@
     				<input type="hidden" name="configId" id="config-configId" />
     				<input type="hidden" name="projectId" value='<c:out value="${projectId}"/>'/>
     				<input type="hidden" name="type" value='<c:out value="${type}"/>'/>
+    				<input type="hidden" name="selModuleId" value='<c:out value="${moduleId}"/>'/>
       				<input type="text" name="configKey" class="input-xlarge" id="config-configKey">
     			</div>
     			<label class="control-label">Config Value：</label>
@@ -128,6 +129,15 @@ $(document).ready(function () {
 	
 	$("#preview").click(function(e) {
 		window.location.href = '/superdiamond/profile/preview/<c:out value="${project.PROJ_CODE}"/>/<c:out value="${type}"/>?projectId=<c:out value="${projectId}"/>';
+	});
+	
+	$("#sel-queryModule").change(function(e) {
+		var moduleId = $("#sel-queryModule").val();
+		var url = '/superdiamond/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>';
+		if(moduleId)
+			url = url + "?moduleId=" + moduleId;
+		
+		window.location.href = url;
 	});
 	
 	$("#queryModule").click(function(e) {
