@@ -8,6 +8,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -24,10 +25,10 @@ import com.github.diamond.web.service.ConfigService;
 @Sharable
 public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
 	
-	private ConcurrentHashMap<String /*projcode+profile*/, List<String> /*client address*/> clients = 
-			new ConcurrentHashMap<String, List<String>>();
+	public static ConcurrentHashMap<String /*projcode+profile*/, List<ClientInfo> /*client address*/> clients = 
+			new ConcurrentHashMap<String, List<ClientInfo>>();
 	
-	private ConcurrentHashMap<String /*projcode+profile*/, ChannelHandlerContext /*client address*/> channels = 
+	private ConcurrentHashMap<String /*client address*/, ChannelHandlerContext> channels = 
 			new ConcurrentHashMap<String, ChannelHandlerContext>();
 
     private static final Logger logger = LoggerFactory.getLogger(DiamondServerHandler.class);
@@ -46,12 +47,13 @@ public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
         if (request != null && request.startsWith("superdiamond")) {
         	String[] params = request.split(",");
         	
-        	List<String> addrs = clients.get(params[1] + "-" + params[2]);
+        	List<ClientInfo> addrs = clients.get(params[1] + "$$" + params[2]);
         	if(addrs == null) {
-        		addrs = new ArrayList<String>();
+        		addrs = new ArrayList<ClientInfo>();
         	}
-        	addrs.add(ctx.channel().remoteAddress().toString());
-        	clients.put(params[1] + "-" + params[2], addrs);
+        	ClientInfo clientInfo = new ClientInfo(ctx.channel().remoteAddress().toString(), new Date());
+        	addrs.add(clientInfo);
+        	clients.put(params[1] + "$$" + params[2], addrs);
         	
         	channels.put(ctx.channel().remoteAddress().toString(), ctx);
         	
@@ -77,7 +79,17 @@ public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
     	super.channelInactive(ctx);
     	
-    	channels.remove(ctx.channel().remoteAddress().toString());
+    	String address = ctx.channel().remoteAddress().toString();
+    	channels.remove(address);
+    	
+    	for(List<ClientInfo> infos : clients.values()) {
+    		for(ClientInfo client : infos) {
+    			if(address.equals(client.getAddress())) {
+    				infos.remove(client);
+    				break;
+    			}
+    		}
+    	}
     	
     	logger.info(ctx.channel().remoteAddress() + " 断开连接。");
     }
@@ -90,20 +102,63 @@ public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
      * @param config
      */
     public void pushConfig(String projCode, String profile, String config) {
-    	List<String> addrs = clients.get(projCode + "-" + profile);
-    	List<String> newAddrs = new ArrayList<String>();
+    	List<ClientInfo> addrs = clients.get(projCode + "$$" + profile);
     	if(addrs != null) {
-    		for(String address : addrs) {
-    			ChannelHandlerContext ctx = channels.get(address);
+    		for(ClientInfo client : addrs) {
+    			ChannelHandlerContext ctx = channels.get(client.getAddress());
     			if(ctx != null) {
     				ctx.writeAndFlush(config);
-    				newAddrs.add(address);
     			}
     		}
     	}
+    }
+    
+    public static class ClientInfo {
+    	private String address;
+    	private Date connectTime;
     	
-    	if(addrs != null)
-    		addrs.clear();
-    	clients.put(projCode + "-" + profile, newAddrs);
+    	public ClientInfo(String address, Date connectTime) {
+			this.address = address;
+			this.connectTime = connectTime;
+		}
+    	
+		public String getAddress() {
+			return address;
+		}
+		public void setAddress(String address) {
+			this.address = address;
+		}
+		public Date getConnectTime() {
+			return connectTime;
+		}
+		public void setConnectTime(Date connectTime) {
+			this.connectTime = connectTime;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result
+					+ ((address == null) ? 0 : address.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			ClientInfo other = (ClientInfo) obj;
+			if (address == null) {
+				if (other.address != null)
+					return false;
+			} else if (!address.equals(other.address))
+				return false;
+			return true;
+		}
     }
 }

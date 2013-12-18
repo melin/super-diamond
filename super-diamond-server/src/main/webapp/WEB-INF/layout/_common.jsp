@@ -55,6 +55,7 @@
               					<li id="userId"><a href='<c:url value="/user/index" />'>用户管理</a></li>
               				</c:if>
               				<li id="projectId"><a href='<c:url value="/project/index" />'>项目管理</a></li>
+              				<li id="clientId"><a href='<c:url value="/queryClients" />'>客户端监控</a></li>
               				<li id="passwordId"><a href='<c:url value="/user/password" />'>修改密码</a></li>
             			</ul>
           			</div><!--/.well -->

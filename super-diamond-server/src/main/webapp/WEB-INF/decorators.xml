@@ -3,6 +3,7 @@
 <decorators defaultdir="/decorators">  
     <decorator name="common" page="/WEB-INF/layout/_common.jsp">
     	<pattern>/index</pattern>
+    	<pattern>/queryClients</pattern>
         <pattern>/user/*</pattern>
         <pattern>/project/*</pattern>
     </decorator>

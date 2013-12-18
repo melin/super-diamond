@@ -40,6 +40,10 @@
 		<filter-name>authorizationFilter</filter-name>
 		<url-pattern>/index</url-pattern>
 	</filter-mapping>
+	<filter-mapping>
+		<filter-name>authorizationFilter</filter-name>
+		<url-pattern>/queryClients</url-pattern>
+	</filter-mapping>
 
 	<filter>
 		<filter-name>characterEncodingFilter</filter-name>

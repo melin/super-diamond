@@ -33,7 +33,7 @@ abstract public class BaseController {
         try {
 			rd.forward(request, response);
 		} catch (Exception e) {
-			//
+			logger.error(e.getMessage(), e);
 		}
 	}
 }
