@@ -42,7 +42,6 @@ public class ConfigService {
 		String sql = "SELECT * FROM conf_project_config a, conf_project_module b, conf_project c " +
 				"WHERE a.MODULE_ID = b.MODULE_ID AND a.PROJECT_ID=c.id AND a.DELETE_FLAG =0 AND c.PROJ_CODE=?";
 		List<Map<String, Object>> configs = jdbcTemplate.queryForList(sql, projectCode);
-		
 		return viewConfig(configs, type);
 	}
 	
