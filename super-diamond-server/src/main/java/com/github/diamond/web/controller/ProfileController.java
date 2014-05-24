@@ -38,7 +38,7 @@ public class ProfileController extends BaseController {
 	@RequestMapping("/profile/preview/{projectCode}/{type}")
 	public String preview(@PathVariable("type") String type, @PathVariable("projectCode") String projectCode, 
 			Long projectId, ModelMap modelMap) {
-		String config = configService.queryConfigs(projectCode, type);
+		String config = configService.queryConfigs(projectCode, type, "");
 		
 		modelMap.addAttribute("project", projectService.queryProject(projectId));
 		modelMap.addAttribute("message", config);

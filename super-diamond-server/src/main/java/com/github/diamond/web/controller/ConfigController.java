@@ -6,6 +6,7 @@ package com.github.diamond.web.controller;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
@@ -47,7 +48,7 @@ public class ConfigController extends BaseController {
 		}
 
 		String projCode = (String)projectService.queryProject(projectId).get("PROJ_CODE");
-		String config = configService.queryConfigs(projCode, type);
+		String config = configService.queryConfigs(projCode, type, "");
 		diamondServerHandler.pushConfig(projCode, type, config);
 		if(selModuleId != null)
 			return "redirect:/profile/" + type + "/" + projectId + "?moduleId=" + selModuleId;
@@ -60,16 +61,20 @@ public class ConfigController extends BaseController {
 		configService.deleteConfig(id, projectId);
 		
 		String projCode = (String)projectService.queryProject(projectId).get("PROJ_CODE");
-		String config = configService.queryConfigs(projCode, type);
+		String config = configService.queryConfigs(projCode, type, "");
 		diamondServerHandler.pushConfig(projCode, type, config);
 		return "redirect:/profile/" + type + "/" + projectId;
 	}
 	
 	@RequestMapping("/preview/{projectCode}/{type}")
 	public void preview(@PathVariable("type") String type, @PathVariable("projectCode") String projectCode, 
-			HttpServletResponse resp) {
+			HttpServletRequest request, HttpServletResponse resp) {
 		try {
-			String config = configService.queryConfigs(projectCode, type);
+			String format = "properties";
+			if("php".equals(request.getParameter("format"))) {
+				format = "php";
+			}
+			String config = configService.queryConfigs(projectCode, type, format);
 			
 			resp.setContentType("text/plain");
 			PrintWriter out = resp.getWriter();

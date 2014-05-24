@@ -57,7 +57,7 @@ public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
         	
         	channels.put(ctx.channel().remoteAddress().toString(), ctx);
         	
-            response = configService.queryConfigs(params[1], params[2]);
+            response = configService.queryConfigs(params[1], params[2], "");
         } else {
         	response = "";
         }

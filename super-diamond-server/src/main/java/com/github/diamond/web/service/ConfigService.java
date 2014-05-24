@@ -38,11 +38,14 @@ public class ConfigService {
 		
 	}
 	
-	public String queryConfigs(String projectCode, String type) {
+	public String queryConfigs(String projectCode, String type, String format) {
 		String sql = "SELECT * FROM conf_project_config a, conf_project_module b, conf_project c " +
 				"WHERE a.MODULE_ID = b.MODULE_ID AND a.PROJECT_ID=c.id AND a.DELETE_FLAG =0 AND c.PROJ_CODE=?";
 		List<Map<String, Object>> configs = jdbcTemplate.queryForList(sql, projectCode);
-		return viewConfig(configs, type);
+		if("php".equals(format))
+			return viewConfigPhp(configs, type);
+		else
+			return viewConfig(configs, type);
 	}
 	
 	@Transactional
@@ -120,5 +123,60 @@ public class ConfigService {
 		message += "#end#\r\n";
 		
 		return message;
+	}
+	
+	private String viewConfigPhp(List<Map<String, Object>> configs, String type) {
+		String message = "<?php\r\n"
+						+ "return array(\r\n"
+						+ "\t//profile = " + type + "\r\n";
+		
+		boolean versionFlag = true;
+		for(Map<String, Object> map : configs) {
+			if(versionFlag) {
+				if("development".equals(type)) {
+					message += "\t//version = " + map.get("DEVELOPMENT_VERSION") + "\r\n";
+				} else if("production".equals(type)) {
+					message += "\t//version = " + map.get("PRODUCTION_VERSION") + "\r\n";
+				} else if("test".equals(type)) {
+					message += "\t//version = " + map.get("TEST_VERSION") + "\r\n";
+				}
+				
+				versionFlag = false;
+			}
+			
+			String desc = (String)map.get("CONFIG_DESC");
+			if(StringUtils.isNotBlank(desc))
+				message += "\t//" + desc + "\r\n";
+			
+			if("development".equals(type)) {
+				message += "\t'" + map.get("CONFIG_KEY") + "' => " + convertType(map.get("CONFIG_VALUE"));
+			} else if("production".equals(type)) {
+				message += "\t'" + map.get("CONFIG_KEY") + "' => " + convertType(map.get("PRODUCTION_VALUE"));
+			} else if("test".equals(type)) {
+				message += "\t'" + map.get("CONFIG_KEY") + "' => " + convertType(map.get("TEST_VALUE"));
+			}
+		}
+
+		message += ");\r\n";
+		
+		return message;
+	}
+	
+	private String convertType(Object value) {
+		String conf = String.valueOf(value).trim();
+		if("true".equals(conf) || "false".equals(conf)) {
+			return  conf + ",\r\n";
+		} else if(isNumeric(conf)) {
+			return  conf + ",\r\n";
+		}else  {
+			return  "'" + conf + "',\r\n";
+		}
+	}
+	
+	public final static boolean isNumeric(String s) {
+		if (s != null && !"".equals(s.trim()))
+			return s.matches("^[0-9]*$");
+		else
+			return false;
 	}
 }
