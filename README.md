@@ -9,6 +9,7 @@ super-diamond
 - client 备份配置信息到本地文件系统，如果server不可用，可以使用本地备份。client 能够定时重连server，保证client高可用。
 - client 提供ConfigurationListener，当某个属性发生变化（add、update、clear）, ConfigurationListener能够接收到ConfigurationEvent。
 - server 备份配置文件系统系统，如果数据库不用，能够保证对客户端提供数据（待完善）。
+- 支持php项目从superdiamond中获取配置参数。
 
 系统功能截图：http://melin.iteye.com/picture/127359
 
@@ -132,4 +133,32 @@ export SPUERDIAMOND_PORT=8283
 ApplicationContext applicationContext = new ClassPathXmlApplicationContext("bean.xml");
 PropertiesConfiguration config = PropertiesConfigurationFactoryBean.getPropertiesConfiguration();
 config.getString("jdbc.url")
+```
+
+PHP项目应用：
+----------------------
+结合Phing从superdiamond获取配置参数。完整的phing build.xml配置请参考：
+https://gist.github.com/melin/fa4818acc9fd55666b77
+
+```xml
+<!--
+    Target: config 
+    Description: 通过http方式从superdiamond中获取系统配置参数信息。
+    development profile 获取配置存放在Application/Common/Conf/user-config.php文件中（ThinkPHP 3.2）
+    test & production profile 获取配置存放在build/user-config.php文件中，在执行build target时，
+    复制build/user-config.php文件中build/Application/Common/Conf/user-config.php位置
+-->
+<target name="config" depends="profile">
+    <if>
+        <equals arg1="development" arg2="${project.profile}" trim="true" />
+        <then>
+            <httpget url="http://172.16.81.73:8001/superdiamond/preview/App.EduSNS/${project.profile}?format=php"
+                     dir="Application/Common/Conf" filename="user-config.php" />
+        </then>
+        <else>
+            <httpget url="http://172.16.81.73:8001/superdiamond/preview/App.EduSNS/${project.profile}?format=php"
+                     dir="build" filename="user-config.php" />
+        </else>
+    </if>
+</target>
 ```
