@@ -3,10 +3,14 @@
  */    
 package com.github.diamond.netty;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -33,6 +37,8 @@ public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
 
     private static final Logger logger = LoggerFactory.getLogger(DiamondServerHandler.class);
     
+    private final Charset charset = Charset.forName("UTF-8");
+    
     @Autowired
     private ConfigService configService;
     
@@ -43,7 +49,7 @@ public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
     
     @Override
     public void channelRead0(ChannelHandlerContext ctx, String request) throws Exception {
-    	String response;
+    	String config;
         if (request != null && request.startsWith("superdiamond")) {
         	String[] params = request.split(",");
         	
@@ -57,14 +63,14 @@ public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
         	
         	channels.put(ctx.channel().remoteAddress().toString(), ctx);
         	
-            response = configService.queryConfigs(params[1], params[2], "");
+            config = configService.queryConfigs(params[1], params[2], "");
         } else {
-        	response = "";
+        	config = "";
         }
 
-        ctx.writeAndFlush(response);
+        sendMessage(ctx, config);
     }
-    
+
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
     	ctx.flush();
@@ -101,17 +107,25 @@ public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
      * @param profile
      * @param config
      */
-    public void pushConfig(String projCode, String profile, String config) {
+    public void pushConfig(String projCode, String profile, final String config) {
     	List<ClientInfo> addrs = clients.get(projCode + "$$" + profile);
     	if(addrs != null) {
     		for(ClientInfo client : addrs) {
     			ChannelHandlerContext ctx = channels.get(client.getAddress());
     			if(ctx != null) {
-    				ctx.writeAndFlush(config);
+    				sendMessage(ctx, config);
     			}
     		}
     	}
     }
+    
+    private void sendMessage(ChannelHandlerContext ctx, String config) {
+    	byte[] bytes = config.getBytes(charset);
+    	ByteBuf message = Unpooled.buffer(4 + bytes.length);
+        message.writeInt(bytes.length);
+        message.writeBytes(bytes);
+        ctx.writeAndFlush(message);
+	}
     
     public static class ClientInfo {
     	private String address;

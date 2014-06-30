@@ -118,13 +118,6 @@
 		</dependency>
 		
 		<dependency>
-			<groupId>com.github.runner</groupId>
-			<artifactId>java-main-runner</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
-			<scope>provided</scope>
-		</dependency>
-		
-		<dependency>
 			<groupId>org.apache.tomcat.embed</groupId>
 			<artifactId>tomcat-embed-core</artifactId>
 			<version>${tomcat.version}</version>
@@ -147,20 +140,16 @@
 		</resources>
 		<plugins>
 			<plugin>
-				<groupId>org.mortbay.jetty</groupId>
+				<groupId>org.eclipse.jetty</groupId>
 				<artifactId>jetty-maven-plugin</artifactId>
 				<version>${jetty.version}</version>
 				<configuration>
-					<webAppConfig>
+					<httpConnector>
+						<port>8090</port>
+					</httpConnector>
+					<webApp>
 						<contextPath>/superdiamond</contextPath>
-					</webAppConfig>
-					<connectors>
-						<connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
-							<port>9090</port>
-							<maxIdleTime>60000</maxIdleTime>
-							<reuseAddress>false</reuseAddress>
-						</connector>
-					</connectors>
+					</webApp>
 				</configuration>
 			</plugin>
 			

@@ -119,8 +119,6 @@ public class ConfigService {
 				message += map.get("CONFIG_KEY") + " = " + map.get("TEST_VALUE") + "\r\n";
 			}
 		}
-
-		message += "#end#\r\n";
 		
 		return message;
 	}

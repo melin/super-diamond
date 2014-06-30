@@ -3,13 +3,11 @@
  */    
 package com.github.diamond.client.netty;
 
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.handler.codec.DelimiterBasedFrameDecoder;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
-import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.CharsetUtil;
 
 /**
@@ -18,7 +16,6 @@ import io.netty.util.CharsetUtil;
  */
 public class ClientChannelInitializer extends ChannelInitializer<SocketChannel> {
     private static final StringDecoder DECODER = new StringDecoder(CharsetUtil.UTF_8);
-    private static final StringEncoder ENCODER = new StringEncoder(CharsetUtil.UTF_8);
     private static final Netty4ClientHandler CLIENTHANDLER = new Netty4ClientHandler();
     
     private String clientMsg;
@@ -31,12 +28,10 @@ public class ClientChannelInitializer extends ChannelInitializer<SocketChannel> 
     public void initChannel(SocketChannel ch) throws Exception {
         ChannelPipeline pipeline = ch.pipeline();
 
-        pipeline.addLast("sdf", new SendConnectInfoHandler(clientMsg));
-        pipeline.addLast("framer", new DelimiterBasedFrameDecoder(1024 * 1024, false, Unpooled.wrappedBuffer("#end#\r\n".getBytes())));
+        pipeline.addLast("info", new SendConnectInfoHandler(clientMsg));
+        pipeline.addLast("frame", new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4));
         pipeline.addLast("decoder", DECODER);
-        pipeline.addLast("encoder", ENCODER);
 
-        // and then business logic.
         pipeline.addLast("handler", CLIENTHANDLER);
     }
     
