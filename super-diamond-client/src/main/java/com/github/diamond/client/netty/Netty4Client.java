@@ -71,10 +71,6 @@ public class Netty4Client {
         }
     }
     
-    public void sendMessage(String message) {  
-		channel.writeAndFlush(message + "\r\n");
-    }
-    
     /*
 	 * 使用时，循环调用该方法获取服务端返回的信息。
 	 * receiveMessage是阻塞方法，如果没有消息会等待。

@@ -76,10 +76,9 @@ public class PropertiesConfiguration extends EventSource {
 	protected void connectServer(String host, int port, final String projCode, final String profile) {
 		final String clientMsg = "superdiamond," + projCode + "," + profile;
 		try {
-			client = new Netty4Client(host, port, new ClientChannelInitializer());
+			client = new Netty4Client(host, port, new ClientChannelInitializer(clientMsg));
 			
 			if(client.isConnected()) {
-				client.sendMessage(clientMsg);
 				String message = client.receiveMessage();
 				
 				if(message != null) {

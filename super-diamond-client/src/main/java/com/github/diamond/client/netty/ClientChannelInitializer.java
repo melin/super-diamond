@@ -20,10 +20,18 @@ public class ClientChannelInitializer extends ChannelInitializer<SocketChannel> 
     private static final StringDecoder DECODER = new StringDecoder(CharsetUtil.UTF_8);
     private static final StringEncoder ENCODER = new StringEncoder(CharsetUtil.UTF_8);
     private static final Netty4ClientHandler CLIENTHANDLER = new Netty4ClientHandler();
-    @Override
+    
+    private String clientMsg;
+    
+    public ClientChannelInitializer(String clientMsg) {
+		this.clientMsg = clientMsg;
+	}
+
+	@Override
     public void initChannel(SocketChannel ch) throws Exception {
         ChannelPipeline pipeline = ch.pipeline();
 
+        pipeline.addLast("sdf", new SendConnectInfoHandler(clientMsg));
         pipeline.addLast("framer", new DelimiterBasedFrameDecoder(1024 * 1024, false, Unpooled.wrappedBuffer("#end#\r\n".getBytes())));
         pipeline.addLast("decoder", DECODER);
         pipeline.addLast("encoder", ENCODER);
