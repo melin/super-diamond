@@ -35,7 +35,7 @@
 		<jstl.version>1.2</jstl.version>
 
 		<junit.version>4.10</junit.version>
-		<jetty.version>8.1.10.v20130312</jetty.version>
+		<jetty.version>9.2.1.v20140609</jetty.version>
 		<tomcat.version>7.0.42</tomcat.version>
 	</properties>
 
