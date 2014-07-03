@@ -56,14 +56,13 @@ function start_server() {
     chown -R $AS_USER $LOG_DIR
     
     echo "$JAVA $APP_JVM_ARGS -DBASE_HOME=$BASE_HOME -DSERVER_NAME=$SERVER_NAME-$HOST_NAME -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false \
-   	  -Dcom.sun.management.jmxremote.port=$JMX_PORT $BASE_APP_ARGS com.github.runner.ServerStartup"
+   	  -Dcom.sun.management.jmxremote.port=$JMX_PORT $BASE_APP_ARGS com.github.diamond.jetty.JettyServer"
     sleep 1
     nohup $JAVA $APP_JVM_ARGS -DBASE_HOME=$BASE_HOME -DSERVER_NAME=$SERVER_NAME-$HOST_NAME -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false \
-   	  -Dcom.sun.management.jmxremote.port=$JMX_PORT $BASE_APP_ARGS com.github.runner.ServerStartup 2>&1 >>$LOG_FILE &	
+   	  -Dcom.sun.management.jmxremote.port=$JMX_PORT $BASE_APP_ARGS com.github.diamond.jetty.JettyServer >>$LOG_FILE 2>&1 &	
     echo $! > $PID_FILE
     
     chmod 755 $PID_FILE
-  	sleep 1;
     tail -f $LOG_FILE
 }
 
@@ -74,23 +73,10 @@ function stop_server() {
 	fi
 	count=0
 	pid=$(cat $PID_FILE)
-	while running;
-	do
-	  let count=$count+1
-	  echo "Stopping $SERVER_NAME $count times"
-	  if [ $count -gt 5 ]; then
-	  	  echo "kill -9 $pid"
-	      kill -9 $pid
-	  else
-	  	  echo "$JAVA -DBASE_HOME=$BASE_HOME -Dhost=127.0.0.1 -Dport=$JMX_PORT com.github.runner.StopServerTool"
-    	  sleep 1
-	      $JAVA -DBASE_HOME=$BASE_HOME -Dhost=127.0.0.1 -Dport=$JMX_PORT com.github.runner.StopServerTool $@
-	      kill $pid
-	  fi
-	  sleep 3;
-	done	
-	echo "Stop $SERVER_NAME successfully." 
+	echo "Stopping $SERVER_NAME"
+	kill -15 $pid
 	rm $PID_FILE
+	tail -f $LOG_FILE
 }
 
 function status(){
@@ -103,22 +89,11 @@ function status(){
     fi
 }
 
-function reload_logback_config() {
-    if ! running; then
-        echo "$SERVER_NAME is not running."
-        exit 1  
-    fi  
-    echo "$JAVA -DBASE_HOME=$BASE_HOME -Dhost=127.0.0.1 -Dport=$JMX_PORT com.github.runner.ReloadLogbackConfig"
-    sleep 1
-    $JAVA -DBASE_HOME=$BASE_HOME -Dhost=127.0.0.1 -Dport=$JMX_PORT com.github.runner.ReloadLogbackConfig $@
-}
- 
 function help() {
-    echo "Usage: server.sh {start|status|stop|restart|logback}" >&2
+    echo "Usage: server.sh {start|status|stop|restart}" >&2
     echo "       start:             start the $SERVER_NAME server"
     echo "       stop:              stop the $SERVER_NAME server"
     echo "       restart:           restart the $SERVER_NAME server"
-    echo "       logback:           reload logback config file"
     echo "       status:            get $SERVER_NAME current status,running or stopped."
 }
 
@@ -130,9 +105,6 @@ case $command in
         ;;    
     stop)
         stop_server $@;
-        ;;
-    logback)
-        reload_logback_config $@;
         ;;
     status)
     	status $@;

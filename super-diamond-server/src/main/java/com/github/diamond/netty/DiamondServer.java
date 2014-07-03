@@ -4,6 +4,7 @@
 package com.github.diamond.netty;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -21,9 +22,9 @@ public class DiamondServer implements InitializingBean, DisposableBean {
 	
 	private static final Logger logger = LoggerFactory.getLogger(DiamondServer.class);
 	
-	private int port = 5001;
+	private int port = 8283;
 	
-	private EventLoopGroup bossGroup = new NioEventLoopGroup();
+	private EventLoopGroup bossGroup = new NioEventLoopGroup(1);
 	
 	private EventLoopGroup workerGroup = new NioEventLoopGroup();
 	
@@ -31,13 +32,16 @@ public class DiamondServer implements InitializingBean, DisposableBean {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
+		System.out.println("==============================");
         ServerBootstrap b = new ServerBootstrap();
         b.group(bossGroup, workerGroup)
-         .channel(NioServerSocketChannel.class)
-         .childHandler(new DiamondServerInitializer(serverHandler));
-
-        b.bind(port).sync().channel();
-        logger.info("启动 Diamond Netty Server");
+        	.channel(NioServerSocketChannel.class)
+        	.option(ChannelOption.SO_BACKLOG, 1024)
+        	.option(ChannelOption.SO_REUSEADDR, true)
+        	.childHandler(new DiamondServerInitializer(serverHandler));
+        
+        b.bind("0.0.0.0", port).sync().channel();
+        logger.info("启动 Diamond Netty Server, post={}", port);
 	}
 
 	@Override

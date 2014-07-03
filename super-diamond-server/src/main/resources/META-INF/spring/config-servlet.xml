@@ -11,7 +11,7 @@
 	<mvc:annotation-driven ignoreDefaultModelOnRedirect="false">
 	</mvc:annotation-driven>
 
-	<mvc:view-controller path="/" view-name="/login" />
+	<mvc:view-controller path="/" view-name="login" />
 	<mvc:view-controller path="/error" view-name="/error" />
 
 	<mvc:default-servlet-handler/>

@@ -29,13 +29,6 @@
 		</fileSet>
 		<fileSet>
 			<directory>target/classes</directory>
-			<outputDirectory>/webapp/WEB-INF/classes</outputDirectory>
-			<includes>
-				<include>**/*.class</include>
-			</includes>
-		</fileSet>
-		<fileSet>
-			<directory>target/classes</directory>
 			<outputDirectory>/conf</outputDirectory>
 			<includes>
 				<include>META-INF/**</include>
@@ -47,32 +40,8 @@
 	<dependencySets>
 		<dependencySet>
 			<useProjectArtifact>true</useProjectArtifact>
-			<outputDirectory>webapp/WEB-INF/lib</outputDirectory>
-			<scope>runtime</scope>
-			<excludes>
-				<exclude>com.github.diamond:super-diamond-server</exclude>
-			</excludes>
-		</dependencySet>
-		
-		<dependencySet>
-			<useProjectArtifact>true</useProjectArtifact>
-			<outputDirectory>lib</outputDirectory>
-			<scope>provided</scope>
-			<excludes>
-				<exclude>com.github.diamond:super-diamond-server</exclude>
-			</excludes>
-		</dependencySet>
-
-		<dependencySet>
-			<useProjectArtifact>true</useProjectArtifact>
 			<outputDirectory>lib</outputDirectory>
 			<scope>runtime</scope>
-			<includes>
-				<include>ch.qos.logback:logback-core</include>
-        		<include>ch.qos.logback:logback-access</include>
-        		<include>ch.qos.logback:logback-classic</include>
-        		<include>org.slf4j:slf4j-api</include>
-      		</includes>
 		</dependencySet>
 	</dependencySets>
 </assembly>

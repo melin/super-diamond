@@ -14,7 +14,7 @@ fi
 
 JAVA=$JAVA_HOME/bin/java
 BASE_HOME=$BASE_DIR
-SERVER_NAME="Super Diamond Server"
+SERVER_NAME="SuperDiamondServer"
 
 #Ueap JMX port
 export JMX_PORT=4001
