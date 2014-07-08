@@ -33,8 +33,8 @@ public class WebInfConfigurationExt extends WebInfConfiguration {
 	@Override
 	protected List<Resource> findWebInfLibJars(WebAppContext context)
 			throws Exception {
-		//Resource baseHome = Resource.newResource(SystemPropertyUtil.get("BASE_HOME"));
-		Resource baseHome = Resource.newResource("D:/");
+		Resource baseHome = Resource.newResource(SystemPropertyUtil.get("BASE_HOME"));
+		//Resource baseHome = Resource.newResource("D:/");
 		if (baseHome == null || !baseHome.exists())
 			return null;
 

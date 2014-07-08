@@ -32,7 +32,7 @@ public class ProfileController extends BaseController {
 		modelMap.addAttribute("configs", configService.queryConfigs(projectId, moduleId));
 		modelMap.addAttribute("moduleId", moduleId);
 		modelMap.addAttribute("project", projectService.queryProject(projectId));
-		return "/profile/" + type;
+		return "profile/" + type;
 	}
 	
 	@RequestMapping("/profile/preview/{projectCode}/{type}")
@@ -42,6 +42,6 @@ public class ProfileController extends BaseController {
 		
 		modelMap.addAttribute("project", projectService.queryProject(projectId));
 		modelMap.addAttribute("message", config);
-		return "/profile/preview";
+		return "profile/preview";
 	}
 }
