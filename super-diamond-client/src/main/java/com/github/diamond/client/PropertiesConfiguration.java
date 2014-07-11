@@ -189,18 +189,18 @@ public class PropertiesConfiguration extends EventSource {
 	}
 	
 	private String getHost() {
-		String value = System.getenv("SPUERDIAMOND_HOST");
+		String value = System.getenv("SUPERDIAMOND_HOST");
 		if(StringUtils.isBlank(value)) {
-			return System.getProperty("spuerdiamond.host", "localhost");
+			return System.getProperty("superdiamond.host", "localhost");
 		} else {
 			return value;
 		}
 	}
 	
 	private int getPort() {
-		String value = System.getenv("SPUERDIAMOND_PORT");
+		String value = System.getenv("SUPERDIAMOND_PORT");
 		if(StringUtils.isBlank(value)) {
-			return Integer.valueOf(System.getProperty("spuerdiamond.port", "8283"));
+			return Integer.valueOf(System.getProperty("superdiamond.port", "8283"));
 		} else {
 			return Integer.valueOf(value);
 		}
