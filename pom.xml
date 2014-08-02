@@ -15,24 +15,24 @@
 		<mavenBuildTimestamp>${maven.build.timestamp}</mavenBuildTimestamp>
    		<maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
 
-		<cglib.version>2.2</cglib.version>
+		<cglib.version>3.1</cglib.version>
 		<aspectj.version>1.7.2</aspectj.version>
-		<spring.version>3.2.4.RELEASE</spring.version>
+		<spring.version>3.2.10.RELEASE</spring.version>
 
 		<oracle.version>10.2.0.1.0</oracle.version>
-		<mysql.version>5.1.24</mysql.version>
-		<druid.version>0.2.21</druid.version>
+		<mysql.version>5.1.31</mysql.version>
+		<druid.version>1.0.7</druid.version>
 
-		<logback.version>1.0.13</logback.version>
-		<org.slf4j.version>1.7.5</org.slf4j.version>
+		<logback.version>1.1.2</logback.version>
+		<org.slf4j.version>1.7.7</org.slf4j.version>
 
-		<netty.verison>4.0.20.Final</netty.verison>
+		<netty.verison>4.0.21.Final</netty.verison>
 		<commons-lang.version>2.6</commons-lang.version>
 		<commons-io.version>2.3</commons-io.version>
 		<commons-configuration.version>1.10</commons-configuration.version>
 
-		<junit.version>4.10</junit.version>
-		<jetty.version>9.2.1.v20140609</jetty.version>
+		<junit.version>4.11</junit.version>
+		<jetty.version>9.2.2.v20140723</jetty.version>
 	</properties>
 
 	<dependencyManagement>

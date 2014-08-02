@@ -32,7 +32,6 @@ public class DiamondServer implements InitializingBean, DisposableBean {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		System.out.println("==============================");
         ServerBootstrap b = new ServerBootstrap();
         b.group(bossGroup, workerGroup)
         	.channel(NioServerSocketChannel.class)
