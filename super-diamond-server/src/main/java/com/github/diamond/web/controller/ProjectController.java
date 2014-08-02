@@ -14,7 +14,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import com.github.diamond.utils.PageUtil;
 import com.github.diamond.utils.SessionHolder;
 import com.github.diamond.web.model.Project;
 import com.github.diamond.web.model.User;
@@ -28,6 +30,8 @@ import com.github.diamond.web.service.ProjectService;
 public class ProjectController extends BaseController {
 	@Autowired
 	private ProjectService projectService;
+	
+	private static final int LIMIT = 10;
 	
 	@RequestMapping("/project/index")
 	public void queryProjects(ModelMap modelMap) {
@@ -83,20 +87,24 @@ public class ProjectController extends BaseController {
 	}
 	
 	@RequestMapping("/project/addUsers")
-	public void addUsers(long id, ModelMap modelMap) {
-		modelMap.addAttribute("users", projectService.queryUsers(id));
+	public void addUsers(long id, ModelMap modelMap, @RequestParam(defaultValue="1") int page) {
+		modelMap.addAttribute("users", projectService.queryUsers(id, PageUtil.getOffset(page, LIMIT), LIMIT));
 		modelMap.addAttribute("projUsers", projectService.queryProjUsers(id));
 		modelMap.addAttribute("project", projectService.queryProject(id));
+		
+		long recordCount = projectService.queryUserCount(id);
+		modelMap.addAttribute("totalPages", PageUtil.pageCount(recordCount, LIMIT));
+		modelMap.addAttribute("currentPage", page);
 	}
 
 	@RequestMapping(value="/project/saveUser", method={RequestMethod.POST})
 	public String saveUser(long projectId, long userId, String development, String test, 
-			String production, String admin, HttpSession session) {
+			String build, String production, String admin, HttpSession session) {
 		if(StringUtils.isBlank(development) && StringUtils.isBlank(test) && 
 				StringUtils.isBlank(production) && StringUtils.isBlank(admin)) {
 			session.setAttribute("message", "请选择用户角色");
 		} else 
-			projectService.saveUser(projectId, userId, development, test, production, admin);
+			projectService.saveUser(projectId, userId, development, test, build, production, admin);
 		
 		return "redirect:/project/addUsers?id=" + projectId;
 	}

@@ -38,6 +38,7 @@
      	</c:forEach>
 	</tbody>
 </table>
+<div id="paginator"></div>
 <ul class="pager">
 	<button class="btn btn-primary" onclick='window.location.href = "<c:url value="/user/new" />"'>新建用户</button>
 </ul>
@@ -54,5 +55,16 @@ $(document).ready(function () {
 	    
 	    return false;
 	});
+	
+	var options = {
+    	size: "small",
+    	alignment:"right",
+    	totalPages: <c:out value="${totalPages}"/>,
+        currentPage: <c:out value="${currentPage}"/>,
+        pageUrl: function(type, page, current){
+            return "/superdiamond/user/index?page="+page;
+        }
+    }
+    $('#paginator').bootstrapPaginator(options);
 });
 </script>

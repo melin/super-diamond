@@ -11,36 +11,9 @@
 	</c:forEach>
 </select>
 <!-- <button type="button" id="queryModule" class="btn btn-primary">查询</button> -->
-<a id="addModule" href="javascript:void(0)">添加Module</a>
-<a id="delModule" href="javascript:void(0)">删除Module</a>
-<!-- <a id="deleteModule" href="javascript:void(0)">删除Module</a> -->
-<div class="pull-right">
-	<button type="button" id="addConfig" class="btn btn-primary">添加配置</button>
-	<button type="button" id="preview" class="btn btn-primary">预览</button>
-</div>
 
-<div id="addModalWin" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  	<div class="modal-header">
-    	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-    	<h3 id="myModalLabel">添加Module</h3>
-  	</div>
-  	<div class="modal-body">
-    	<form id="moduleForm" class="form-horizontal" action='<c:url value="/module/save" />' method="post">
-  			<div class="control-group">
-    			<label class="control-label">名称：</label>
-    			<div class="controls">
-    				<input type="hidden" name="projectId" value='<c:out value="${projectId}"/>'/>
-    				<input type="hidden" name="type" value='<c:out value="${type}"/>'/>
-    				<input type="hidden" name="page" value='<c:out value="${currentPage}"/>'/>
-      				<input type="text" id="addModuleName" name="name" class="input-large"> <span id="addTip" style="color: red"></span>
-    			</div>
-  			</div>
-		</form>
-  	</div>
-  	<div class="modal-footer">
-    	<button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
-    	<button class="btn btn-primary" id="saveModule">保存</button>
-  	</div>
+<div class="pull-right">
+	<button type="button" id="preview" class="btn btn-primary">预览</button>
 </div>
 
 <div id="addConfigWin" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -53,7 +26,7 @@
   			<div class="control-group">
   				<label class="control-label">模块：</label>
     			<div class="controls">
-    				<select class="input-xlarge" name="moduleId" id="config-moduleId">
+    				<select class="input-xlarge" id="config-moduleId" disabled="disabled">
 						<option value="">请选择...</option>
 						<c:forEach items="${modules}" var="module">
 							<option value='<c:out value="${module.MODULE_ID}"/>'><c:out value="${module.MODULE_NAME}"/></option>
@@ -62,13 +35,15 @@
     			</div>
     			<label class="control-label">Config Key：</label>
     			<div class="controls">
+    				<input type="hidden" name="configKey" id="config-configKey-ext" />
+    				<input type="hidden" name="moduleId" id="config-moduleId-ext"/>
+    				
     				<input type="hidden" name="configId" id="config-configId" />
     				<input type="hidden" name="projectId" value='<c:out value="${projectId}"/>'/>
     				<input type="hidden" name="type" value='<c:out value="${type}"/>'/>
     				<input type="hidden" name="page" value='<c:out value="${currentPage}"/>'/>
     				<input type="hidden" name="selModuleId" value='<c:out value="${moduleId}"/>'/>
-    				<input type="hidden" name="flag" id="config-flag"/>
-      				<input type="text" name="configKey" class="input-xlarge" id="config-configKey">
+      				<input type="text" class="input-xlarge" id="config-configKey" disabled="disabled">
     			</div>
     			<label class="control-label">Config Value：</label>
     			<div class="controls">
@@ -85,7 +60,6 @@
   		<span id="configTip" style="color: red"></span>
     	<button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
     	<button class="btn btn-primary" id="saveConfig">保存</button>
-    	<button class="btn btn-primary" id="saveConfigExt">保存继续添加</button>
   	</div>
 </div>
 
@@ -110,9 +84,9 @@
                	<td value='<c:out value="${config.CONFIG_KEY}"/>'>
                		<c:out value="${config.CONFIG_KEY}"/>
                	</td>
-               	<td title='<c:out value="${config.CONFIG_VALUE}"/>' >
+               	<td title='<c:out value="${config.BUILD_VALUE}"/>' >
                   	<script type="text/javascript">
-                  		var value = '<c:out value="${config.CONFIG_VALUE}"/>';
+                  		var value = '<c:out value="${config.BUILD_VALUE}"/>';
                   		if(value.length > 30)
                   			document.write(value.substring(0, 30) + "...");
                   		else
@@ -129,33 +103,25 @@
                   	</script>
                	</td>
                	<td>
-                  	<c:out value="${config.OPT_USER}"/>
+                  	<c:out value="${config.BUILD_USER}"/>
                	</td>
                	<td>
-                  	<c:out value="${config.OPT_TIME}"/>
+                  	<c:out value="${config.BUILD_TIME}"/>
                	</td>
                	<td>
-               		<c:if test="${project.OWNER_ID == sessionScope.sessionUser.id}">
-                  		<a class="deleteConfig" href='/superdiamond/config/delete/<c:out value="${config.CONFIG_ID}"/>?projectId=<c:out value="${projectId}"/>&type=<c:out value="${type}"/>' title="删除"><i class="icon-remove"></i></a>
-                  	</c:if>
                   	<a href='javascript:updateConfig(<c:out value="${config.CONFIG_ID}"/>)' title="更新"><i class="icon-edit"></i></a>
                	</td>
           	</tr>
      	</c:forEach>
 	</tbody>
 </table>
-
-<c:if test="${sessionScope.message != null}">
-	<div class="alert alert-error clearfix" style="margin-bottom: 5px;width: 400px; padding: 2px 15px 2px 10px;">
-		${sessionScope.message}
-	</div>
-</c:if>
-
 <script type="text/javascript">
 function updateConfig(id) {
 	var tds = $("#row-" + id + " > td");
 	$("#config-moduleId").val($(tds.get(0)).attr("value"));
 	$("#config-configKey").val($(tds.get(1)).attr("value"));
+	$("#config-moduleId-ext").val($(tds.get(0)).attr("value"));
+	$("#config-configKey-ext").val($(tds.get(1)).attr("value"));
 	$("#config-configValue").val($(tds.get(2)).attr("title"));
 	$("#config-configDesc").val($(tds.get(3)).attr("title"));
 	$("#config-configId").val(id);
@@ -170,16 +136,6 @@ $(document).ready(function () {
 	
 	$("#preview").click(function(e) {
 		window.location.href = '/superdiamond/profile/preview/<c:out value="${project.PROJ_CODE}"/>/<c:out value="${type}"/>?projectId=<c:out value="${projectId}"/>';
-	});
-	
-	$("a.deleteConfig").click(function(e) {
-	    e.preventDefault();
-	    bootbox.confirm("确定删除配置项，删除之后不可恢复！", function(confirmed) {
-	    	if(confirmed)
-	    		window.location.href = $(e.target).parent().attr("href");
-	    });
-	    
-	    return false;
 	});
 	
 	$("#sel-queryModule").change(function(e) {
@@ -200,29 +156,6 @@ $(document).ready(function () {
 		window.location.href = url;
 	});
 	
-	$("#addModule").click(function(e) {
-		$('#addModalWin').modal({
-			keyboard: false
-		})
-	});
-	
-	$("#delModule").click(function(e) {
-		var moduleId = $("#sel-queryModule").val();
-		if(moduleId) {
-			window.location.href = '/superdiamond/module/delete/<c:out value="${type}"/>/<c:out value="${projectId}"/>/' + moduleId;
-		} else {
-			bootbox.alert("请选择一个模块！");
-		}
-	});
-	
-	$("#saveModule").click(function(e) {
-		if(!$("#addModuleName").val()) {
-			$("#addTip").text("不能为空");
-		} else {
-			$("#moduleForm")[0].submit();
-		}
-	});
-	
 	$("#addConfig").click(function(e) {
 		$('#addConfigWin').modal({
 			backdrop: true
@@ -230,33 +163,11 @@ $(document).ready(function () {
 	});
 	
 	$("#saveConfig").click(function(e) {
-		if(!$("#config-moduleId").val()) {
-			$("#configTip").text("模块不能为空");
-		} else if(!$("#config-configKey").val()) {
-			$("#configTip").text("configKey不能为空");
-		} else if(!$("#config-configValue").val()) {
+		if(!$("#config-configValue").val()) {
 			$("#configTip").text("configValue不能为空");
 		} else {
 			$("#configForm")[0].submit();
 		}
 	});
-	
-	$("#saveConfigExt").click(function(e) {
-		$("#config-flag").val("con");
-		if(!$("#config-moduleId").val()) {
-			$("#configTip").text("模块不能为空");
-		} else if(!$("#config-configKey").val()) {
-			$("#configTip").text("configKey不能为空");
-		} else if(!$("#config-configValue").val()) {
-			$("#configTip").text("configValue不能为空");
-		} else {
-			$("#configForm")[0].submit();
-		}
-	});
-	
-	var flag = "<%= request.getParameter("flag")%>";
-	if(flag == "con") {
-		$("#addConfig").click();
-	}
 });
 </script>

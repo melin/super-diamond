@@ -59,7 +59,7 @@ public class ProjectService {
 		sql = "insert into CONF_PROJECT (ID, PROJ_CODE, PROJ_NAME, OWNER_ID, CREATE_TIME) values (?, ?, ?, ?, ?)";
 		
 		jdbcTemplate.update(sql, id, project.getCode(), project.getName(), project.getOwnerId(), new Date());
-		this.saveUser(id, project.getOwnerId(), "development", "test", "production", "admin");
+		this.saveUser(id, project.getOwnerId(), "development", "test", "build", "production", "admin");
 	}
 	
 	@Transactional
@@ -68,11 +68,18 @@ public class ProjectService {
 		jdbcTemplate.update(sql, id);
 	}
 	
-	public List<User> queryUsers(long projectId) {
+	public List<User> queryUsers(long projectId, int offset, int limit) {
 		String sql = "SELECT a.ID, a.USER_CODE, a.USER_NAME FROM conf_user a WHERE a.ID NOT IN " +
+				"(SELECT b.USER_ID FROM conf_project_user b WHERE b.PROJ_ID=?) AND a.DELETE_FLAG=0 order by a.ID limit ?,?";
+		
+		return jdbcTemplate.query(sql, new UserRowMapper(), projectId, offset, limit);
+	}
+	
+	public long queryUserCount(long projectId) {
+		String sql = "SELECT count(*) FROM conf_user a WHERE a.ID NOT IN " +
 				"(SELECT b.USER_ID FROM conf_project_user b WHERE b.PROJ_ID=?) AND a.DELETE_FLAG=0";
 		
-		return jdbcTemplate.query(sql, new UserRowMapper(), projectId);
+		return jdbcTemplate.queryForObject(sql, Long.class, projectId);
 	}
 	
 	public List<User> queryProjUsers(long projectId) {
@@ -96,16 +103,17 @@ public class ProjectService {
 	}
 	
 	@Transactional
-	public void saveUser(long projectId, long userId, String development, String test, String production, String admin) {
+	public void saveUser(long projectId, long userId, String development, String test, String build, String production, String admin) {
 		String sql = "insert into CONF_PROJECT_USER (PROJ_ID, USER_ID) values (?, ?)";
 		jdbcTemplate.update(sql, projectId, userId);
 		
 		sql = "insert into CONF_PROJECT_USER_ROLE (PROJ_ID, USER_ID, ROLE_CODE) values (?, ?, ?)";
 		if(StringUtils.isNotBlank(admin)) {
 			jdbcTemplate.update(sql, projectId, userId, "admin");
-			//如果拥有admin权限，自动添加development、test、production
+			//如果拥有admin权限，自动添加development、test、build、production
 			development = "development";
 			test = "test";
+			build = "build";
 			production = "production";
 		}
 		if(StringUtils.isNotBlank(development)) {
@@ -113,6 +121,9 @@ public class ProjectService {
 		}
 		if(StringUtils.isNotBlank(test)) {
 			jdbcTemplate.update(sql, projectId, userId, "test");
+		}
+		if(StringUtils.isNotBlank(build)) {
+			jdbcTemplate.update(sql, projectId, userId, "build");
 		}
 		if(StringUtils.isNotBlank(production)) {
 			jdbcTemplate.update(sql, projectId, userId, "production");
@@ -132,10 +143,10 @@ public class ProjectService {
 	 * 
 	 * @param userId
 	 */
-	public List<Project> queryProjectForUser(User user) {
+	public List<Project> queryProjectForUser(User user, int offset, int limit) {
 		if("admin".equals(user.getUserCode())) {
 			String sql = "SELECT distinct b.ID, b.PROJ_CODE, b.PROJ_NAME FROM CONF_PROJECT_USER a, CONF_PROJECT b " +
-					"WHERE a.PROJ_ID = b.ID AND b.DELETE_FLAG = 0";
+					"WHERE a.PROJ_ID = b.ID AND b.DELETE_FLAG = 0 order by b.ID desc limit ?, ?";
 			List<Project> projects = jdbcTemplate.query(sql, new RowMapper<Project>() {
 	
 				public Project mapRow(ResultSet rs, int rowNum) throws SQLException,
@@ -146,11 +157,11 @@ public class ProjectService {
 					project.setName(rs.getString(3));
 					return project;
 				}
-			});
+			}, offset, limit);
 			return projects;
 		} else {
 			String sql = "SELECT distinct b.ID, b.PROJ_CODE, b.PROJ_NAME FROM CONF_PROJECT_USER a, CONF_PROJECT b " +
-					"WHERE a.PROJ_ID = b.ID and a.USER_ID=? AND b.DELETE_FLAG = 0";
+					"WHERE a.PROJ_ID = b.ID and a.USER_ID=? AND b.DELETE_FLAG = 0 order by b.ID desc limit ?, ?";
 			List<Project> projects = jdbcTemplate.query(sql, new RowMapper<Project>() {
 	
 				public Project mapRow(ResultSet rs, int rowNum) throws SQLException,
@@ -161,8 +172,25 @@ public class ProjectService {
 					project.setName(rs.getString(3));
 					return project;
 				}
-			}, user.getId());
+			}, user.getId(), offset, limit);
 			return projects;
+		}
+	}
+	
+	/**
+	 * 查询用户所拥有的项目数量
+	 * 
+	 * @param userId
+	 */
+	public long queryProjectCountForUser(User user) {
+		if("admin".equals(user.getUserCode())) {
+			String sql = "select count(*) from (SELECT distinct b.ID FROM CONF_PROJECT_USER a, CONF_PROJECT b " +
+					"WHERE a.PROJ_ID = b.ID AND b.DELETE_FLAG = 0) as proj";
+			return jdbcTemplate.queryForObject(sql, Long.class);
+		} else {
+			String sql = "select count(*) from (SELECT distinct b.ID FROM CONF_PROJECT_USER a, CONF_PROJECT b " +
+					"WHERE a.PROJ_ID = b.ID and a.USER_ID=? AND b.DELETE_FLAG = 0) as proj";
+			return jdbcTemplate.queryForObject(sql, Long.class, user.getId());
 		}
 	}
 	

@@ -26,7 +26,7 @@
   			<div class="control-group">
   				<label class="control-label">模块：</label>
     			<div class="controls">
-    				<select class="input-xlarge" name="moduleId" id="config-moduleId">
+    				<select class="input-xlarge" name="moduleId" id="config-moduleId" disabled="disabled">
 						<option value="">请选择...</option>
 						<c:forEach items="${modules}" var="module">
 							<option value='<c:out value="${module.MODULE_ID}"/>'><c:out value="${module.MODULE_NAME}"/></option>
@@ -35,11 +35,15 @@
     			</div>
     			<label class="control-label">Config Key：</label>
     			<div class="controls">
+    				<input type="hidden" name="configKey" id="config-configKey-ext" />
+    				<input type="hidden" name="moduleId" id="config-moduleId-ext"/>
+    			
     				<input type="hidden" name="configId" id="config-configId" />
     				<input type="hidden" name="projectId" value='<c:out value="${projectId}"/>'/>
     				<input type="hidden" name="type" value='<c:out value="${type}"/>'/>
+    				<input type="hidden" name="page" value='<c:out value="${currentPage}"/>'/>
     				<input type="hidden" name="selModuleId" value='<c:out value="${moduleId}"/>'/>
-      				<input type="text" name="configKey" class="input-xlarge" id="config-configKey">
+      				<input type="text" class="input-xlarge" id="config-configKey" disabled="disabled">
     			</div>
     			<label class="control-label">Config Value：</label>
     			<div class="controls">
@@ -53,6 +57,7 @@
 		</form>
   	</div>
   	<div class="modal-footer">
+  		<span id="configTip" style="color: red"></span>
     	<button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
     	<button class="btn btn-primary" id="saveConfig">保存</button>
   	</div>
@@ -115,6 +120,8 @@ function updateConfig(id) {
 	var tds = $("#row-" + id + " > td");
 	$("#config-moduleId").val($(tds.get(0)).attr("value"));
 	$("#config-configKey").val($(tds.get(1)).attr("value"));
+	$("#config-moduleId-ext").val($(tds.get(0)).attr("value"));
+	$("#config-configKey-ext").val($(tds.get(1)).attr("value"));
 	$("#config-configValue").val($(tds.get(2)).attr("title"));
 	$("#config-configDesc").val($(tds.get(3)).attr("title"));
 	$("#config-configId").val(id);
@@ -151,12 +158,16 @@ $(document).ready(function () {
 	
 	$("#addConfig").click(function(e) {
 		$('#addConfigWin').modal({
-			backdrop: false
+			backdrop: true
 		})
 	});
 	
 	$("#saveConfig").click(function(e) {
-		$("#configForm")[0].submit();
+		if(!$("#config-configValue").val()) {
+			$("#configTip").text("configValue不能为空");
+		} else {
+			$("#configForm")[0].submit();
+		}
 	});
 });
 </script>

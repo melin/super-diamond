@@ -25,6 +25,9 @@ import javax.rmi.ssl.SslRMIClientSocketFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @author libinsong1204@gmail.com
+ */
 public class JMXClient {
 
     private static Logger log = LoggerFactory.getLogger(JMXClient.class);

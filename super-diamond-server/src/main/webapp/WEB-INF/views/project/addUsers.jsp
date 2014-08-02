@@ -70,9 +70,10 @@
 	                  	<c:out value="${user.userName}" />
 	              	</td>
 	              	<td>
-	              		<input type="checkbox" name="admin" value="admin" id="adminId"> admin &nbsp;&nbsp;
-	        			<input type="checkbox" name="development" value="development" id="developmentId"> development &nbsp;&nbsp;
-	        			<input type="checkbox" name="test" value="test" id="testId"> test &nbsp;&nbsp;
+	              		<input type="checkbox" name="admin" value="admin" id="adminId"> admin &nbsp;
+	        			<input type="checkbox" name="development" value="development" id="developmentId"> development &nbsp;
+	        			<input type="checkbox" name="test" value="test" id="testId"> test &nbsp;
+	        			<input type="checkbox" name="build" value="build" id="buildId"> build &nbsp;
 	        			<input type="checkbox" name="production" value="production" id="productionId"> production
 	              	</td>
 	              	<td>
@@ -83,3 +84,17 @@
      	</c:forEach>
 	</tbody>
 </table>
+<div id="paginator"></div>
+
+<script type='text/javascript'>
+    var options = {
+    	size: "small",
+    	alignment:"right",
+    	totalPages: <c:out value="${totalPages}"/>,
+        currentPage: <c:out value="${currentPage}"/>,
+        pageUrl: function(type, page, current){
+            return "/superdiamond/project/addUsers?id=<c:out value="${project.ID}" />&page="+page;
+        }
+    }
+    $('#paginator').bootstrapPaginator(options);
+</script>

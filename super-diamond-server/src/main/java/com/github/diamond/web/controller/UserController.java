@@ -9,8 +9,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.github.diamond.utils.MD5;
+import com.github.diamond.utils.PageUtil;
 import com.github.diamond.utils.SessionHolder;
 import com.github.diamond.web.model.User;
 import com.github.diamond.web.service.UserService;
@@ -21,11 +23,16 @@ public class UserController extends BaseController {
 	@Autowired
 	private UserService userService;
 	
+	private static final int LIMIT = 10;
+	
 	@RequestMapping("/user/index")
-	public void queryUsers(ModelMap modelMap) {
-		List<User> users = userService.queryUsers();
-		
+	public void queryUsers(ModelMap modelMap, @RequestParam(defaultValue="1") int page) {
+		List<User> users = userService.queryUsers(PageUtil.getOffset(page, LIMIT), LIMIT);
 		modelMap.addAttribute("users", users);
+		
+		long recordCount = userService.queryUserCount();
+		modelMap.addAttribute("totalPages", PageUtil.pageCount(recordCount, LIMIT));
+		modelMap.addAttribute("currentPage", page);
 	}
 	
 	@RequestMapping("/user/new")

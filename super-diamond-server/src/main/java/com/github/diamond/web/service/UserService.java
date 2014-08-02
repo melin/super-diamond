@@ -47,10 +47,15 @@ public class UserService {
 		}
 	}
 	
-	public List<User> queryUsers() {
+	public List<User> queryUsers(int offset, int limit) {
 		String sql = "SELECT ID, USER_CODE, USER_NAME " +
-				"FROM CONF_USER WHERE DELETE_FLAG = 0";
-		return jdbcTemplate.query(sql, new UserRowMapper());
+				"FROM CONF_USER WHERE DELETE_FLAG = 0 order by ID limit ?,?";
+		return jdbcTemplate.query(sql, new UserRowMapper(), offset, limit);
+	}
+	
+	public long queryUserCount() {
+		String sql = "SELECT count(*) FROM CONF_USER WHERE DELETE_FLAG = 0";
+		return jdbcTemplate.queryForObject(sql, Long.class);
 	}
 	
 	@Transactional

@@ -16,6 +16,9 @@ import javax.management.openmbean.CompositeType;
 import javax.management.openmbean.OpenType;
 import javax.management.openmbean.SimpleType;
 
+/**
+ * @author libinsong1204@gmail.com
+ */
 public final class JMXUtils {
 
     public static ObjectName register(String name, Object mbean) {

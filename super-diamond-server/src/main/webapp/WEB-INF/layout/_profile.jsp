@@ -11,6 +11,7 @@
     	<script type="text/javascript" src='<c:url value="/resources/js/jquery.min.js" />'></script>
     	<script type="text/javascript" src='<c:url value="/resources/js/bootstrap.min.js" />'></script>
     	<script type="text/javascript" src='<c:url value="/resources/js/bootbox.min.js" />'></script>
+    	<script type="text/javascript" src='<c:url value="/resources/js/bootstrap-paginator.min.js" />'></script>
     	<style type="text/css">
 	      	body {
 	        	padding-top: 60px;
@@ -61,6 +62,7 @@
 
     	<div class="container">
 			<decorator:body></decorator:body>
+			<div id="paginator"></div>
 			<span class="label label-success">Versions: 
 				<c:if test="${type=='development'}">
 					<c:out value="${project.DEVELOPMENT_VERSION}" />
@@ -76,3 +78,15 @@
     	<% request.getSession().removeAttribute("message"); %>
   	</body>
 </html>
+<script type='text/javascript'>
+    var options = {
+    	size: "small",
+    	alignment:"right",
+    	totalPages: <c:out value="${totalPages}"/>,
+        currentPage: <c:out value="${currentPage}"/>,
+        pageUrl: function(type, page, current){
+            return "/superdiamond/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>?page="+page;
+        }
+    }
+    $('#paginator').bootstrapPaginator(options);
+</script>

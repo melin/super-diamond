@@ -9,6 +9,9 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+/**
+ * @author libinsong1204@gmail.com
+ */
 public class MD5 {
     private static final Log log = LogFactory.getLog(MD5.class);
     private static char[] digits = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
