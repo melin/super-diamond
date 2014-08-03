@@ -46,6 +46,7 @@
      	</c:forEach>
 	</tbody>
 </table>
+<div id="paginator"></div>
 <c:if test="${sessionScope.sessionUser.userCode == 'admin'}">
 	<ul class="pager">
 		<button class="btn btn-primary" onclick='window.location.href = "<c:url value="/project/new" />"'>新建项目</button>
@@ -65,5 +66,16 @@ $(document).ready(function () {
 	    
 	    return false;
 	});
+	
+	var options = {
+    	size: "small",
+    	alignment:"right",
+    	totalPages: <c:out value="${totalPages}"/>,
+        currentPage: <c:out value="${currentPage}"/>,
+        pageUrl: function(type, page, current){
+            return "./index?page="+page;
+        }
+    }
+    $('#paginator').bootstrapPaginator(options);
 });
 </script>

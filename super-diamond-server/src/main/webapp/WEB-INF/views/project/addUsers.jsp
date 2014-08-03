@@ -21,7 +21,7 @@
   	</thead>
   	<tbody>
     	<c:forEach items="${projUsers}" var="user">
-       		<tr>
+       		<tr id="tr-<c:out value="${user.id}" />">
                	<td>
                   	<c:out value="${user.userCode}"/>
                	</td>
@@ -40,6 +40,7 @@
               	<td>
               		<c:if test="${user.id != project.OWNER_ID}">
               			<a href="${deleteProjectUrl}" class="deleteProject">删除</a>
+              			<a href="javascript:updateAuth('tr-<c:out value="${user.id}" />')">更新</a>
               		</c:if>
               	</td>
             </tr>
@@ -70,11 +71,11 @@
 	                  	<c:out value="${user.userName}" />
 	              	</td>
 	              	<td>
-	              		<input type="checkbox" name="admin" value="admin" id="adminId"> admin &nbsp;
-	        			<input type="checkbox" name="development" value="development" id="developmentId"> development &nbsp;
-	        			<input type="checkbox" name="test" value="test" id="testId"> test &nbsp;
-	        			<input type="checkbox" name="build" value="build" id="buildId"> build &nbsp;
-	        			<input type="checkbox" name="production" value="production" id="productionId"> production
+	              		<input type="checkbox" name="admin" value="admin"> admin &nbsp;
+	        			<input type="checkbox" name="development" value="development"> development &nbsp;
+	        			<input type="checkbox" name="test" value="test"> test &nbsp;
+	        			<input type="checkbox" name="build" value="build"> build &nbsp;
+	        			<input type="checkbox" name="production" value="production"> production
 	              	</td>
 	              	<td>
 	              		<button class="btn btn-primary" type="submit">添加用户</button>
@@ -85,6 +86,31 @@
 	</tbody>
 </table>
 <div id="paginator"></div>
+
+<div id="updateAuthWin" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  	<div class="modal-heupdateAuthder">
+    	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    	<h3 id="myModalLabel">更新角色</h3>
+  	</div>
+  	<div class="modal-body">
+    	<form id="moduleForm" class="form-horizontal" action='<c:url value="/project/updateUser" />' method="post">
+  			<div class="control-group">
+    				<input type="hidden" name="userId" id="auth-userId">
+    				<input type="hidden" name="projectId" value='<c:out value="${project.ID}" />'>
+    				
+    				<input type="checkbox" name="admin" value="admin" id="adminId"> admin &nbsp;
+        			<input type="checkbox" name="development" value="development" id="developmentId"> development &nbsp;
+        			<input type="checkbox" name="test" value="test" id="testId"> test &nbsp;
+        			<input type="checkbox" name="build" value="build" id="buildId"> build &nbsp;
+        			<input type="checkbox" name="production" value="production" id="productionId"> production
+  			</div>
+		</form>
+  	</div>
+  	<div class="modal-footer">
+    	<button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
+    	<input type="button" class="btn btn-primary" id="saveAuth" value="保存" >
+  	</div>
+</div>
 
 <script type='text/javascript'>
     var options = {
@@ -97,4 +123,28 @@
         }
     }
     $('#paginator').bootstrapPaginator(options);
+    
+    $("#saveAuth").click(function(e) {
+		$("#moduleForm")[0].submit();
+	});
+    
+    function updateAuth(id) {
+    	var context = $("#"+id).children("td:eq(2)").text();
+    	if(context.indexOf("admin") != -1)
+    		$("#adminId").attr("checked",true);    
+    	if(context.indexOf("development") != -1)
+    		$("#developmentId").attr("checked",true);  
+    	if(context.indexOf("test") != -1)
+    		$("#testId").attr("checked",true);  
+    	if(context.indexOf("build") != -1)
+    		$("#buildId").attr("checked",true);  
+    	if(context.indexOf("production") != -1)
+    		$("#productionId").attr("checked",true);  
+    	
+    	$("#auth-userId").val(id.split("-")[1])
+    	
+		$('#updateAuthWin').modal({
+			keyboard: false
+		})
+	}
 </script>

@@ -34,11 +34,15 @@ public class ProjectController extends BaseController {
 	private static final int LIMIT = 10;
 	
 	@RequestMapping("/project/index")
-	public void queryProjects(ModelMap modelMap) {
+	public void queryProjects(ModelMap modelMap, @RequestParam(defaultValue="1") int page) {
 		User user = (User) SessionHolder.getSession().getAttribute("sessionUser");
-		List<Project> projects = projectService.queryProjects(user);
+		List<Project> projects = projectService.queryProjects(user, PageUtil.getOffset(page, LIMIT), LIMIT);
 		
 		modelMap.addAttribute("projects", projects);
+		
+		long recordCount = projectService.queryProjectCount(user);
+		modelMap.addAttribute("totalPages", PageUtil.pageCount(recordCount, LIMIT));
+		modelMap.addAttribute("currentPage", page);
 	}
 	
 	@RequestMapping("/project/new")
@@ -100,11 +104,25 @@ public class ProjectController extends BaseController {
 	@RequestMapping(value="/project/saveUser", method={RequestMethod.POST})
 	public String saveUser(long projectId, long userId, String development, String test, 
 			String build, String production, String admin, HttpSession session) {
-		if(StringUtils.isBlank(development) && StringUtils.isBlank(test) && 
+		if(StringUtils.isBlank(development) && StringUtils.isBlank(test) && StringUtils.isBlank(build) &&
 				StringUtils.isBlank(production) && StringUtils.isBlank(admin)) {
 			session.setAttribute("message", "请选择用户角色");
 		} else 
 			projectService.saveUser(projectId, userId, development, test, build, production, admin);
+		
+		return "redirect:/project/addUsers?id=" + projectId;
+	}
+	
+	@RequestMapping(value="/project/updateUser", method={RequestMethod.POST})
+	public String updateUser(long projectId, long userId, String development, String test, 
+			String build, String production, String admin, HttpSession session) {
+		if(StringUtils.isBlank(development) && StringUtils.isBlank(test) && StringUtils.isBlank(build) &&
+				StringUtils.isBlank(production) && StringUtils.isBlank(admin)) {
+			session.setAttribute("message", "请选择用户角色");
+		} else {
+			projectService.deleteUser(projectId, userId);
+			projectService.saveUser(projectId, userId, development, test, build, production, admin);
+		}
 		
 		return "redirect:/project/addUsers?id=" + projectId;
 	}

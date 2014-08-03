@@ -26,15 +26,27 @@ public class ProjectService {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 	
-	public List<Project> queryProjects(User user) {
+	public List<Project> queryProjects(User user, int offset, int limit) {
 		String sql = "SELECT b.ID, b.PROJ_CODE, b.PROJ_NAME, a.USER_NAME, b.OWNER_ID FROM CONF_USER a, CONF_PROJECT b " +
-				"WHERE a.ID=b.OWNER_ID AND b.DELETE_FLAG = 0 ORDER BY b.id";
+				"WHERE a.ID=b.OWNER_ID AND b.DELETE_FLAG = 0 ";
+		
+		if(!"admin".equals(user.getUserCode())) {
+			sql = sql + " AND b.OWNER_ID = ? ORDER BY b.id asc limit ?,?";
+		    return jdbcTemplate.query(sql, new ProjectRowMapper(), user.getId(), offset, limit);
+		} else
+			sql = sql + " ORDER BY b.id asc limit ?,?";
+			return jdbcTemplate.query(sql, new ProjectRowMapper(), offset, limit);
+	}
+	
+	public Long queryProjectCount(User user) {
+		String sql = "SELECT count(*) FROM CONF_USER a, CONF_PROJECT b " +
+				"WHERE a.ID=b.OWNER_ID AND b.DELETE_FLAG = 0 ";
 		
 		if(!"admin".equals(user.getUserCode())) {
 			sql = sql + " AND b.OWNER_ID = ?";
-		    return jdbcTemplate.query(sql, new ProjectRowMapper(), user.getId());
+		    return jdbcTemplate.queryForObject(sql, Long.class, user.getId());
 		} else
-			return jdbcTemplate.query(sql, new ProjectRowMapper());
+			return jdbcTemplate.queryForObject(sql, Long.class);
 	}
 	
 	public long findUserId(String userCode) {
