@@ -91,4 +91,28 @@ public class ConfigController extends BaseController {
 			}
 		}
 	}
+	
+	@RequestMapping("/preview/{projectCode}/{module}/{type}")
+	public void previewModule(@PathVariable("type") String type, @PathVariable("module") String module, @PathVariable("projectCode") String projectCode, 
+			HttpServletRequest request, HttpServletResponse resp) {
+		try {
+			String format = "properties";
+			if("php".equals(request.getParameter("format"))) {
+				format = "php";
+			}
+			String config = configService.queryConfigs(projectCode, module, type, format);
+			
+			resp.setContentType("text/plain");
+			PrintWriter out = resp.getWriter();
+			out.println(config);
+		} catch (Exception e) {
+			resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			try {
+				PrintWriter out = resp.getWriter();
+				out.println("error = " + e.getMessage());
+			} catch (IOException e1) {
+				LOGGER.error(e.getMessage(), e);
+			}
+		}
+	}
 }
