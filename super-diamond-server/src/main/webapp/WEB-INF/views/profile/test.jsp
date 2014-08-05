@@ -16,7 +16,7 @@
 	<button type="button" id="preview" class="btn btn-primary">预览</button>
 </div>
 
-<div id="addConfigWin" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div id="addConfigWin" style="width:700px" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   	<div class="modal-header">
     	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
     	<h3 id="myModalLabel">参数配置</h3>
@@ -26,7 +26,7 @@
   			<div class="control-group">
   				<label class="control-label">模块：</label>
     			<div class="controls">
-    				<select class="input-xlarge" name="moduleId" id="config-moduleId" disabled="disabled">
+    				<select class="input-xxlarge" name="moduleId" id="config-moduleId" disabled="disabled">
 						<option value="">请选择...</option>
 						<c:forEach items="${modules}" var="module">
 							<option value='<c:out value="${module.MODULE_ID}"/>'><c:out value="${module.MODULE_NAME}"/></option>
@@ -43,15 +43,15 @@
     				<input type="hidden" name="type" value='<c:out value="${type}"/>'/>
     				<input type="hidden" name="page" value='<c:out value="${currentPage}"/>'/>
     				<input type="hidden" name="selModuleId" value='<c:out value="${moduleId}"/>'/>
-      				<input type="text" class="input-xlarge" id="config-configKey" disabled="disabled">
+      				<input type="text" class="input-xxlarge" id="config-configKey" disabled="disabled">
     			</div>
     			<label class="control-label">Config Value：</label>
     			<div class="controls">
-      				<input type="text" name="configValue" class="input-xlarge" id="config-configValue">
+      				<textarea rows="8" name="configValue" class="input-xxlarge" id="config-configValue"></textarea>
     			</div>
     			<label class="control-label">描述：</label>
     			<div class="controls">
-      				<textarea rows="2" class="input-xlarge" name="configDesc" id="config-configDesc"></textarea>
+      				<textarea rows="2" class="input-xxlarge" name="configDesc" id="config-configDesc"></textarea>
     			</div>
   			</div>
 		</form>

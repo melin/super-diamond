@@ -73,6 +73,23 @@ public class ConfigService {
 			return viewConfig(configs, type);
 	}
 	
+	public String queryValue(String projectCode, String module, String key, String type) {
+		String sql = "SELECT * FROM conf_project_config a, conf_project_module b, conf_project c " +
+				"WHERE a.MODULE_ID = b.MODULE_ID AND a.PROJECT_ID=c.id AND a.DELETE_FLAG =0 AND c.PROJ_CODE=? "
+				+ "AND b.MODULE_NAME=? AND a.CONFIG_KEY=?";
+		Map<String, Object> config = jdbcTemplate.queryForMap(sql, projectCode, module, key);
+		if("development".equals(type)) {
+			return (String)config.get("CONFIG_VALUE");
+		} else if("production".equals(type)) {
+			return (String)config.get("PRODUCTION_VALUE");
+		} else if("test".equals(type)) {
+			return (String)config.get("TEST_VALUE");
+		} else if("build".equals(type)) {
+			return (String)config.get("BUILD_VALUE");
+		} else
+			return "";
+	}
+	
 	@Transactional
 	public void insertConfig(String configKey, String configValue, String configDesc, Long projectId, Long moduleId, String user) {
         String sql = "SELECT MAX(CONFIG_ID)+1 FROM conf_project_config";
