@@ -20,6 +20,21 @@ public class PropertiesConfigurationFactoryBean implements FactoryBean<Propertie
 	
 	private static boolean init = false;
 	
+	public PropertiesConfigurationFactoryBean() {
+		this(null);
+	}
+	
+	public PropertiesConfigurationFactoryBean(List<ConfigurationListener> listeners) {
+		init = true;
+		__configuration = new PropertiesConfiguration();
+		
+		if(listeners != null) {
+			for(ConfigurationListener listener : listeners) {
+				__configuration.addConfigurationListener(listener);
+			}
+		}
+	}
+	
 	public PropertiesConfigurationFactoryBean(final String projCode, final String profile) {
 		this(projCode, profile, null);
 	}

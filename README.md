@@ -89,7 +89,6 @@ public class PropertiesConfigurationTest {
 客户端连接服务器端方式：
 ----------------------
 
-
 ```java
 PropertiesConfiguration config = new PropertiesConfiguration("localhost", 5001, "test", "development");
 config.addConfigurationListener(new ConfigurationListenerTest());
@@ -102,7 +101,7 @@ config.getString("jdbc.url")
 <bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
 	<property name="properties" ref="propertiesConfiguration" />
 </bean>
-	
+
 <bean id="propertiesConfiguration" class="com.github.diamond.client.PropertiesConfigurationFactoryBean">
 	<constructor-arg index="0" value="localhost" />
 	<constructor-arg index="1" value="5001" />
@@ -111,15 +110,17 @@ config.getString("jdbc.url")
 </bean>
 ```
 
-netty server的host和port可以通过环境变量和jvm参数两种方式设置，避免固定在工程配置文件中。
+客户端链接服务的参数projcode、profile、host和port可以通过环境变量和jvm参数两种方式设置，避免固定在工程配置文件中。
 
 ```shell
+export SUPERDIAMOND_PROJCODE=javademo
+export SUPERDIAMOND_PROFILE=production
 export SPUERDIAMOND_HOST=192.168.0.1
 export SPUERDIAMOND_PORT=8283
 ```
 或者
 ```shell
- -Dspuerdiamond.host=127.0.0.1 -Dspuerdiamond.port=8283
+ -Dsuperdiamond.projcode=javademo -Dsuperdiamond.profile=production -Dspuerdiamond.host=127.0.0.1 -Dspuerdiamond.port=8283 
 ```
 
 ```xml
