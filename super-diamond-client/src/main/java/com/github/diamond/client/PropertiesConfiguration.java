@@ -20,6 +20,7 @@ import org.apache.commons.lang.text.StrLookup;
 import org.apache.commons.lang.text.StrSubstitutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.Assert;
 
 import com.github.diamond.client.config.ConfigurationInterpolator;
 import com.github.diamond.client.config.PropertiesReader;
@@ -50,7 +51,19 @@ public class PropertiesConfiguration extends EventSource {
 	
 	private static final ExecutorService reloadExecutorService = Executors.newSingleThreadExecutor(new NamedThreadFactory("ReloadConfigExecutorService", true));
 	
-	protected PropertiesConfiguration() {
+	/**
+	 * 从jvm参数中获取 projCode、profile、host和port值
+	 * 
+	 * @param projCode
+	 * @param profile
+	 */
+	public PropertiesConfiguration() {
+		String host = getHost();
+		int port = getPort();
+		String projCode = getProjCode();
+		String profile = getProfile();
+		
+		connectServer(host, port, projCode, profile);
 		substitutor = new StrSubstitutor(createInterpolator());
 	}
 
@@ -74,6 +87,8 @@ public class PropertiesConfiguration extends EventSource {
 	}
 	
 	protected void connectServer(String host, int port, final String projCode, final String profile) {
+		Assert.isNull(projCode, "连接superdiamond， projCode不能为空");
+		
 		final String clientMsg = "superdiamond," + projCode + "," + profile;
 		try {
 			client = new Netty4Client(host, port, new ClientChannelInitializer(clientMsg));
@@ -188,7 +203,25 @@ public class PropertiesConfiguration extends EventSource {
 		store = tmpStore;
 	}
 	
-	private String getHost() {
+	public static String getProjCode() {
+		String value = System.getenv("SUPERDIAMOND_PROJCODE");
+		if(StringUtils.isBlank(value)) {
+			return System.getProperty("superdiamond.projcode");
+		} else {
+			return value;
+		}
+	}
+	
+	public static String getProfile() {
+		String value = System.getenv("SUPERDIAMOND_PROFILE");
+		if(StringUtils.isBlank(value)) {
+			return System.getProperty("superdiamond.profile", "development");
+		} else {
+			return value;
+		}
+	}
+	
+	public static String getHost() {
 		String value = System.getenv("SUPERDIAMOND_HOST");
 		if(StringUtils.isBlank(value)) {
 			return System.getProperty("superdiamond.host", "localhost");
@@ -197,7 +230,7 @@ public class PropertiesConfiguration extends EventSource {
 		}
 	}
 	
-	private int getPort() {
+	public static int getPort() {
 		String value = System.getenv("SUPERDIAMOND_PORT");
 		if(StringUtils.isBlank(value)) {
 			return Integer.valueOf(System.getProperty("superdiamond.port", "8283"));
