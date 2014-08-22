@@ -7,7 +7,7 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>super-diamond-client</module>
-		<module>super-diamond-server</module>
+		<!-- <module>super-diamond-server</module> -->
 	</modules>
 
 	<properties>
@@ -210,4 +210,20 @@
 		  	</plugin>
 		</plugins>
 	</build>
+	<distributionManagement>
+		<repository>
+			<id>nexus-releases</id>
+			<name>Nexuss Releses Repository</name>
+			<url>
+				http://repos.iflytek.com:8081/nexus/content/repositories/releases/
+			</url>
+		</repository>
+		<snapshotRepository>
+			<id>nexus-snapshots</id>
+			<name>Nexuss Snapshots Repository</name>
+			<url>
+				http://repos.iflytek.com:8081/nexus/content/repositories/snapshots/
+			</url>
+		</snapshotRepository>
+	</distributionManagement>
 </project>
