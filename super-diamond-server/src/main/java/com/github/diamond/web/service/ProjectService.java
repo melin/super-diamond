@@ -26,6 +26,12 @@ public class ProjectService {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 	
+	@Autowired
+	private ModuleService moduleService;
+	
+	@Autowired
+	private ConfigService configService;
+	
 	public List<Project> queryProjects(User user, int offset, int limit) {
 		String sql = "SELECT b.ID, b.PROJ_CODE, b.PROJ_NAME, a.USER_NAME, b.OWNER_ID FROM CONF_USER a, CONF_PROJECT b " +
 				"WHERE a.ID=b.OWNER_ID AND b.DELETE_FLAG = 0 ";
@@ -59,19 +65,38 @@ public class ProjectService {
 		}
 	}
 	
+	/**
+	 * 检查项目是否存在
+	 * 
+	 * @param code
+	 * @return
+	 */
+	public boolean checkProjectExist(String code) {
+		String sql = "SELECT COUNT(*) FROM conf_project WHERE proj_code=?";
+		int count = jdbcTemplate.queryForObject(sql, Integer.class, code);
+		if(count == 1)
+			return true;
+					
+		return false;
+	}
+	
 	@Transactional
-	public void saveProject(Project project) {
+	public void saveProject(Project project, String copyCode, User user) {
 		String sql = "SELECT MAX(id)+1 FROM conf_project";
-		long id = 1;
+		long projId = 1;
 		try {
-			id = jdbcTemplate.queryForObject(sql, Long.class);
+			projId = jdbcTemplate.queryForObject(sql, Long.class);
 		} catch(NullPointerException e) {
 			;
 		}
 		sql = "insert into CONF_PROJECT (ID, PROJ_CODE, PROJ_NAME, OWNER_ID, CREATE_TIME) values (?, ?, ?, ?, ?)";
 		
-		jdbcTemplate.update(sql, id, project.getCode(), project.getName(), project.getOwnerId(), new Date());
-		this.saveUser(id, project.getOwnerId(), "development", "test", "build", "production", "admin");
+		jdbcTemplate.update(sql, projId, project.getCode(), project.getName(), project.getOwnerId(), new Date());
+		this.saveUser(projId, project.getOwnerId(), "development", "test", "build", "production", "admin");
+		
+		if(StringUtils.isNotBlank(copyCode)) {
+			copyProjConfig(projId, copyCode, user.getUserCode());
+		}
 	}
 	
 	@Transactional
@@ -238,6 +263,24 @@ public class ProjectService {
 	public 	Map<String, Object> queryProject(Long projectId) {
 		String sql = "select * from CONF_PROJECT where ID=?";
 		return jdbcTemplate.queryForMap(sql, projectId);
+	}
+	
+	private void copyProjConfig(long projId, String projCode, String userCode) {
+		String sql = "SELECT b.MODULE_ID, b.MODULE_NAME FROM conf_project a, conf_project_module b "
+				+ "WHERE a.ID = b.PROJ_ID AND a.PROJ_CODE = ?";
+		List<Map<String, Object>> modules = jdbcTemplate.queryForList(sql, projCode);
+		
+		for(Map<String, Object> module : modules) {
+			long moduleId = moduleService.save(projId, (String)module.get("MODULE_NAME"));
+			sql = "SELECT b.CONFIG_KEY, b.CONFIG_VALUE, b.CONFIG_DESC FROM conf_project a, conf_project_config b "
+					+ "WHERE a.ID = b.PROJECT_ID AND a.PROJ_CODE=? AND b.MODULE_ID = ?";
+			List<Map<String, Object>> configs = jdbcTemplate.queryForList(sql, projCode, module.get("MODULE_ID"));
+			
+			for(Map<String, Object> conf : configs) {
+				configService.insertConfig((String)conf.get("CONFIG_KEY"), (String)conf.get("CONFIG_VALUE"), (String)conf.get("CONFIG_DESC"), 
+						projId, moduleId, userCode);
+			}
+		}
 	}
 	
 	private class ProjectRowMapper implements RowMapper<Project> {

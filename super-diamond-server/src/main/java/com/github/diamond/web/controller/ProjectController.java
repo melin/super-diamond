@@ -50,7 +50,7 @@ public class ProjectController extends BaseController {
 	}
 	
 	@RequestMapping(value="/project/save", method={RequestMethod.POST})
-	public String saveProject(Project project, HttpSession session) {
+	public String saveProject(Project project, String copyCode, HttpSession session) {
 		if(StringUtils.isBlank(project.getCode())) {
 			session.setAttribute("project", project);
 			session.setAttribute("message", "项目编码不能为空");
@@ -60,6 +60,9 @@ public class ProjectController extends BaseController {
 		} else if(StringUtils.isBlank(project.getUserCode())) {
 			session.setAttribute("project", project);
 			session.setAttribute("message", "项目管理者不能为空");
+		} else if(StringUtils.isNotBlank(copyCode) && !projectService.checkProjectExist(copyCode)) {
+			session.setAttribute("project", project);
+			session.setAttribute("message", "复制项目编码不正确");
 		} else {
 			long userid = projectService.findUserId(project.getUserCode());
 			if(userid == 0) {
@@ -67,7 +70,9 @@ public class ProjectController extends BaseController {
 				session.setAttribute("message", "项目管理者不存在，请检查拼写是否正确");
 			} else {
 				project.setOwnerId(userid);
-				projectService.saveProject(project);
+				User user = (User) SessionHolder.getSession().getAttribute("sessionUser");
+				projectService.saveProject(project, copyCode, user);
+				
 				session.setAttribute("message", "项目添加成功");
 				return "redirect:/project/index";
 			}

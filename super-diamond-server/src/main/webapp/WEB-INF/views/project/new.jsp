@@ -23,6 +23,11 @@
  		<label class="control-label">项目管理者：</label>
      	<input type="text" class="input-xlarge" name="userCode" value='<c:out value="${project.userCode}"/>'>
    	</div>
+   	<div class="form-group">
+ 		<label class="control-label">复制其它项目配置：</label>
+     	<input type="text" class="input-xlarge" name="copyCode">
+     	填写复制项目编码
+   	</div>
    	<div class="form-actions">
 		<button class="btn btn-primary" type="submit">保存</button>
 	</div>
