@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,13 +73,16 @@ public class ConfigController extends BaseController {
 	public void preview(@PathVariable("type") String type, @PathVariable("projectCode") String projectCode, 
 			HttpServletRequest request, HttpServletResponse resp) {
 		try {
-			String format = "properties";
-			if("php".equals(request.getParameter("format"))) {
-				format = "php";
+			String format = request.getParameter("format");
+			if(StringUtils.isBlank(format)) {
+				format = "properties";
 			}
 			String config = configService.queryConfigs(projectCode, type, format);
 			
-			resp.setContentType("text/plain");
+			if(format.equals("json"))
+				resp.setContentType("application/json;charset=UTF-8");
+			else
+				resp.setContentType("text/plain;charset=UTF-8");
 			PrintWriter out = resp.getWriter();
 			out.println(config);
 		} catch (Exception e) {
@@ -97,13 +101,16 @@ public class ConfigController extends BaseController {
 			@PathVariable("projectCode") String projectCode, 
 			HttpServletRequest request, HttpServletResponse resp) {
 		try {
-			String format = "properties";
-			if("php".equals(request.getParameter("format"))) {
-				format = "php";
+			String format = request.getParameter("format");
+			if(StringUtils.isBlank(format)) {
+				format = "properties";
 			}
 			String config = configService.queryConfigs(projectCode, module, type, format);
 			
-			resp.setContentType("text/plain");
+			if(format.equals("json"))
+				resp.setContentType("application/json;charset=UTF-8");
+			else
+				resp.setContentType("text/plain;charset=UTF-8");
 			PrintWriter out = resp.getWriter();
 			out.println(config);
 		} catch (Exception e) {

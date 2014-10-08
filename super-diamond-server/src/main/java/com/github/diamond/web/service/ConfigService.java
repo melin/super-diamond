@@ -4,6 +4,7 @@
 package com.github.diamond.web.service;
 
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.alibaba.druid.support.json.JSONUtils;
 
 /**
  * Create on @2013-8-23 @上午10:26:17 
@@ -57,9 +60,11 @@ public class ConfigService {
 		String sql = "SELECT * FROM conf_project_config a, conf_project_module b, conf_project c " +
 				"WHERE a.MODULE_ID = b.MODULE_ID AND a.PROJECT_ID=c.id AND a.DELETE_FLAG =0 AND c.PROJ_CODE=?";
 		List<Map<String, Object>> configs = jdbcTemplate.queryForList(sql, projectCode);
-		if("php".equals(format))
+		if("php".equals(format)) {
 			return viewConfigPhp(configs, type);
-		else
+		} else if("json".equals(format)) {
+			return viewConfigJson(configs, type);
+		} else
 			return viewConfig(configs, type);
 	}
 	
@@ -67,9 +72,11 @@ public class ConfigService {
 		String sql = "SELECT * FROM conf_project_config a, conf_project_module b, conf_project c " +
 				"WHERE a.MODULE_ID = b.MODULE_ID AND a.PROJECT_ID=c.id AND a.DELETE_FLAG =0 AND c.PROJ_CODE=? AND b.MODULE_NAME=?";
 		List<Map<String, Object>> configs = jdbcTemplate.queryForList(sql, projectCode, module);
-		if("php".equals(format))
+		if("php".equals(format)) {
 			return viewConfigPhp(configs, type);
-		else
+		} else if("json".equals(format)) {
+			return viewConfigJson(configs, type);
+		} else
 			return viewConfig(configs, type);
 	}
 	
@@ -213,6 +220,38 @@ public class ConfigService {
 		message += ");\r\n";
 		
 		return message;
+	}
+	
+	private String viewConfigJson(List<Map<String, Object>> configs, String type) {
+		Map<String, Object> confMap = new LinkedHashMap<String, Object>();
+		boolean versionFlag = true;
+		for(Map<String, Object> map : configs) {
+			if(versionFlag) {
+				if("development".equals(type)) {
+					confMap.put("version", map.get("DEVELOPMENT_VERSION"));
+				} else if("production".equals(type)) {
+					confMap.put("version", map.get("PRODUCTION_VERSION"));
+				} else if("test".equals(type)) {
+					confMap.put("version", map.get("TEST_VERSION"));
+				} else if("build".equals(type)) {
+					confMap.put("version", map.get("BUILD_VALUE"));
+				}
+				
+				versionFlag = false;
+			}
+			
+			if("development".equals(type)) {
+				confMap.put(map.get("CONFIG_KEY").toString(), map.get("CONFIG_VALUE"));
+			} else if("production".equals(type)) {
+				confMap.put(map.get("CONFIG_KEY").toString(), map.get("PRODUCTION_VALUE"));
+			} else if("test".equals(type)) {
+				confMap.put(map.get("CONFIG_KEY").toString(), map.get("TEST_VALUE"));
+			} else if("build".equals(type)) {
+				confMap.put(map.get("CONFIG_KEY").toString(), map.get("BUILD_VALUE"));
+			}
+		}
+		
+		return JSONUtils.toJSONString(confMap);
 	}
 	
 	private String convertType(Object value) {
