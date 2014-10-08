@@ -143,9 +143,16 @@ PHP项目应用：
 - properties格式
 
 	http://host:port/superdiamond/preview/${项目编码}/${profile}
+	http://host:port/superdiamond/preview/${项目编码}/${module}/${profile}
+	http://host:port/superdiamond/preview/${项目编码}/${module}/${key}/${profile}
 - php config格式
 
 	http://host:port/superdiamond/preview/${项目编码}/${profile}?format=php
+	http://host:port/superdiamond/preview/${项目编码}/${module}/${profile}?format=php
+- json config格式
+
+	http://host:port/superdiamond/preview/${项目编码}/${profile}?format=json
+	http://host:port/superdiamond/preview/${项目编码}/${module}/${profile}?format=json
 
 结合Phing从superdiamond获取配置参数。完整的phing build.xml配置请参考：
 https://gist.github.com/melin/fa4818acc9fd55666b77
