@@ -135,7 +135,7 @@ PropertiesConfiguration config = PropertiesConfigurationFactoryBean.getPropertie
 config.getString("jdbc.url")
 ```
 
-PHP项目应用：
+Rest 接口获取配置：
 ----------------------
 通过http获取配置信息，http url格式为：
 
@@ -153,6 +153,9 @@ PHP项目应用：
 	http://host:port/superdiamond/preview/${项目编码}/${profile}?format=json
 	http://host:port/superdiamond/preview/${项目编码}/${module}/${profile}?format=json
 
+
+PHP项目应用：
+----------------------
 结合Phing从superdiamond获取配置参数。完整的phing build.xml配置请参考：
 https://gist.github.com/melin/fa4818acc9fd55666b77
 
