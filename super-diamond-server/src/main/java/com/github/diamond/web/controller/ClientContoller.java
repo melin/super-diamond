@@ -24,8 +24,8 @@ import com.github.diamond.netty.DiamondServerHandler.ClientInfo;
 @Controller
 public class ClientContoller extends BaseController {
 	
-	private static final SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
+	private static final String DATEFORMAT_STRING = "yyyy-MM-dd HH:mm:ss";
+	
 	@RequestMapping("/queryClients")
 	public void queryClients(ModelMap modelMap) {
 		List<Map<String, String>> clients = new ArrayList<Map<String, String>>();
@@ -40,7 +40,7 @@ public class ClientContoller extends BaseController {
 				map.put("projcode", projcode);
 				map.put("profile", profile);
 				map.put("address", info.getAddress().substring(1));
-				map.put("connectTime", dateformat.format(info.getConnectTime()));
+				map.put("connectTime", new SimpleDateFormat(DATEFORMAT_STRING).format(info.getConnectTime()));
 				clients.add(map);
 			}
 		}
