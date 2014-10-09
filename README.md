@@ -11,7 +11,8 @@ super-diamond
 - server 备份配置文件系统系统，如果数据库不用，能够保证对客户端提供数据（待完善）。
 - 支持php项目从superdiamond中获取配置参数。
 
-系统功能截图：http://melin.iteye.com/picture/127359
+系统功能截图：
+![](https://raw.githubusercontent.com/melin/super-diamond/master/diamond.png)
 
 项目profile请参考：http://melin.iteye.com/blog/1339060
 
