@@ -15,19 +15,18 @@ super-diamond
 
 项目profile请参考：http://melin.iteye.com/blog/1339060
 
-super-diamond-server
+super-diamond-server 安装
 --------------------
-
-super-diamond-server中嵌入tomcat运行，构建部署包：mvn install assembly:single -Pproduction，生成super-diamond-server-1.0.0-SNAPSHOT-bin.tar.gz文件，
+1. 下载super-diamond代码： git clone https://github.com/melin/super-diamond.git
+2. 进入super-diamond目录，构建super-diamond父工程： mvn install
+3. super-diamond-server中嵌入jetty运行，构建部署包：mvn install assembly:single -Pproduction，生成super-diamond-server-${version}-bin.tar.gz文件，
 解压运行bin/server.sh start命令。
-
-在conf\META-INF\scripts目录中，提供mysql和oracle建表脚本，理论也支持其它数据库，在conf\META-INF\res\config-production.properties文件中修改数据库配置。
-
-在conf_user表中添加用户admin，密码000000的加密值为：670b14728ad9902aecba32e22fa4f6bd, mysql脚本：
-```java
+4. 在conf\META-INF\scripts目录中，提供mysql和oracle建表脚本，理论也支持其它数据库，在conf\META-INF\res\config-production.properties文件中修改数据库配置。
+5. 在conf_user表中添加用户admin，密码000000的加密值为：670b14728ad9902aecba32e22fa4f6bd, mysql脚本：
 insert into conf_user(id,USER_code,USER_NAME,PASSWORD,CREATE_TIME) values(1,'admin','admin','670b14728ad9902aecba32e22fa4f6bd',current_timestamp() );  
 commit;  
-```
+6. 访问super-diamond-server，jetty默认端口为8090，可以在：conf/META-INF/res/jetty.properties中修改。
+	http://localhost:8090/superdiamond
 
 super-diamond-client
 --------------------
