@@ -97,7 +97,7 @@ public class ConfigController extends BaseController {
 	}
 	
 	@RequestMapping("/preview/{projectCode}/{module}/{type}")
-	public void previewModule(@PathVariable("type") String type, @PathVariable("module") String module, 
+	public void previewModule(@PathVariable("type") String type, @PathVariable("module") String modules, 
 			@PathVariable("projectCode") String projectCode, 
 			HttpServletRequest request, HttpServletResponse resp) {
 		try {
@@ -105,7 +105,8 @@ public class ConfigController extends BaseController {
 			if(StringUtils.isBlank(format)) {
 				format = "properties";
 			}
-			String config = configService.queryConfigs(projectCode, module, type, format);
+			String[] moduleArr = StringUtils.split(modules, ",");
+			String config = configService.queryConfigs(projectCode, moduleArr, type, format);
 			
 			if(format.equals("json"))
 				resp.setContentType("application/json;charset=UTF-8");

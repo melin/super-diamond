@@ -68,10 +68,12 @@ public class ConfigService {
 			return viewConfig(configs, type);
 	}
 	
-	public String queryConfigs(String projectCode, String module, String type, String format) {
+	public String queryConfigs(String projectCode, String[] modules, String type, String format) {
 		String sql = "SELECT * FROM conf_project_config a, conf_project_module b, conf_project c " +
-				"WHERE a.MODULE_ID = b.MODULE_ID AND a.PROJECT_ID=c.id AND a.DELETE_FLAG =0 AND c.PROJ_CODE=? AND b.MODULE_NAME=?";
-		List<Map<String, Object>> configs = jdbcTemplate.queryForList(sql, projectCode, module);
+				"WHERE a.MODULE_ID = b.MODULE_ID AND a.PROJECT_ID=c.id AND a.DELETE_FLAG =0 AND c.PROJ_CODE=? "
+				+ "AND b.MODULE_NAME in ('" + StringUtils.join(modules, "','") + "')";
+		
+		List<Map<String, Object>> configs = jdbcTemplate.queryForList(sql, projectCode);
 		if("php".equals(format)) {
 			return viewConfigPhp(configs, type);
 		} else if("json".equals(format)) {
