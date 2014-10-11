@@ -143,16 +143,16 @@ Rest 接口获取配置：
 - properties格式
 
 	http://host:port/superdiamond/preview/${项目编码}/${profile}
-	http://host:port/superdiamond/preview/${项目编码}/${module}/${profile}
+	http://host:port/superdiamond/preview/${项目编码}/${module}[,${module}]/${profile} //支持设置多个module值，用逗号分割
 	http://host:port/superdiamond/preview/${项目编码}/${module}/${key}/${profile}
 - php config格式
 
 	http://host:port/superdiamond/preview/${项目编码}/${profile}?format=php
-	http://host:port/superdiamond/preview/${项目编码}/${module}/${profile}?format=php
+	http://host:port/superdiamond/preview/${项目编码}/${module}[,${module}]/${profile}? format=php  //支持设置多个module值，用逗号分割
 - json config格式
 
-	http://host:port/superdiamond/preview/${项目编码}/${profile}?format=json
-	http://host:port/superdiamond/preview/${项目编码}/${module}/${profile}?format=json
+	http://host:port/superdiamond/preview/${项目编码}/${profile}?format=json 
+	http://host:port/superdiamond/preview/${项目编码}/${module}[,${module}]/${profile}?  //支持设置多个module值，用逗号分割format=json
 
 
 PHP项目应用：
