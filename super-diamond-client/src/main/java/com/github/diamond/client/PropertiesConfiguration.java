@@ -55,6 +55,7 @@ public class PropertiesConfiguration extends EventSource {
 	private static int _port = 0;
 	private static String _projCode;
 	private static String _profile;
+	private static String _modules;
 	
 	/**
 	 * 从jvm参数中获取 projCode、profile、host和port值
@@ -67,8 +68,9 @@ public class PropertiesConfiguration extends EventSource {
 		_port = getPort();
 		_projCode = getProjCode();
 		_profile = getProfile();
+		_modules = getModules();
 		
-		connectServer(_host, _port, _projCode, _profile);
+		connectServer(_host, _port, _projCode, _profile, _modules);
 		substitutor = new StrSubstitutor(createInterpolator());
 	}
 
@@ -83,8 +85,26 @@ public class PropertiesConfiguration extends EventSource {
 		_port = getPort();
 		_projCode = projCode;
 		_profile = profile;
+		_modules = "";
 		
-		connectServer(_host, _port, _projCode, _profile);
+		connectServer(_host, _port, _projCode, _profile, _modules);
+		substitutor = new StrSubstitutor(createInterpolator());
+	}
+	
+	/**
+	 * 从jvm参数中获取 host和port值
+	 * 
+	 * @param projCode
+	 * @param profile
+	 */
+	public PropertiesConfiguration(final String projCode, final String profile, String modules) {
+		_host = getHost();
+		_port = getPort();
+		_projCode = projCode;
+		_profile = profile;
+		_modules = modules;
+		
+		connectServer(_host, _port, _projCode, _profile, _modules);
 		substitutor = new StrSubstitutor(createInterpolator());
 	}
 
@@ -93,15 +113,28 @@ public class PropertiesConfiguration extends EventSource {
 		_port = port;
 		_projCode = projCode;
 		_profile = profile;
+		_modules = "";
 		
-		connectServer(_host, _port, _projCode, _profile);
+		connectServer(_host, _port, _projCode, _profile, _modules);
 		substitutor = new StrSubstitutor(createInterpolator());
 	}
 	
-	protected void connectServer(String host, int port, final String projCode, final String profile) {
+	public PropertiesConfiguration(String host, int port, final String projCode, final String profile, String modules) {
+		_host = host;
+		_port = port;
+		_projCode = projCode;
+		_profile = profile;
+		_modules = modules;
+		
+		connectServer(_host, _port, _projCode, _profile, _modules);
+		substitutor = new StrSubstitutor(createInterpolator());
+	}
+	
+	protected void connectServer(String host, int port, final String projCode, final String profile, final String modules) {
 		Assert.notNull(projCode, "连接superdiamond， projCode不能为空");
 		
-		final String clientMsg = "superdiamond," + projCode + "," + profile;
+		final String clientMsg = "superdiamond={\"projCode\": \"" + projCode + "\", \"profile\": \"" + profile + "\", "
+				+ "\"modules\": \"" + modules + "\", \"version\": \"1.1.0\"}";
 		try {
 			client = new Netty4Client(host, port, new ClientChannelInitializer(clientMsg));
 			
@@ -236,6 +269,18 @@ public class PropertiesConfiguration extends EventSource {
 			return System.getProperty("superdiamond.profile", "development");
 		} else {
 			return _profile;
+		}
+	}
+	
+	public static String getModules() {
+		if(StringUtils.isNotBlank(_modules))
+			return _modules;
+		
+		_modules = System.getenv("SUPERDIAMOND_MODULES");
+		if(StringUtils.isBlank(_modules)) {
+			return System.getProperty("superdiamond.modules");
+		} else {
+			return _modules;
 		}
 	}
 	

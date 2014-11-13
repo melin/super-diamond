@@ -115,6 +115,7 @@ config.getString("jdbc.url")
 ```shell
 export SUPERDIAMOND_PROJCODE=javademo
 export SUPERDIAMOND_PROFILE=production
+export SUPERDIAMOND_MODULES=jdbc,common #多个模块之用逗号分隔，可以设置为空，获取所有模块配置。
 export SPUERDIAMOND_HOST=192.168.0.1
 export SPUERDIAMOND_PORT=8283
 ```
@@ -127,6 +128,7 @@ export SPUERDIAMOND_PORT=8283
 <bean id="propertiesConfiguration" class="com.github.diamond.client.PropertiesConfigurationFactoryBean">
 	<constructor-arg index="0" value="test" />
 	<constructor-arg index="1" value="development" />
+	<constructor-arg index="2" value="development" />
 </bean>
 ```
 

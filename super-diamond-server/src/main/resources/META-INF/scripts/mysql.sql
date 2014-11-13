@@ -1,3 +1,5 @@
+CREATE DATABASE edu_diamond;
+
 CREATE TABLE `CONF_USER` (
   `ID` int(11) NOT NULL,
   `USER_CODE` varchar(32) DEFAULT NULL,

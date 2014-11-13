@@ -13,12 +13,15 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.alibaba.druid.support.json.JSONUtils;
 import com.github.diamond.web.service.ConfigService;
 
 /**
@@ -46,23 +49,35 @@ public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
     	logger.info(ctx.channel().remoteAddress() + " 连接到服务器。");
     }
     
-    @Override
+    @SuppressWarnings("unchecked")
+	@Override
     public void channelRead0(ChannelHandlerContext ctx, String request) throws Exception {
     	String config;
-        if (request != null && request.startsWith("superdiamond")) {
-        	String[] params = request.split(",");
+        if (request != null && request.startsWith("superdiamond=")) {
+        	request = request.substring("superdiamond=".length());
         	
-        	List<ClientInfo> addrs = clients.get(params[1] + "$$" + params[2]);
+        	Map<String, String> params = (Map<String, String>) JSONUtils.parse(request);
+        	String projCode = params.get("projCode");
+        	String modules = params.get("modules");
+        	String profile = params.get("profile");
+        	//String version = params.get("version");
+        	
+        	String key = projCode + "$$" + modules + "$$" + profile;
+        	List<ClientInfo> addrs = clients.get(key);
         	if(addrs == null) {
         		addrs = new ArrayList<ClientInfo>();
         	}
         	ClientInfo clientInfo = new ClientInfo(ctx.channel().remoteAddress().toString(), new Date());
         	addrs.add(clientInfo);
-        	clients.put(params[1] + "$$" + params[2], addrs);
-        	
+        	clients.put(key, addrs);
         	channels.put(ctx.channel().remoteAddress().toString(), ctx);
         	
-            config = configService.queryConfigs(params[1], params[2], "");
+        	if(StringUtils.isNotBlank(modules)) {
+        		String[] moduleArr = StringUtils.split(modules, ",");
+                config = configService.queryConfigs(projCode, moduleArr, profile, "");
+        	} else {
+        		config = configService.queryConfigs(projCode, profile, "");
+        	}
         } else {
         	config = "";
         }

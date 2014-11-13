@@ -35,11 +35,11 @@ public class PropertiesConfigurationFactoryBean implements FactoryBean<Propertie
 		}
 	}
 	
-	public PropertiesConfigurationFactoryBean(final String projCode, final String profile) {
-		this(projCode, profile, null);
+	public PropertiesConfigurationFactoryBean(final String projCode, final String profile, final String modules) {
+		this(projCode, profile, modules, null);
 	}
 	
-	public PropertiesConfigurationFactoryBean(final String projCode, final String profile, List<ConfigurationListener> listeners) {
+	public PropertiesConfigurationFactoryBean(final String projCode, final String profile, final String modules, List<ConfigurationListener> listeners) {
 		init = true;
 		__configuration = new PropertiesConfiguration(projCode, profile);
 		
@@ -50,13 +50,13 @@ public class PropertiesConfigurationFactoryBean implements FactoryBean<Propertie
 		}
 	}
 	
-	public PropertiesConfigurationFactoryBean(String host, int port, final String projCode, final String profile) {
-		this(host, port, projCode, profile, null);
+	public PropertiesConfigurationFactoryBean(String host, int port, final String projCode, final String profile, final String modules) {
+		this(host, port, projCode, profile, modules, null);
 	}
 	
-	public PropertiesConfigurationFactoryBean(String host, int port, final String projCode, final String profile, List<ConfigurationListener> listeners) {
+	public PropertiesConfigurationFactoryBean(String host, int port, final String projCode, final String profile, final String modules, List<ConfigurationListener> listeners) {
 		init = true;
-		__configuration = new PropertiesConfiguration(host, port, projCode, profile);
+		__configuration = new PropertiesConfiguration(host, port, projCode, profile, modules);
 		
 		if(listeners != null) {
 			for(ConfigurationListener listener : listeners) {
