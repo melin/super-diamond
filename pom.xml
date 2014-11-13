@@ -17,7 +17,7 @@
 
 		<cglib.version>3.1</cglib.version>
 		<aspectj.version>1.7.2</aspectj.version>
-		<spring.version>3.2.10.RELEASE</spring.version>
+		<spring.version>3.2.12.RELEASE</spring.version>
 
 		<oracle.version>10.2.0.1.0</oracle.version>
 		<mysql.version>5.1.31</mysql.version>
@@ -26,13 +26,13 @@
 		<logback.version>1.1.2</logback.version>
 		<org.slf4j.version>1.7.7</org.slf4j.version>
 
-		<netty.verison>4.0.21.Final</netty.verison>
+		<netty.verison>4.0.24.Final</netty.verison>
 		<commons-lang.version>2.6</commons-lang.version>
 		<commons-io.version>2.3</commons-io.version>
 		<commons-configuration.version>1.10</commons-configuration.version>
 
 		<junit.version>4.11</junit.version>
-		<jetty.version>9.2.2.v20140723</jetty.version>
+		<version>9.2.4.v20141103</version>
 	</properties>
 
 	<dependencyManagement>
