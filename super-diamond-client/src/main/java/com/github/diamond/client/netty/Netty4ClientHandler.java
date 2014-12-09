@@ -7,7 +7,7 @@ import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
-import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -22,10 +22,10 @@ public class Netty4ClientHandler extends SimpleChannelInboundHandler<String> {
 
 	private static final Logger logger = LoggerFactory.getLogger(Netty4ClientHandler.class);
     
-    private final SynchronousQueue<String> queue;
+    private final LinkedBlockingQueue<String> queue;
 
     public Netty4ClientHandler() {
-    	queue = new SynchronousQueue<String>();
+    	queue = new LinkedBlockingQueue<String>();
 	}
 
     @Override

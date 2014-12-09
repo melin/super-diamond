@@ -166,6 +166,7 @@ public class ConfigService {
 			}
 			
 			String desc = (String)map.get("CONFIG_DESC");
+			desc = desc.replaceAll("\r\n", " ");
 			if(StringUtils.isNotBlank(desc))
 				message += "#" + desc + "\r\n";
 			

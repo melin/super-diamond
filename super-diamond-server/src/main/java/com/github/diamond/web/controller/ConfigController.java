@@ -22,6 +22,7 @@ import com.github.diamond.netty.DiamondServerHandler;
 import com.github.diamond.utils.SessionHolder;
 import com.github.diamond.web.model.User;
 import com.github.diamond.web.service.ConfigService;
+import com.github.diamond.web.service.ModuleService;
 import com.github.diamond.web.service.ProjectService;
 
 /**
@@ -37,8 +38,24 @@ public class ConfigController extends BaseController {
 	@Autowired
 	private ProjectService projectService;
 	@Autowired
+	private ModuleService moduleService;
+	@Autowired
 	private DiamondServerHandler diamondServerHandler;
 	
+	/**
+	 * 
+	 * @param type profile的值
+	 * @param configId
+	 * @param configKey
+	 * @param configValue
+	 * @param configDesc
+	 * @param projectId
+	 * @param moduleId
+	 * @param selModuleId
+	 * @param page
+	 * @param flag
+	 * @return
+	 */
 	@RequestMapping("/config/save")
 	public String saveConfig(String type, Long configId, String configKey, String configValue, 
 			String configDesc, Long projectId, Long moduleId, Long selModuleId, int page, 
@@ -51,8 +68,8 @@ public class ConfigController extends BaseController {
 		}
 
 		String projCode = (String)projectService.queryProject(projectId).get("PROJ_CODE");
-		String config = configService.queryConfigs(projCode, type, "");
-		diamondServerHandler.pushConfig(projCode, type, config);
+		String moduleName = moduleService.findName(moduleId);
+		diamondServerHandler.pushConfig(projCode, type, moduleName);
 		if(selModuleId != null)
 			return "redirect:/profile/" + type + "/" + projectId + "?moduleId=" + selModuleId + "&flag=" + flag;
 		else
@@ -60,12 +77,11 @@ public class ConfigController extends BaseController {
 	}
 	
 	@RequestMapping("/config/delete/{id}")
-	public String deleteConfig(String type, Long projectId, @PathVariable Long id) {
+	public String deleteConfig(String type, Long projectId, String moduleName, @PathVariable Long id) {
 		configService.deleteConfig(id, projectId);
 		
 		String projCode = (String)projectService.queryProject(projectId).get("PROJ_CODE");
-		String config = configService.queryConfigs(projCode, type, "");
-		diamondServerHandler.pushConfig(projCode, type, config);
+		diamondServerHandler.pushConfig(projCode, type, moduleName);
 		return "redirect:/profile/" + type + "/" + projectId;
 	}
 	

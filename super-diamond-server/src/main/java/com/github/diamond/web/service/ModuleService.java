@@ -39,6 +39,11 @@ public class ModuleService {
 		return id;
 	}
 	
+	public String findName(Long moduleId) {
+        String sql = "SELECT module_name FROM conf_project_module WHERE module_id=?";
+        return jdbcTemplate.queryForObject(sql, String.class, moduleId);
+	}
+	
 	@Transactional
 	public boolean delete(long moduleId, long projectId) {
 		String sql = "select count(*) from conf_project_config where MODULE_ID = ? and PROJECT_ID = ?";

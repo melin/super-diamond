@@ -11,11 +11,13 @@ import io.netty.channel.SimpleChannelInboundHandler;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +33,8 @@ import com.github.diamond.web.service.ConfigService;
 @Sharable
 public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
 	
-	public static ConcurrentHashMap<String /*projcode+profile*/, List<ClientInfo> /*client address*/> clients = 
-			new ConcurrentHashMap<String, List<ClientInfo>>();
+	public static ConcurrentHashMap<ClientKey /*projcode+profile*/, List<ClientInfo> /*client address*/> clients = 
+			new ConcurrentHashMap<ClientKey, List<ClientInfo>>();
 	
 	private ConcurrentHashMap<String /*client address*/, ChannelHandlerContext> channels = 
 			new ConcurrentHashMap<String, ChannelHandlerContext>();
@@ -59,21 +61,26 @@ public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
         	Map<String, String> params = (Map<String, String>) JSONUtils.parse(request);
         	String projCode = params.get("projCode");
         	String modules = params.get("modules");
+        	String[] moduleArr = StringUtils.split(modules, ",");
         	String profile = params.get("profile");
+        	ClientKey key = new ClientKey();
+        	key.setProjCode(projCode);
+        	key.setProfile(profile);
+        	key.setModuleArr(moduleArr);
         	//String version = params.get("version");
         	
-        	String key = projCode + "$$" + modules + "$$" + profile;
         	List<ClientInfo> addrs = clients.get(key);
         	if(addrs == null) {
         		addrs = new ArrayList<ClientInfo>();
         	}
-        	ClientInfo clientInfo = new ClientInfo(ctx.channel().remoteAddress().toString(), new Date());
+        	
+        	String clientAddr = ctx.channel().remoteAddress().toString();
+        	ClientInfo clientInfo = new ClientInfo(clientAddr, new Date());
         	addrs.add(clientInfo);
         	clients.put(key, addrs);
-        	channels.put(ctx.channel().remoteAddress().toString(), ctx);
+        	channels.put(clientAddr, ctx);
         	
         	if(StringUtils.isNotBlank(modules)) {
-        		String[] moduleArr = StringUtils.split(modules, ",");
                 config = configService.queryConfigs(projCode, moduleArr, profile, "");
         	} else {
         		config = configService.queryConfigs(projCode, profile, "");
@@ -121,14 +128,24 @@ public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
      * @param profile
      * @param config
      */
-    public void pushConfig(String projCode, String profile, final String config) {
-    	List<ClientInfo> addrs = clients.get(projCode + "$$" + profile);
-    	if(addrs != null) {
-    		for(ClientInfo client : addrs) {
-    			ChannelHandlerContext ctx = channels.get(client.getAddress());
-    			if(ctx != null) {
-    				sendMessage(ctx, config);
-    			}
+    public void pushConfig(String projCode, String profile, final String module) {
+    	for(ClientKey key : clients.keySet()) {
+    		if(key.getProjCode().equals(projCode) && key.getProfile().equals(profile)) {
+				List<ClientInfo> addrs = clients.get(key);
+		    	if(addrs != null) {
+		    		for(ClientInfo client : addrs) {
+		    			ChannelHandlerContext ctx = channels.get(client.getAddress());
+		    			if(ctx != null) {
+		    				if(key.moduleArr.length == 0) {
+		    					String config = configService.queryConfigs(projCode, profile, "");
+		    					sendMessage(ctx, config);
+		    				} else if(ArrayUtils.contains(key.getModuleArr(), module)) {
+		    					String config = configService.queryConfigs(projCode, key.getModuleArr(), profile, "");
+    		    				sendMessage(ctx, config);
+		    				}
+		    			}
+		    		}
+		    	}
     		}
     	}
     }
@@ -140,6 +157,66 @@ public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
         message.writeBytes(bytes);
         ctx.writeAndFlush(message);
 	}
+    
+    public static class ClientKey {
+    	String projCode;
+    	String[] moduleArr;
+    	String profile;
+    	
+		public String getProjCode() {
+			return projCode;
+		}
+		public void setProjCode(String projCode) {
+			this.projCode = projCode;
+		}
+		public String[] getModuleArr() {
+			return moduleArr;
+		}
+		public void setModuleArr(String[] moduleArr) {
+			this.moduleArr = moduleArr;
+		}
+		public String getProfile() {
+			return profile;
+		}
+		public void setProfile(String profile) {
+			this.profile = profile;
+		}
+		
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + Arrays.hashCode(moduleArr);
+			result = prime * result
+					+ ((profile == null) ? 0 : profile.hashCode());
+			result = prime * result
+					+ ((projCode == null) ? 0 : projCode.hashCode());
+			return result;
+		}
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			ClientKey other = (ClientKey) obj;
+			if (!Arrays.equals(moduleArr, other.moduleArr))
+				return false;
+			if (profile == null) {
+				if (other.profile != null)
+					return false;
+			} else if (!profile.equals(other.profile))
+				return false;
+			if (projCode == null) {
+				if (other.projCode != null)
+					return false;
+			} else if (!projCode.equals(other.projCode))
+				return false;
+			return true;
+		}
+    }
     
     public static class ClientInfo {
     	private String address;

@@ -10,12 +10,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.github.diamond.netty.DiamondServerHandler;
 import com.github.diamond.netty.DiamondServerHandler.ClientInfo;
+import com.github.diamond.netty.DiamondServerHandler.ClientKey;
 
 /**
  * Create on @2013-12-18 @上午11:44:10 
@@ -29,15 +31,16 @@ public class ClientContoller extends BaseController {
 	@RequestMapping("/queryClients")
 	public void queryClients(ModelMap modelMap) {
 		List<Map<String, String>> clients = new ArrayList<Map<String, String>>();
-		for(Entry<String, List<ClientInfo>> entry : DiamondServerHandler.clients.entrySet()) {
-			String key = entry.getKey();
-			String arrs[] = key.split("\\$\\$");
-			String projcode = arrs[0];
-			String profile = arrs[1];
+		for(Entry<ClientKey, List<ClientInfo>> entry : DiamondServerHandler.clients.entrySet()) {
+			ClientKey key = entry.getKey();
+			String projcode = key.getProjCode();
+			String modules = StringUtils.join(key.getModuleArr());
+			String profile = key.getProfile();
 			
 			for(ClientInfo info : entry.getValue()) {
 				Map<String, String> map = new HashMap<String, String>();
 				map.put("projcode", projcode);
+				map.put("modules", modules);
 				map.put("profile", profile);
 				map.put("address", info.getAddress().substring(1));
 				map.put("connectTime", new SimpleDateFormat(DATEFORMAT_STRING).format(info.getConnectTime()));

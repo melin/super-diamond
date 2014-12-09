@@ -136,7 +136,7 @@
                	</td>
                	<td>
                		<c:if test="${project.OWNER_ID == sessionScope.sessionUser.id}">
-                  		<a class="deleteConfig" href='/superdiamond/config/delete/<c:out value="${config.CONFIG_ID}"/>?projectId=<c:out value="${projectId}"/>&type=<c:out value="${type}"/>' title="删除"><i class="icon-remove"></i></a>
+                  		<a class="deleteConfig" href='/superdiamond/config/delete/<c:out value="${config.CONFIG_ID}"/>?projectId=<c:out value="${projectId}"/>&type=<c:out value="${type}"/>&moduleName=<c:out value="${config.MODULE_NAME}"/>' title="删除"><i class="icon-remove"></i></a>
                   	</c:if>
                   	<a href='javascript:updateConfig(<c:out value="${config.CONFIG_ID}"/>)' title="更新"><i class="icon-edit"></i></a>
                	</td>
