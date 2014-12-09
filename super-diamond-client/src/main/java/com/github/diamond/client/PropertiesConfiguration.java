@@ -57,6 +57,8 @@ public class PropertiesConfiguration extends EventSource {
 	private static String _profile;
 	private static String _modules;
 	
+	private static final long FIRST_CONNECT_TIMEOUT = 2;
+	
 	/**
 	 * 从jvm参数中获取 projCode、profile、host和port值
 	 * 
@@ -139,14 +141,16 @@ public class PropertiesConfiguration extends EventSource {
 			client = new Netty4Client(host, port, new ClientChannelInitializer(clientMsg));
 			
 			if(client.isConnected()) {
-				String message = client.receiveMessage();
+				String message = client.receiveMessage(FIRST_CONNECT_TIMEOUT);
 				
-				if(message != null) {
+				if(StringUtils.isNotBlank(message)) {
 					String versionStr = message.substring(0, message.indexOf("\r\n"));
 					LOGGER.info("加载配置信息，项目编码：{}，Profile：{}, Version：{}", projCode, profile, versionStr.split(" = ")[1]);
 					
 					FileUtils.saveData(projCode, profile, message);
 					load(new StringReader(message), false);
+				} else {
+					throw new ConfigurationRuntimeException("从服务器端获取配置信息为空，Client 请求信息为：" + clientMsg);
 				}
 			} else {
 				String message = FileUtils.readConfigFromLocal(projCode, profile);

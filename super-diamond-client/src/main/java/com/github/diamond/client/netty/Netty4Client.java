@@ -78,6 +78,10 @@ public class Netty4Client {
 	public String receiveMessage() {
 		return channelInitializer.getClientHandler().getMessage();
 	}
+	
+	public String receiveMessage(long timeout) {
+		return channelInitializer.getClientHandler().getMessage(timeout);
+	}
     
     private void doOpen() throws Throwable {
     	bootstrap = new Bootstrap();
