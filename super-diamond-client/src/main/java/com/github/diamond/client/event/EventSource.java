@@ -59,11 +59,12 @@ public class EventSource {
 		if (it.hasNext()) {
 			final ConfigurationEvent event = createEvent(type, propName, propValue);
 			while (it.hasNext()) {
+				final ConfigurationListener listener = it.next();
 				executorService.submit(new Runnable() {
 					
 					@Override
 					public void run() {
-						it.next().configurationChanged(event);
+						listener.configurationChanged(event);
 					}
 				});
 			}
