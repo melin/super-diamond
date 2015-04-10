@@ -9,7 +9,7 @@ import java.util.EventObject;
  * Create on @2013-8-28 @下午9:12:44 
  * @author bsli@ustcinfo.com
  */
-public class ConfigurationEvent extends EventObject {
+public class ConfigurationEvent extends EventObject throws Exception{
 	private static final long serialVersionUID = 3277238219073504136L;
 
     private EventType type;
