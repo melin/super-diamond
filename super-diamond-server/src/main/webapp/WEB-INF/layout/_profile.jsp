@@ -79,13 +79,16 @@
   	</body>
 </html>
 <script type='text/javascript'>
+
+	var moduleId = '<c:out value="${moduleId}" />';
+
     var options = {
     	size: "small",
     	alignment:"right",
     	totalPages: <c:out value="${totalPages}"/>,
         currentPage: <c:out value="${currentPage}"/>,
         pageUrl: function(type, page, current){
-            return "/superdiamond/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>?page="+page;
+            return "/superdiamond/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>?page="+page + (moduleId?'&moduleId=' + moduleId :'');
         }
     }
     $('#paginator').bootstrapPaginator(options);
