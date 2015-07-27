@@ -32,7 +32,7 @@ public class UserService {
 
 		try {
 			String sql = "SELECT ID, USER_NAME, PASSWORD, DELETE_FLAG " +
-					"FROM CONF_USER WHERE USER_CODE = ?";
+					"FROM conf_user WHERE USER_CODE = ?";
 			User user = jdbcTemplate.query(sql, new UserResultSetExtractor(), userCode);
 			
 			if(md5Passwd.equals(user.getPassword())) {
@@ -49,20 +49,20 @@ public class UserService {
 	
 	public List<User> queryUsers(int offset, int limit) {
 		String sql = "SELECT ID, USER_CODE, USER_NAME " +
-				"FROM CONF_USER WHERE DELETE_FLAG = 0 order by ID limit ?,?";
+				"FROM conf_user WHERE DELETE_FLAG = 0 order by ID limit ?,?";
 		return jdbcTemplate.query(sql, new UserRowMapper(), offset, limit);
 	}
 	
 	public long queryUserCount() {
-		String sql = "SELECT count(*) FROM CONF_USER WHERE DELETE_FLAG = 0";
+		String sql = "SELECT count(*) FROM conf_user WHERE DELETE_FLAG = 0";
 		return jdbcTemplate.queryForObject(sql, Long.class);
 	}
 	
 	@Transactional
 	public void saveUser(User user) {
-        String sql = "SELECT MAX(id)+1 FROM CONF_USER";
+        String sql = "SELECT MAX(id)+1 FROM conf_user";
         long id = jdbcTemplate.queryForObject(sql, Long.class);
-		sql = "insert into CONF_USER (ID, USER_CODE, USER_NAME, PASSWORD, CREATE_TIME) " +
+		sql = "insert into conf_user (ID, USER_CODE, USER_NAME, PASSWORD, CREATE_TIME) " +
 				"values (?, ?, ?, ?, ?)";
 		
 		jdbcTemplate.update(sql, id, user.getUserCode(), user.getUserName(), user.getPassword(), new Date());
@@ -70,13 +70,13 @@ public class UserService {
 	
 	@Transactional
 	public void deleteUser(long id) {
-		String sql = "update CONF_USER set DELETE_FLAG = 1 where id = ?";
+		String sql = "update conf_user set DELETE_FLAG = 1 where id = ?";
 		jdbcTemplate.update(sql, id);
 	}
 	
 	@Transactional
 	public void updatePassword(long id, String password) {
-		String sql = "update CONF_USER set password = ? where id = ?";
+		String sql = "update conf_user set password = ? where id = ?";
 		jdbcTemplate.update(sql, password, id);
 	}
 	
