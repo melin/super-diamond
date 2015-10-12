@@ -72,7 +72,7 @@ public class ProjectService {
 	 * @return
 	 */
 	public boolean checkProjectExist(String code) {
-		String sql = "SELECT COUNT(*) FROM conf_project WHERE proj_code=?";
+		String sql = "SELECT COUNT(*) FROM CONF_PROJECT WHERE PROJ_CODE=?";
 		int count = jdbcTemplate.queryForObject(sql, Integer.class, code);
 		if(count == 1)
 			return true;
@@ -82,7 +82,7 @@ public class ProjectService {
 	
 	@Transactional
 	public void saveProject(Project project, String copyCode, User user) {
-		String sql = "SELECT MAX(id)+1 FROM conf_project";
+		String sql = "SELECT MAX(id)+1 FROM CONF_PROJECT";
 		long projId = 1;
 		try {
 			projId = jdbcTemplate.queryForObject(sql, Long.class);
@@ -106,27 +106,27 @@ public class ProjectService {
 	}
 	
 	public List<User> queryUsers(long projectId, int offset, int limit) {
-		String sql = "SELECT a.ID, a.USER_CODE, a.USER_NAME FROM conf_user a WHERE a.ID NOT IN " +
-				"(SELECT b.USER_ID FROM conf_project_user b WHERE b.PROJ_ID=?) AND a.DELETE_FLAG=0 order by a.ID limit ?,?";
+		String sql = "SELECT a.ID, a.USER_CODE, a.USER_NAME FROM CONF_USER a WHERE a.ID NOT IN " +
+				"(SELECT b.USER_ID FROM CONF_PROJECT_USER b WHERE b.PROJ_ID=?) AND a.DELETE_FLAG=0 order by a.ID limit ?,?";
 		
 		return jdbcTemplate.query(sql, new UserRowMapper(), projectId, offset, limit);
 	}
 	
 	public long queryUserCount(long projectId) {
-		String sql = "SELECT count(*) FROM conf_user a WHERE a.ID NOT IN " +
-				"(SELECT b.USER_ID FROM conf_project_user b WHERE b.PROJ_ID=?) AND a.DELETE_FLAG=0";
+		String sql = "SELECT count(*) FROM CONF_USER a WHERE a.ID NOT IN " +
+				"(SELECT b.USER_ID FROM CONF_PROJECT_USER b WHERE b.PROJ_ID=?) AND a.DELETE_FLAG=0";
 		
 		return jdbcTemplate.queryForObject(sql, Long.class, projectId);
 	}
 	
 	public List<User> queryProjUsers(long projectId) {
-		String sql = "SELECT a.ID, a.USER_CODE, a.USER_NAME FROM conf_user a WHERE a.ID IN " +
-				"(SELECT b.USER_ID FROM conf_project_user b WHERE b.PROJ_ID=?) AND a.DELETE_FLAG=0";
+		String sql = "SELECT a.ID, a.USER_CODE, a.USER_NAME FROM CONF_USER a WHERE a.ID IN " +
+				"(SELECT b.USER_ID FROM CONF_PROJECT_USER b WHERE b.PROJ_ID=?) AND a.DELETE_FLAG=0";
 		
 		List<User> users = jdbcTemplate.query(sql, new UserRowMapper(), projectId);
 		
 		for(User user : users) {
-			sql = "SELECT c.ROLE_CODE FROM conf_project_user_role c WHERE c.PROJ_ID = ?  AND c.USER_ID = ?";
+			sql = "SELECT c.ROLE_CODE FROM CONF_PROJECT_USER_ROLE c WHERE c.PROJ_ID = ?  AND c.USER_ID = ?";
 			List<String> roles = jdbcTemplate.queryForList(sql, String.class, projectId, user.getId());
 			user.setRoles(roles);
 		}
@@ -135,7 +135,7 @@ public class ProjectService {
 	}
 	
 	public List<String> queryRoles(long projectId, long userId) {
-		String sql = "SELECT a.ROLE_CODE FROM conf_project_user_role a WHERE a.PROJ_ID=? AND a.USER_ID=? ORDER BY a.ROLE_CODE";
+		String sql = "SELECT a.ROLE_CODE FROM CONF_PROJECT_USER_ROLE a WHERE a.PROJ_ID=? AND a.USER_ID=? ORDER BY a.ROLE_CODE";
 		return jdbcTemplate.queryForList(sql, String.class, projectId, userId);
 	}
 	
@@ -217,7 +217,7 @@ public class ProjectService {
 	/**
 	 * 查询用户所拥有的项目数量
 	 * 
-	 * @param userId
+	 * @param user
 	 */
 	public long queryProjectCountForUser(User user) {
 		if("admin".equals(user.getUserCode())) {
@@ -266,13 +266,13 @@ public class ProjectService {
 	}
 	
 	private void copyProjConfig(long projId, String projCode, String userCode) {
-		String sql = "SELECT b.MODULE_ID, b.MODULE_NAME FROM conf_project a, conf_project_module b "
+		String sql = "SELECT b.MODULE_ID, b.MODULE_NAME FROM CONF_PROJECT a, CONF_PROJECT_MODULE b "
 				+ "WHERE a.ID = b.PROJ_ID AND a.PROJ_CODE = ?";
 		List<Map<String, Object>> modules = jdbcTemplate.queryForList(sql, projCode);
 		
 		for(Map<String, Object> module : modules) {
 			long moduleId = moduleService.save(projId, (String)module.get("MODULE_NAME"));
-			sql = "SELECT b.CONFIG_KEY, b.CONFIG_VALUE, b.CONFIG_DESC FROM conf_project a, conf_project_config b "
+			sql = "SELECT b.CONFIG_KEY, b.CONFIG_VALUE, b.CONFIG_DESC FROM CONF_PROJECT a, CONF_PROJECT_CONFIG b "
 					+ "WHERE a.ID = b.PROJECT_ID AND a.PROJ_CODE=? AND b.MODULE_ID = ?";
 			List<Map<String, Object>> configs = jdbcTemplate.queryForList(sql, projCode, module.get("MODULE_ID"));
 			

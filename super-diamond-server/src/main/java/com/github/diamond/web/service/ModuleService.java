@@ -21,36 +21,36 @@ public class ModuleService {
 	private JdbcTemplate jdbcTemplate;
 	
 	public List<Map<String, Object>> queryModules(long projectId) {
-        String sql = "SELECT * FROM conf_project_module a WHERE a.PROJ_ID = ? order by a.MODULE_ID";
+        String sql = "SELECT * FROM CONF_PROJECT_MODULE a WHERE a.PROJ_ID = ? order by a.MODULE_ID";
 		return jdbcTemplate.queryForList(sql, projectId);
 	}
 	
 	@Transactional
 	public long save(Long projectId, String name) {
-        String sql = "SELECT MAX(MODULE_ID)+1 FROM conf_project_module";
+        String sql = "SELECT MAX(MODULE_ID)+1 FROM CONF_PROJECT_MODULE";
         long id = 1;
 		try {
 			id = jdbcTemplate.queryForObject(sql, Long.class);
 		} catch(NullPointerException e) {
 			;
 		}
-		sql = "INSERT INTO conf_project_module(MODULE_ID, PROJ_ID, MODULE_NAME) values(?, ?, ?)";
+		sql = "INSERT INTO CONF_PROJECT_MODULE(MODULE_ID, PROJ_ID, MODULE_NAME) values(?, ?, ?)";
 		jdbcTemplate.update(sql, id, projectId, name);
 		return id;
 	}
 	
 	public String findName(Long moduleId) {
-        String sql = "SELECT module_name FROM conf_project_module WHERE module_id=?";
+        String sql = "SELECT MODULE_NAME FROM CONF_PROJECT_MODULE WHERE MODULE_ID=?";
         return jdbcTemplate.queryForObject(sql, String.class, moduleId);
 	}
 	
 	@Transactional
 	public boolean delete(long moduleId, long projectId) {
-		String sql = "select count(*) from conf_project_config where MODULE_ID = ? and PROJECT_ID = ?";
+		String sql = "select count(*) from CONF_PROJECT_CONFIG where MODULE_ID = ? and PROJECT_ID = ? and DELETE_FLAG <> 1";
 		
 		int count = jdbcTemplate.queryForObject(sql, Integer.class, moduleId, projectId);
 		if(count == 0) {
-			sql = "delete from conf_project_module where MODULE_ID = ? and PROJ_ID = ?";
+			sql = "delete from CONF_PROJECT_MODULE where MODULE_ID = ? and PROJ_ID = ?";
 			jdbcTemplate.update(sql, moduleId, projectId);
 			return true;
 		} else {
