@@ -29,7 +29,7 @@ public class ConfigService {
 	private ProjectService projectService;
 	
 	public List<Map<String, Object>> queryConfigs(Long projectId, Long moduleId, int offset, int limit) {
-		String sql = "SELECT * FROM conf_project_config a, conf_project_module b "
+		String sql = "SELECT * FROM CONF_PROJECT_CONFIG a, CONF_PROJECT_MODULE b "
 				+ "WHERE a.MODULE_ID = b.MODULE_ID AND a.DELETE_FLAG =0 AND a.PROJECT_ID=? ";
 		
 		if(moduleId != null) {
@@ -43,7 +43,7 @@ public class ConfigService {
 	}
 	
 	public long queryConfigCount(Long projectId, Long moduleId) {
-		String sql = "SELECT count(*) FROM conf_project_config a, conf_project_module b "
+		String sql = "SELECT count(*) FROM CONF_PROJECT_CONFIG a, CONF_PROJECT_MODULE b "
 				+ "WHERE a.MODULE_ID = b.MODULE_ID AND a.DELETE_FLAG =0 AND a.PROJECT_ID=? ";
 		
 		if(moduleId != null) {
@@ -57,7 +57,7 @@ public class ConfigService {
 	}
 	
 	public String queryConfigs(String projectCode, String type, String format) {
-		String sql = "SELECT * FROM conf_project_config a, conf_project_module b, conf_project c " +
+		String sql = "SELECT * FROM CONF_PROJECT_CONFIG a, CONF_PROJECT_MODULE b, CONF_PROJECT c " +
 				"WHERE a.MODULE_ID = b.MODULE_ID AND a.PROJECT_ID=c.id AND a.DELETE_FLAG =0 AND c.PROJ_CODE=?";
 		List<Map<String, Object>> configs = jdbcTemplate.queryForList(sql, projectCode);
 		if("php".equals(format)) {
@@ -69,7 +69,7 @@ public class ConfigService {
 	}
 	
 	public String queryConfigs(String projectCode, String[] modules, String type, String format) {
-		String sql = "SELECT * FROM conf_project_config a, conf_project_module b, conf_project c " +
+		String sql = "SELECT * FROM CONF_PROJECT_CONFIG a, CONF_PROJECT_MODULE b, CONF_PROJECT c " +
 				"WHERE a.MODULE_ID = b.MODULE_ID AND a.PROJECT_ID=c.id AND a.DELETE_FLAG =0 AND c.PROJ_CODE=? "
 				+ "AND b.MODULE_NAME in ('" + StringUtils.join(modules, "','") + "')";
 		
@@ -83,7 +83,7 @@ public class ConfigService {
 	}
 	
 	public String queryValue(String projectCode, String module, String key, String type) {
-		String sql = "SELECT * FROM conf_project_config a, conf_project_module b, conf_project c " +
+		String sql = "SELECT * FROM CONF_PROJECT_CONFIG a, CONF_PROJECT_MODULE b, CONF_PROJECT c " +
 				"WHERE a.MODULE_ID = b.MODULE_ID AND a.PROJECT_ID=c.id AND a.DELETE_FLAG =0 AND c.PROJ_CODE=? "
 				+ "AND b.MODULE_NAME=? AND a.CONFIG_KEY=?";
 		Map<String, Object> config = jdbcTemplate.queryForMap(sql, projectCode, module, key);
@@ -101,7 +101,7 @@ public class ConfigService {
 	
 	@Transactional
 	public void insertConfig(String configKey, String configValue, String configDesc, Long projectId, Long moduleId, String user) {
-        String sql = "SELECT MAX(CONFIG_ID)+1 FROM conf_project_config";
+        String sql = "SELECT MAX(CONFIG_ID)+1 FROM CONF_PROJECT_CONFIG";
         long id = 1;
 		try {
 			id = jdbcTemplate.queryForObject(sql, Long.class);
@@ -109,7 +109,7 @@ public class ConfigService {
 			;
 		}
 
-        sql = "INSERT INTO conf_project_config(CONFIG_ID,CONFIG_KEY,CONFIG_VALUE,CONFIG_DESC,PROJECT_ID,MODULE_ID,DELETE_FLAG,OPT_USER,OPT_TIME," +
+        sql = "INSERT INTO CONF_PROJECT_CONFIG(CONFIG_ID,CONFIG_KEY,CONFIG_VALUE,CONFIG_DESC,PROJECT_ID,MODULE_ID,DELETE_FLAG,OPT_USER,OPT_TIME," +
 				"PRODUCTION_VALUE,PRODUCTION_USER,PRODUCTION_TIME,TEST_VALUE,TEST_USER,TEST_TIME,BUILD_VALUE,BUILD_USER,BUILD_TIME) "
 				+ "VALUES (?,?,?,?,?,?,0,?,?,?,?,?,?,?,?,?,?,?)";
 		Date time = new Date();
@@ -122,26 +122,26 @@ public class ConfigService {
 	@Transactional
 	public void updateConfig(String type, Long configId, String configKey, String configValue, String configDesc, Long projectId, Long moduleId, String user) {
 		if("development".equals(type)) {
-			String sql = "update conf_project_config set CONFIG_KEY=?,CONFIG_VALUE=?,CONFIG_DESC=?,PROJECT_ID=?,MODULE_ID=?,OPT_USER=?,OPT_TIME=? where CONFIG_ID=?";
+			String sql = "update CONF_PROJECT_CONFIG set CONFIG_KEY=?,CONFIG_VALUE=?,CONFIG_DESC=?,PROJECT_ID=?,MODULE_ID=?,OPT_USER=?,OPT_TIME=? where CONFIG_ID=?";
 			jdbcTemplate.update(sql, configKey, configValue, configDesc, projectId, moduleId, user, new Date(), configId);
 			projectService.updateVersion(projectId, type);
 		} else if("production".equals(type)) {
-			String sql = "update conf_project_config set CONFIG_KEY=?,PRODUCTION_VALUE=?,CONFIG_DESC=?,PROJECT_ID=?,MODULE_ID=?,PRODUCTION_USER=?,PRODUCTION_TIME=? where CONFIG_ID=?";
+			String sql = "update CONF_PROJECT_CONFIG set CONFIG_KEY=?,PRODUCTION_VALUE=?,CONFIG_DESC=?,PROJECT_ID=?,MODULE_ID=?,PRODUCTION_USER=?,PRODUCTION_TIME=? where CONFIG_ID=?";
 			jdbcTemplate.update(sql, configKey, configValue, configDesc, projectId, moduleId, user, new Date(), configId);
 			projectService.updateVersion(projectId, type);
 		} else if("test".equals(type)) {
-			String sql = "update conf_project_config set CONFIG_KEY=?,TEST_VALUE=?,CONFIG_DESC=?,PROJECT_ID=?,MODULE_ID=?,TEST_USER=?,TEST_TIME=? where CONFIG_ID=?";
+			String sql = "update CONF_PROJECT_CONFIG set CONFIG_KEY=?,TEST_VALUE=?,CONFIG_DESC=?,PROJECT_ID=?,MODULE_ID=?,TEST_USER=?,TEST_TIME=? where CONFIG_ID=?";
 			jdbcTemplate.update(sql, configKey, configValue, configDesc, projectId, moduleId, user, new Date(), configId);
 			projectService.updateVersion(projectId, type);
 		} else if("build".equals(type)) {
-			String sql = "update conf_project_config set CONFIG_KEY=?,BUILD_VALUE=?,CONFIG_DESC=?,PROJECT_ID=?,MODULE_ID=?,BUILD_USER=?,BUILD_TIME=? where CONFIG_ID=?";
+			String sql = "update CONF_PROJECT_CONFIG set CONFIG_KEY=?,BUILD_VALUE=?,CONFIG_DESC=?,PROJECT_ID=?,MODULE_ID=?,BUILD_USER=?,BUILD_TIME=? where CONFIG_ID=?";
 			jdbcTemplate.update(sql, configKey, configValue, configDesc, projectId, moduleId, user, new Date(), configId);
 			projectService.updateVersion(projectId, type);
 		}
 	}
 	
 	public void deleteConfig(Long id, Long projectId) {
-		String sql = "update conf_project_config set DELETE_FLAG=1 where CONFIG_ID=?";
+		String sql = "update CONF_PROJECT_CONFIG set DELETE_FLAG=1 where CONFIG_ID=?";
 		jdbcTemplate.update(sql, id);
 		projectService.updateVersion(projectId);
 	}
