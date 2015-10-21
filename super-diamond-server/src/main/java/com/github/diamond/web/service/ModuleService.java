@@ -3,9 +3,16 @@
  */    
 package com.github.diamond.web.service;
 
+import java.net.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.github.diamond.web.model.Config;
+import com.github.diamond.web.model.ConfigExportData;
+import com.github.diamond.web.model.ExportDoc;
+import com.github.diamond.web.model.Module;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -21,14 +28,14 @@ public class ModuleService {
 	private JdbcTemplate jdbcTemplate;
 	
 	public List<Map<String, Object>> queryModules(long projectId) {
-        String sql = "SELECT * FROM CONF_PROJECT_MODULE a WHERE a.PROJ_ID = ? order by a.MODULE_ID";
+		String sql = "SELECT * FROM CONF_PROJECT_MODULE a WHERE a.PROJ_ID = ? order by a.MODULE_ID";
 		return jdbcTemplate.queryForList(sql, projectId);
 	}
 	
 	@Transactional
 	public long save(Long projectId, String name) {
-        String sql = "SELECT MAX(MODULE_ID)+1 FROM CONF_PROJECT_MODULE";
-        long id = 1;
+		String sql = "SELECT MAX(MODULE_ID)+1 FROM CONF_PROJECT_MODULE";
+		long id = 1;
 		try {
 			id = jdbcTemplate.queryForObject(sql, Long.class);
 		} catch(NullPointerException e) {
@@ -40,8 +47,8 @@ public class ModuleService {
 	}
 	
 	public String findName(Long moduleId) {
-        String sql = "SELECT MODULE_NAME FROM CONF_PROJECT_MODULE WHERE MODULE_ID=?";
-        return jdbcTemplate.queryForObject(sql, String.class, moduleId);
+		String sql = "SELECT MODULE_NAME FROM CONF_PROJECT_MODULE WHERE MODULE_ID=?";
+		return jdbcTemplate.queryForObject(sql, String.class, moduleId);
 	}
 	
 	@Transactional
@@ -56,5 +63,44 @@ public class ModuleService {
 		} else {
 			return false;
 		}
+	}
+
+	@Transactional
+	public Module getExportModule(long projectId,long moduleId)
+	{
+		String name=null;
+		String sql="select MODULE_NAME from CONF_PROJECT_MODULE where PROJ_ID = ? and MODULE_ID = ? ";
+		List<Map<String,Object>> modules=null;
+		try
+		{
+			modules = jdbcTemplate.queryForList(sql, projectId, moduleId);
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		for(Map<String,Object> module: modules)
+		{
+			name=module.get("MODULE_NAME").toString();
+		}
+		return new Module(name);
+	}
+
+	@Transactional
+	public List<Long> getConfigCount(long projectId,long moduleId)
+	{
+		int count=0;
+		List<Long> configIDs=null;
+		String sql="select CONFIG_ID from CONF_PROJECT_CONFIG where PROJECT_ID = ? and MODULE_ID = ? and DELETE_FLAG <> 1";
+		try
+		{
+			configIDs=jdbcTemplate.queryForList(sql, Long.class, projectId, moduleId);
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
+
+		return configIDs;
 	}
 }

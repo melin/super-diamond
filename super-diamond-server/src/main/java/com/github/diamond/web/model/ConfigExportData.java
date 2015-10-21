@@ -1,7 +1,7 @@
 package com.github.diamond.web.model;
 
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 /**
  * 项目导出数据定义
@@ -44,13 +44,28 @@ public class ConfigExportData {
     /**
      * 配置模块列表
      */
-    private List<Module> modules;
+    private ArrayList<Module> modules;
+    public ConfigExportData()
+    {
 
-    public List<Module> getModules() {
+    }
+
+    public ConfigExportData(String exportUser,Date exportTime,String projectCode,String projectDesc,String configVer,String serverIP)
+    {
+        this.exportUser=exportUser;
+        this.exportTime=exportTime;
+        this.projectCode=projectCode;
+        this.projectDesc=projectDesc;
+        this.configVer=configVer;
+        this.serverIP=serverIP;
+        this.modules=new ArrayList<>();
+    }
+
+    public ArrayList<Module> getModules() {
         return modules;
     }
 
-    public void setModules(List<Module> modules) {
+    public void setModules(ArrayList<Module> modules) {
         this.modules = modules;
     }
 
