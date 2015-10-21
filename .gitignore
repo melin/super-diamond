@@ -10,3 +10,5 @@
 /super-diamond-server/target
 
 /super-diamond-client/.springBeans
+/.idea
+/super-diamond-client/*.iml
