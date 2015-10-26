@@ -1,6 +1,7 @@
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
+
 <a class="brand" href="/superdiamond/index">首页</a> >> <b><c:out value="${project.PROJ_NAME}"/> - <c:out value="${type}"/></b> <br/><br/>
 
 <b>模块：</b>
@@ -45,7 +46,12 @@
 	<div class="modal-footer">
 		<span id="showConfigTip" style="color: red"></span>
 		<button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
-		<button class="btn btn-primary" id="exportSubmit">确定</button>
+		<button  class="btn btn-primary" id="exportSubmit">确定</button>
+		<span style="DISPLAY:none">
+<input type="button" value="选择文件" />
+    <input type="file" style="display: none;" />
+    <input type="text" />
+</span>
 	</div>
 </div>
 
@@ -195,6 +201,7 @@
 		})
 	}
 
+
 	$(document).ready(function () {
 		$("#sel-queryModule").val(<c:out value="${moduleId}"/>);
 
@@ -271,11 +278,29 @@
 			for(var i=0; i<obj.length; i++){
 				if(obj[i].checked) {
 					checkTrue[j] = obj[i].value;
-					j++
-				}     //如果选中，将value添加到变量checkTrue中
+					j++;
+				}
 			}
 			return checkTrue;
 		}
+
+
+		function getJson(URL)
+		{
+			var jsonString=null;
+			$.ajax({
+				type: "post",
+				async:false,
+				url: URL,
+				dataType: "json",
+				success: function (data) {
+					jsonString=data;
+					document.location.href='redirect:/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>';
+				},
+			});
+			return jsonString;
+		}
+
 
 		$("#exportSubmit").click(function(e) {
 			var moduleIds= new Array();
@@ -286,12 +311,23 @@
 			}
 			else
 			{
-
 				window.location.href = '/superdiamond/module/export/<c:out value="${type}"/>/<c:out value="${projectId}"/>/<c:out value="${sessionScope.sessionUser.userName}"/>/'+moduleIds;
-			   /*for(var i=0;i<checked.length;i++)
-				alert(checked[i]);*/
+				var URL='/superdiamond/module/export/<c:out value="${type}"/>/<c:out value="${projectId}"/>/<c:out value="${sessionScope.sessionUser.userName}"/>/'+moduleIds;
+				var jsonData=getJson(URL);
+
+				exportJson(jsonData);
 			}
 		});
+
+		function exportJson (jsonString) {
+			var jsonF=JSON.stringify(jsonString,null, 2);
+			var jsonFormat=["\'"+jsonF+"\'"];
+			var blob = new Blob(jsonFormat,{type:'application/json'});
+			saveAs(blob,"exportDoc.json");
+		}
+
+
+
 
 		$("#saveConfig").click(function (e) {
 			if (!$("#config-moduleId").val()) {

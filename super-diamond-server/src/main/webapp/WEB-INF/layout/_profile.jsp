@@ -12,6 +12,7 @@
     	<script type="text/javascript" src='<c:url value="/resources/js/bootstrap.min.js" />'></script>
     	<script type="text/javascript" src='<c:url value="/resources/js/bootbox.min.js" />'></script>
     	<script type="text/javascript" src='<c:url value="/resources/js/bootstrap-paginator.min.js" />'></script>
+		<script type="text/javascript" src='<c:url value="/resources/js/filesaver.js"/>'></script>
     	<style type="text/css">
 	      	body {
 	        	padding-top: 60px;

@@ -3,6 +3,7 @@
  */    
 package com.github.diamond.web.controller;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.alibaba.fastjson.JSON;
@@ -19,10 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.github.diamond.web.service.ModuleService;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.List;
 
 /**
@@ -46,12 +44,12 @@ public class ModuleController extends BaseController {
 		moduleService.save(projectId, name);
 		return "redirect:/profile/" + type + "/" + projectId;
 	}
-	
+
 	@RequestMapping("/module/delete/{type}/{projectId}/{moduleId}")
-	public String delete(@PathVariable String type, @PathVariable Long projectId, 
-			@PathVariable Long moduleId, HttpSession session) {
+	public String delete(@PathVariable String type, @PathVariable Long projectId,
+						 @PathVariable Long moduleId, HttpSession session) {
 		boolean result = moduleService.delete(moduleId, projectId);
-		if(!result) {
+		if (!result) {
 			session.setAttribute("message", "模块已经被配置项关联，不能删除！");
 			return "redirect:/profile/" + type + "/" + projectId + "?moduleId=" + moduleId;
 		} else {
@@ -59,17 +57,17 @@ public class ModuleController extends BaseController {
 			return "redirect:/profile/" + type + "/" + projectId;
 		}
 	}
+
 	@RequestMapping("/module/export/{type}/{projectId}/{userName}/{moduleIds}")
-	public String export(@PathVariable String type,@PathVariable long projectId,@PathVariable String userName,@PathVariable long []moduleIds)
-	{
+	public void export(HttpServletResponse response,@PathVariable String type, @PathVariable long projectId, @PathVariable String userName, @PathVariable long[] moduleIds) {
 
 		ConfigExportData configExportData;
-		configExportData=projectService.getConfigExportData(projectId, userName);
+		configExportData = projectService.getConfigExportData(projectId, userName);
 
-		ExportDoc exportDoc=new ExportDoc();
+		ExportDoc exportDoc = new ExportDoc();
 		exportDoc.getConfigExportDatas().add(configExportData);
 
-		for(int i=0;i<moduleIds.length;i++) {
+		for (int i = 0; i < moduleIds.length; i++) {
 			Module module = moduleService.getExportModule(projectId, moduleIds[i]);
 			configExportData.getModules().add(module);
 
@@ -80,19 +78,36 @@ public class ModuleController extends BaseController {
 				module.getConfigs().add(config);
 			}
 		}
-		saveDocJson(exportDoc);
-		return "redirect:/profile/" + type + "/" + projectId;
+		String json = JSON.toJSONString(exportDoc, true);
+		response.setContentType("application/json;charset=utf-8");
+		PrintWriter outjson=null;
+		System.out.println(json);
+		try {
+			outjson = response.getWriter();
+			outjson.write(json);
+			outjson.flush();
+			outjson.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private static void saveDocJson(ExportDoc doc) {
+		HttpServletResponse response=null;
 		String jsonPath = "exportDoc.json";
 		String json = JSON.toJSONString(doc, true);
+		response.setContentType("application/json");
+
 		System.out.println(json);
 		try {
+			PrintWriter outjson= response.getWriter();
 			File file = new File(jsonPath);
 			file.createNewFile();
 			BufferedWriter out = new BufferedWriter(new FileWriter(file));
+			outjson.print(json);
 			out.write(json);
+			outjson.flush();
+			outjson.close();
 			out.flush();
 			out.close();
 		} catch (IOException e) {
