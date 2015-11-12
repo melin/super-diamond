@@ -3,16 +3,10 @@
  */    
 package com.github.diamond.web.service;
 
-import java.net.*;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import com.github.diamond.web.model.Config;
-import com.github.diamond.web.model.ConfigExportData;
-import com.github.diamond.web.model.ExportDoc;
-import com.github.diamond.web.model.Module;
+import com.github.diamond.web.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -102,5 +96,63 @@ public class ModuleService {
 		}
 
 		return configIDs;
+	}
+
+	@Transactional
+	public ModuleConfigId isExist(String configName,String moduleName)
+	{
+		List<Long> moduleIds=null;
+		boolean isExist = false;
+		Long configId = null;
+		Long moduleId=null;
+		String sql="select MODULE_ID from CONF_PROJECT_MODULE where MODULE_NAME=?";
+		try
+		{
+			moduleIds=jdbcTemplate.queryForList(sql, Long.class,moduleName);
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		if(moduleIds.size()!=0) {
+			moduleId = moduleIds.get(0);
+			String enquerySql = "select CONFIG_ID from CONF_PROJECT_CONFIG where MODULE_ID=? and CONFIG_KEY=?";
+			List<Long> configs = null;
+			try {
+				configs = jdbcTemplate.queryForList(enquerySql, Long.class, moduleId, configName);
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+
+			if (configs.size() != 0) {
+				isExist = true;
+				configId = configs.get(0);
+			}
+			return new ModuleConfigId(isExist,configId,moduleId);
+		}
+		else
+		return new ModuleConfigId(isExist,configId,moduleId);
+	}
+
+
+	@Transactional
+	public ModuleIdExist isExist(String moduleName,long projectId)
+	{
+		boolean isExist=false;
+		String sql="select MODULE_ID from CONF_PROJECT_MODULE where MODULE_NAME=? and PROJ_ID=?";
+		List<Long> moduleId = null;
+		try {
+			moduleId = jdbcTemplate.queryForList(sql, Long.class, moduleName,projectId);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		if(moduleId.size()!=0)
+		{
+			isExist=true;
+			return new ModuleIdExist(isExist,moduleId.get(0));
+		}
+
+		return new ModuleIdExist(isExist,0);
+
 	}
 }

@@ -18,6 +18,10 @@ public class Module {
      * 配置列表
      */
     private ArrayList<Config> configs;
+    public Module()
+    {
+
+    }
 
     public Module(String name)
     {

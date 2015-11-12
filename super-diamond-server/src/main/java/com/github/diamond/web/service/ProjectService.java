@@ -319,18 +319,6 @@ public class ProjectService {
 	public ConfigExportData getConfigExportData(long projectId,String userName)
 	{
 		String exportUser=userName;
-		Date date=null;
-		SimpleDateFormat sdf=new SimpleDateFormat("yyyy-mm-dd HH-MM-SS");
-		String dateStr = sdf.format(new Date());
-		try
-		{
-			date=sdf.parse(dateStr);
-		}
-		catch(Exception ex)
-		{
-			ex.printStackTrace();
-		}
-
 		String projectCode=null;
 		String projectDesc=null;
 		String configver=null;
@@ -351,13 +339,13 @@ public class ProjectService {
 		}
 		InetAddress ia=null;
 		String serverIp=null;
-		try {
+		try
+		{
 			ia=ia.getLocalHost();
-
 			serverIp=ia.getHostAddress();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return new ConfigExportData(exportUser,date,projectCode,projectDesc,configver,serverIp);
+		return new ConfigExportData(exportUser,new Date(),projectCode,projectDesc,configver,serverIp);
 	}
 }

@@ -1,5 +1,7 @@
 package com.github.diamond.web.model;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -19,6 +21,7 @@ public class ConfigExportData {
     /**
      * 导出的时间
      */
+    @JSONField(format="yyyy-MM-dd HH:mm:ss")
     private Date exportTime;
 
     /**
@@ -45,9 +48,9 @@ public class ConfigExportData {
      * 配置模块列表
      */
     private ArrayList<Module> modules;
+
     public ConfigExportData()
     {
-
     }
 
     public ConfigExportData(String exportUser,Date exportTime,String projectCode,String projectDesc,String configVer,String serverIP)

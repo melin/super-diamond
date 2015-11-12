@@ -13,6 +13,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.druid.support.json.JSONUtils;
@@ -100,7 +101,7 @@ public class ConfigService {
 			return "";
 	}
 	
-	@Transactional
+	@Transactional(propagation= Propagation.REQUIRED, rollbackFor=Exception.class)
 	public void insertConfig(String configKey, String configValue, String configDesc, Long projectId, Long moduleId, String user) {
         String sql = "SELECT MAX(CONFIG_ID)+1 FROM CONF_PROJECT_CONFIG";
         long id = 1;
@@ -120,7 +121,7 @@ public class ConfigService {
 		projectService.updateVersion(projectId);
 	}
 	
-	@Transactional
+	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
 	public void updateConfig(String type, Long configId, String configKey, String configValue, String configDesc, Long projectId, Long moduleId, String user) {
 		if("development".equals(type)) {
 			String sql = "update CONF_PROJECT_CONFIG set CONFIG_KEY=?,CONFIG_VALUE=?,CONFIG_DESC=?,PROJECT_ID=?,MODULE_ID=?,OPT_USER=?,OPT_TIME=? where CONFIG_ID=?";
