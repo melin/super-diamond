@@ -181,7 +181,7 @@
 				<version>${jetty.version}</version>
 				<configuration>
 					<httpConnector>
-						<port>8090</port>
+						<port>8099</port>
 					</httpConnector>
 					<webApp>
 						<contextPath>/superdiamond</contextPath>
