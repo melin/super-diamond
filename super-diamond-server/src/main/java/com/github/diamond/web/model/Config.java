@@ -23,6 +23,18 @@ public class Config {
      */
     private String description;
 
+    public Config()
+    {
+
+    }
+
+    public Config(String key,String value,String description)
+    {
+        this.key=key;
+        this.value=value;
+        this.description=description;
+    }
+
     public String getKey() {
         return key;
     }

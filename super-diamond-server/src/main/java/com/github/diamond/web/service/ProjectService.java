@@ -1,11 +1,14 @@
 package com.github.diamond.web.service;
 
+import java.net.InetAddress;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.github.diamond.web.model.ConfigExportData;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -174,11 +177,13 @@ public class ProjectService {
 		sql = "delete from CONF_PROJECT_USER where PROJ_ID = ? and USER_ID = ?";
 		jdbcTemplate.update(sql, projectId, userId);
 	}
-	
+
 	/**
 	 * 查询用户所拥有的项目
-	 * 
-	 * @param userId
+	 * @param user
+	 * @param offset
+	 * @param limit
+	 * @return
 	 */
 	public List<Project> queryProjectForUser(User user, int offset, int limit) {
 		if("admin".equals(user.getUserCode())) {
@@ -307,5 +312,40 @@ public class ProjectService {
 			user.setUserName(rs.getString(3));
 			return user;
 		}
+	}
+
+
+	@Transactional
+	public ConfigExportData getConfigExportData(long projectId,String userName)
+	{
+		String exportUser=userName;
+		String projectCode=null;
+		String projectDesc=null;
+		String configver=null;
+		String sql="select PROJ_CODE,PROJ_NAME,DEVELOPMENT_VERSION from CONF_PROJECT where ID=?";
+		List<Map<String, Object>> projects=null;
+		try {
+			projects = jdbcTemplate.queryForList(sql,projectId);
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		for(Map<String,Object> project :projects)
+		{
+			projectCode=project.get("PROJ_CODE").toString();
+			projectDesc=project.get("PROJ_NAME").toString();
+			configver=project.get("DEVELOPMENT_VERSION").toString();
+		}
+		InetAddress ia=null;
+		String serverIp=null;
+		try
+		{
+			ia=ia.getLocalHost();
+			serverIp=ia.getHostAddress();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return new ConfigExportData(exportUser,new Date(),projectCode,projectDesc,configver,serverIp);
 	}
 }

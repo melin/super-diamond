@@ -1,7 +1,6 @@
 package com.github.diamond.web.model;
 
-import java.util.List;
-
+import java.util.ArrayList;
 /**
  * 模块定义
  *
@@ -18,7 +17,17 @@ public class Module {
     /**
      * 配置列表
      */
-    private List<Config> configs;
+    private ArrayList<Config> configs;
+    public Module()
+    {
+
+    }
+
+    public Module(String name)
+    {
+        this.name=name;
+        this.configs=new ArrayList<>();
+    }
 
     public String getName() {
         return name;
@@ -28,11 +37,11 @@ public class Module {
         this.name = name;
     }
 
-    public List<Config> getConfigs() {
+    public ArrayList<Config> getConfigs() {
         return configs;
     }
 
-    public void setConfigs(List<Config> configs) {
+    public void setConfigs(ArrayList<Config> configs) {
         this.configs = configs;
     }
 }

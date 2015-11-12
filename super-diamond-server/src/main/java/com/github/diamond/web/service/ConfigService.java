@@ -8,10 +8,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.github.diamond.web.model.Config;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.druid.support.json.JSONUtils;
@@ -99,7 +101,7 @@ public class ConfigService {
 			return "";
 	}
 	
-	@Transactional
+	@Transactional(propagation= Propagation.REQUIRED, rollbackFor=Exception.class)
 	public void insertConfig(String configKey, String configValue, String configDesc, Long projectId, Long moduleId, String user) {
         String sql = "SELECT MAX(CONFIG_ID)+1 FROM CONF_PROJECT_CONFIG";
         long id = 1;
@@ -119,7 +121,7 @@ public class ConfigService {
 		projectService.updateVersion(projectId);
 	}
 	
-	@Transactional
+	@Transactional(propagation=Propagation.REQUIRED, rollbackFor=Exception.class)
 	public void updateConfig(String type, Long configId, String configKey, String configValue, String configDesc, Long projectId, Long moduleId, String user) {
 		if("development".equals(type)) {
 			String sql = "update CONF_PROJECT_CONFIG set CONFIG_KEY=?,CONFIG_VALUE=?,CONFIG_DESC=?,PROJECT_ID=?,MODULE_ID=?,OPT_USER=?,OPT_TIME=? where CONFIG_ID=?";
@@ -273,5 +275,31 @@ public class ConfigService {
 			return s.matches("^[0-9]*$");
 		else
 			return false;
+	}
+
+	@Transactional
+	public Config getExportConfig(long projectId,long moduleId,long configId)
+	{
+		String configKey=null;
+		String configValue=null;
+		String configDesc=null;
+		String sql="select CONFIG_KEY,CONFIG_VALUE,CONFIG_DESC from CONF_PROJECT_CONFIG where PROJECT_ID=? and MODULE_ID=? and CONFIG_ID=?";
+		List<Map<String,Object>> configs=null;
+		try
+		{
+			configs=jdbcTemplate.queryForList(sql, projectId, moduleId, configId);
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		for(Map<String,Object> config : configs)
+		{
+			configKey=config.get("CONFIG_KEY").toString();
+			configValue=config.get("CONFIG_VALUE").toString();
+			configDesc=config.get("CONFIG_DESC").toString();
+		}
+
+		return new Config(configKey,configValue,configDesc);
 	}
 }
