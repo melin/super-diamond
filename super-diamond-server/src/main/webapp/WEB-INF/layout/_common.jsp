@@ -3,7 +3,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html lang="en">
-	<head>
     	<meta charset="utf-8">
     	<title>SuperDiamond 配置管理服务器</title>
     	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,6 +11,8 @@
     	<script type="text/javascript" src='<c:url value="/resources/js/bootstrap.min.js" />'></script>
     	<script type="text/javascript" src='<c:url value="/resources/js/bootbox.min.js" />'></script>
     	<script type="text/javascript" src='<c:url value="/resources/js/bootstrap-paginator.min.js" />'></script>
+		<script type="text/javascript" src='<c:url value="/resources/js/filesaver.js"/>'></script>
+		<script type="text/javascript" src='<c:url value="/resources/js/ajaxfileupload.js"/>'></script>
     	<style type="text/css">
 	      body {
 	        padding-top: 60px;

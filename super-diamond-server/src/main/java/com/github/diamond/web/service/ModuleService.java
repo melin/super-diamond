@@ -6,6 +6,7 @@ package com.github.diamond.web.service;
 import java.util.List;
 import java.util.Map;
 
+import com.github.diamond.web.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -21,14 +22,14 @@ public class ModuleService {
 	private JdbcTemplate jdbcTemplate;
 	
 	public List<Map<String, Object>> queryModules(long projectId) {
-        String sql = "SELECT * FROM CONF_PROJECT_MODULE a WHERE a.PROJ_ID = ? order by a.MODULE_ID";
+		String sql = "SELECT * FROM CONF_PROJECT_MODULE a WHERE a.PROJ_ID = ? order by a.MODULE_ID";
 		return jdbcTemplate.queryForList(sql, projectId);
 	}
 	
 	@Transactional
 	public long save(Long projectId, String name) {
-        String sql = "SELECT MAX(MODULE_ID)+1 FROM CONF_PROJECT_MODULE";
-        long id = 1;
+		String sql = "SELECT MAX(MODULE_ID)+1 FROM CONF_PROJECT_MODULE";
+		long id = 1;
 		try {
 			id = jdbcTemplate.queryForObject(sql, Long.class);
 		} catch(NullPointerException e) {
@@ -40,8 +41,8 @@ public class ModuleService {
 	}
 	
 	public String findName(Long moduleId) {
-        String sql = "SELECT MODULE_NAME FROM CONF_PROJECT_MODULE WHERE MODULE_ID=?";
-        return jdbcTemplate.queryForObject(sql, String.class, moduleId);
+		String sql = "SELECT MODULE_NAME FROM CONF_PROJECT_MODULE WHERE MODULE_ID=?";
+		return jdbcTemplate.queryForObject(sql, String.class, moduleId);
 	}
 	
 	@Transactional
@@ -56,5 +57,102 @@ public class ModuleService {
 		} else {
 			return false;
 		}
+	}
+
+	@Transactional
+	public Module getExportModule(long projectId,long moduleId)
+	{
+		String name=null;
+		String sql="select MODULE_NAME from CONF_PROJECT_MODULE where PROJ_ID = ? and MODULE_ID = ? ";
+		List<Map<String,Object>> modules=null;
+		try
+		{
+			modules = jdbcTemplate.queryForList(sql, projectId, moduleId);
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		for(Map<String,Object> module: modules)
+		{
+			name=module.get("MODULE_NAME").toString();
+		}
+		return new Module(name);
+	}
+
+	@Transactional
+	public List<Long> getConfigCount(long projectId,long moduleId)
+	{
+		int count=0;
+		List<Long> configIDs=null;
+		String sql="select CONFIG_ID from CONF_PROJECT_CONFIG where PROJECT_ID = ? and MODULE_ID = ? and DELETE_FLAG <> 1";
+		try
+		{
+			configIDs=jdbcTemplate.queryForList(sql, Long.class, projectId, moduleId);
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
+
+		return configIDs;
+	}
+
+	@Transactional
+	public ModuleConfigId isExist(String configName,String moduleName)
+	{
+		List<Long> moduleIds=null;
+		boolean isExist = false;
+		Long configId = null;
+		Long moduleId=null;
+		String sql="select MODULE_ID from CONF_PROJECT_MODULE where MODULE_NAME=?";
+		try
+		{
+			moduleIds=jdbcTemplate.queryForList(sql, Long.class,moduleName);
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		if(moduleIds.size()!=0) {
+			moduleId = moduleIds.get(0);
+			String enquerySql = "select CONFIG_ID from CONF_PROJECT_CONFIG where MODULE_ID=? and CONFIG_KEY=?";
+			List<Long> configs = null;
+			try {
+				configs = jdbcTemplate.queryForList(enquerySql, Long.class, moduleId, configName);
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+
+			if (configs.size() != 0) {
+				isExist = true;
+				configId = configs.get(0);
+			}
+			return new ModuleConfigId(isExist,configId,moduleId);
+		}
+		else
+		return new ModuleConfigId(isExist,configId,moduleId);
+	}
+
+
+	@Transactional
+	public ModuleIdExist isExist(String moduleName,long projectId)
+	{
+		boolean isExist=false;
+		String sql="select MODULE_ID from CONF_PROJECT_MODULE where MODULE_NAME=? and PROJ_ID=?";
+		List<Long> moduleId = null;
+		try {
+			moduleId = jdbcTemplate.queryForList(sql, Long.class, moduleName,projectId);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		if(moduleId.size()!=0)
+		{
+			isExist=true;
+			return new ModuleIdExist(isExist,moduleId.get(0));
+		}
+
+		return new ModuleIdExist(isExist,0);
+
 	}
 }
