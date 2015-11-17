@@ -71,8 +71,11 @@
             </div>
         </form>
     </div>
+
     <div class="modal-footer">
         <span id="showConfigTip" style="color: red"></span>
+        <div align="left"><button class="btn btn-primary" id="checkAll" value="全选">全选</button>
+        <button class="btn btn-primary" id="checkReverseAll" value="反选">反选</button></div>
         <button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
         <button class="btn btn-primary" id="exportSubmit">确定</button>
     </div>
@@ -344,9 +347,27 @@
             })
         });
 
-        $("#cover").click(function (e) {
+        $("#checkReverseAll").click(function (e) {
+            var checkBox=document.getElementsByName('moduleCount');
+            for(var i=0;i<checkBox.length;i++)
+            {
+                if(checkBox[i].checked)
+                {
+                    checkBox[i].checked=false;
+                }
+                else   checkBox[i].checked=true;
+            }
+        });
 
-
+        $("#checkAll").click(function(e){
+            var checkBox=document.getElementsByName('moduleCount');
+            for(var i=0;i<checkBox.length;i++)
+            {
+                if(!checkBox[i].checked)
+                {
+                    checkBox[i].checked=true;
+                }
+            }
         });
 
         $("#import").click(function (e) {
@@ -358,7 +379,6 @@
                 ajaxFileUpload();
             }
         });
-
 
         function ajaxFileUpload() {
             $.ajaxFileUpload({
@@ -475,6 +495,7 @@
                 var URL = '/superdiamond/module/export/<c:out value="${type}"/>/<c:out value="${projectId}"/>/<c:out value="${sessionScope.sessionUser.userName}"/>/' + moduleIds;
                 var jsonData = getJson(URL);
                 exportJson(jsonData);
+                window.location.href='/superdiamond/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>';
             }
         });
 
