@@ -102,6 +102,7 @@ public class ModuleController extends BaseController {
                     checkResult.setCheckSuccess(1);
                     checkResult.setMessage(message);
                 }
+
                 else
                 {// TODO: 处理新增模块的记录
                     for (Module module : modules) {
