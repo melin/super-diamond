@@ -147,10 +147,10 @@ public class ModuleController extends BaseController {
         Date dateNow=new Date();
         if((dateNow.getTime() - DATE.getTime())% nd %nh /nm>=10)
         { // TODO: 新增一个计时器，定时删除不再访问的配置检查数据，设定的时间为十分钟
-            IMPORT_CONFIG_MAP.clear();
+            IMPORT_CONFIG_MAP.remove(checkId);
         }
         User user = (User) SessionHolder.getSession().getAttribute("sessionUser");
-        ConfigExportData exportData =  IMPORT_CONFIG_MAP.get(checkId);
+        ConfigExportData exportData = IMPORT_CONFIG_MAP.get(checkId);
         if(exportData == null) {
             return "error import data is null";
         } else {// TODO: 执行具体的操作，插入数据库什么的,注意用事务保证数据可以整体操作成功
@@ -178,7 +178,7 @@ public class ModuleController extends BaseController {
                         }
                     }
                 }
-                IMPORT_CONFIG_MAP.clear();
+                IMPORT_CONFIG_MAP.remove(checkId);
                 session.setAttribute("message", "导入成功");
                 return "{\"data\":\"success\"}";
             }
@@ -210,13 +210,13 @@ public class ModuleController extends BaseController {
                         }
                     }
                 }
-                IMPORT_CONFIG_MAP.clear();
+                IMPORT_CONFIG_MAP.remove(checkId);
                 session.setAttribute("message", "导入成功");
                 return "{\"data\":\"success\"}";
             }
             else
             {
-                IMPORT_CONFIG_MAP.clear();
+                IMPORT_CONFIG_MAP.remove(checkId);
                 return "{\"data\":\"success\"}";
             }
         }
@@ -269,6 +269,7 @@ public class ModuleController extends BaseController {
             outjson.write(json);
             outjson.flush();
             outjson.close();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
