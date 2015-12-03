@@ -13,7 +13,7 @@ super-diamond
 
 系统功能截图：
 ![](https://raw.githubusercontent.com/melin/super-diamond/master/diamond.png "功能截图")
-![](https://raw.githubusercontent.com/talywy/super-diamond/master/export.png"配置导出")
+![](https://raw.githubusercontent.com/talywy/super-diamond/master/export.png "配置导出")
 
 项目profile请参考：http://melin.iteye.com/blog/1339060
 
