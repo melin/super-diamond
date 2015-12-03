@@ -10,9 +10,9 @@
 		<option value='<c:out value="${module.MODULE_ID}"/>'><c:out value="${module.MODULE_NAME}"/></option>
 	</c:forEach>
 </select>
-<!-- <button type="button" id="queryModule" class="btn btn-primary">查询</button> -->
 
 <div class="pull-right">
+	<%@include file="export.jsp" %>
 	<button type="button" id="preview" class="btn btn-primary">预览</button>
 </div>
 

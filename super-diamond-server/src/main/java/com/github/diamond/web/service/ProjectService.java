@@ -16,8 +16,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.github.diamond.web.model.Project;
+import  com.github.diamond.web.model.Project;
 import com.github.diamond.web.model.User;
 
 /**
@@ -314,7 +313,6 @@ public class ProjectService {
 		}
 	}
 
-
 	@Transactional
 	public ConfigExportData getConfigExportData(long projectId,String userName)
 	{
@@ -346,6 +344,7 @@ public class ProjectService {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
 		return new ConfigExportData(exportUser,new Date(),projectCode,projectDesc,configver,serverIp);
 	}
 }
