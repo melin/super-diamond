@@ -109,7 +109,7 @@
         });
 
         $("#import").click(function (e) {
-            if ($.trim($('#file').val() == '')) {
+            if ($.trim($('#file').val()) == '') {
                 $("#showTip").text("文件不能为空");
             }  else {
                 ajaxFileUpload();
