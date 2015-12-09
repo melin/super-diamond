@@ -11,6 +11,8 @@
         <option value='<c:out value="${module.MODULE_ID}"/>'><c:out value="${module.MODULE_NAME}"/></option>
     </c:forEach>
 </select>
+
+
 <!-- <button type="button" id="queryModule" class="btn btn-primary">查询</button> -->
 <input id="projectName" type="text" style="display:none" value="<c:out value="${project.PROJ_NAME}"/>"/>
 <a id="addModule" href="javascript:void(0)">添加Module</a>
@@ -18,68 +20,11 @@
 <!-- <a id="deleteModule" href="javascript:void(0)">删除Module</a> -->
 <div class="pull-right">
     <%--<input type="file" id="fileUpload" accept=".json" onchange="getFilePath()" style="display:none; "/>--%>
-    <button type="button" id="importModule" class="btn btn-primary">导入</button>
-        <button type="button" id="exportModule" class="btn btn-primary">导出</button>
-        <button type="button" id="addConfig" class="btn btn-primary">添加配置</button>
-        <button type="button" id="preview" class="btn btn-primary">预览</button>
+    <%@ include file="export.jsp"  %>
+    <button type="button" id="addConfig" class="btn btn-primary">添加配置</button>
+    <button type="button" id="preview" class="btn btn-primary">预览</button>
 </div>
 
-<div id="importModuleWin" style="width:700px" class="modal hide fade" tabindex="-1" role="dialog"
-     aria-labelledby="importLabel" aria-hidden="true">
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-        <h3 id="importLabel" class="active">导入模块</h3>
-    </div>
-    <div class="modal-body">
-        <form id="importForm" class="form-horizontal"
-              action="/superdiamond/module/import/<c:out value='${type}'/>/<c:out value='${projectId}'/>/<c:out value='${currentPage}'/>"
-              method="post" enctype="multipart/form-data">
-            <div class="control-group">
-                请选择要上传的文件：<input id="file" type="FILE" name="file" size="30" accept=".json">
-            </div>
-
-        </form>
-        <div class="modal-footer">
-            <span id="showTip" style="color: red"></span>
-            <button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
-            <button class="btn btn-primary" id="import">确定</button>
-        </div>
-    </div>
-</div>
-
-
-<div id="exportModuleWin" style="width:700px" class="modal hide fade" tabindex="-1" role="dialog"
-     aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-        <h3 id="myModalLabel" class="active">导出模块</h3>
-    </div>
-    <div class="modal-body">
-        <form id="exportForm" class="form-horizontal" action='<c:url value="/module/export" />' method="post">
-            <div class="control-group">
-                <span><font size="3">请选择相应的模块进行导出：</font></span></br>
-                <div class="controls ">
-                    <c:forEach items="${modules}" var="module">
-                        <div class="checkbox" id="module-count">
-                            <label><input type="checkbox" name="moduleCount"
-                                          value='<c:out value="${module.MODULE_ID}"/>'>
-                                <c:out value="${module.MODULE_NAME}"/>
-                            </label>
-                        </div>
-                    </c:forEach>
-                </div>
-            </div>
-        </form>
-    </div>
-
-    <div class="modal-footer">
-        <span id="showConfigTip" style="color: red"></span>
-        <div align="left"><button class="btn btn-primary" id="checkAll" value="全选">全选</button>
-        <button class="btn btn-primary" id="checkReverseAll" value="反选">反选</button></div>
-        <button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
-        <button class="btn btn-primary" id="exportSubmit">确定</button>
-    </div>
-</div>
 
 <div id="addModalWin" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
      aria-hidden="true">
@@ -225,10 +170,6 @@
     </div>
 </c:if>
 
-<div class="alert alert-error cle arfix" style="margin-bottom: 5px;width: 400px; padding: 2px 15px 2px 10px;">
-</div>
-
-
 <div id="multi-choose" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel2"
      aria-hidden="true">
     <div class="modal-header">
@@ -238,6 +179,7 @@
     <div class="modal-body">
         <div class="control-group">
             <label class="control-label">导入的以下配置信息已经存在：</label>
+
             <div class="controls">
                 <div class="controls">
                     <textarea rows="8" name="configValue" class="input-xxlarge" id="message"></textarea>
@@ -335,177 +277,6 @@
             })
         });
 
-        $("#exportModule").click(function (e) {
-            $('#exportModuleWin').modal({
-                backdrop: true
-            })
-        });
-
-        $("#importModule").click(function (e) {
-            $('#importModuleWin').modal({
-                backdrop: true
-            })
-        });
-
-        $("#checkReverseAll").click(function (e) {
-            var checkBox=document.getElementsByName('moduleCount');
-            for(var i=0;i<checkBox.length;i++)
-            {
-                if(checkBox[i].checked)
-                {
-                    checkBox[i].checked=false;
-                }
-                else   checkBox[i].checked=true;
-            }
-        });
-
-        $("#checkAll").click(function(e){
-            var checkBox=document.getElementsByName('moduleCount');
-            for(var i=0;i<checkBox.length;i++)
-            {
-                if(!checkBox[i].checked)
-                {
-                    checkBox[i].checked=true;
-                }
-            }
-        });
-
-        $("#import").click(function (e) {
-            if (document.getElementById("file").value.toString() == "") {
-                $("#showTip").text("文件不能为空");
-            }
-            else
-            {
-                ajaxFileUpload();
-            }
-        });
-
-        function ajaxFileUpload() {
-            $.ajaxFileUpload({
-                url: "/superdiamond/module/import/<c:out value='${type}'/>/<c:out value='${projectId}'/>/<c:out value='${currentPage}'/>",
-                type: 'post',
-                secureuri: false,
-                fileElementId: 'file',
-                dataType: 'text',
-                success: function (data, status) {
-                    try {
-                        var data = JSON ? JSON.parse(data) : eval('(' + data + ')');
-
-                        if (data['checkSuccess']==1) {
-
-                            $('#message').val(data['message']);
-                            gConfigCheckResult = data;
-                            $('#importModuleWin').modal('hide')
-                            $('#multi-choose').modal({
-                                backdrop: true
-                            })
-                        }
-                        else if(data['checkSuccess']==2)
-                        {
-                            window.location.href='/superdiamond/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>';
-                        }
-                        else {
-                            alert('配置检查错误：' + data.message);
-                        }
-                    } catch (e) {
-                        alert("error, " + e.message);
-                    }
-                },
-                error: function (data, status, e) {
-                    alert(data);
-                }
-            });
-
-            $("#btnSaveCurrent").click(function (e) {
-                performImport(gConfigCheckResult['checkId'], 1)
-            });
-
-            $("#btnCover").click(function () {
-                performImport(gConfigCheckResult['checkId'], 2)
-            });
-
-            $("#btnCancel").click(function () {
-                performImport(gConfigCheckResult['checkId'], 3)
-            });
-        }
-
-        /**
-         * 执行导入操作
-         * @param {String} checkId 配置检查ID
-         * @param {number} operation 操作 1-保存当前 2-覆盖 3-取消
-         */
-        function performImport(checkId, operation) {
-            $.ajax({
-                type: "POST",
-                url: "/superdiamond/module/import/perform/" + checkId + "/" + operation + "/<c:out value="${projectId}"/>/<c:out value="${type}"/>",
-                success: function (data, status) {
-                    if(data=="success")
-                    {
-                        window.location.href='/superdiamond/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>';
-                    }
-                    else
-                    {
-                        window.location.href='/superdiamond/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>';
-                    }
-                },
-                error: function (data, status, e) {
-                    alert(data);
-                    window.location.href='/superdiamond/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>';
-
-                }
-            });
-        }
-
-        function chk() {
-            var obj = document.getElementsByName('moduleCount'); //选择所有name="'moduleCount'"的对象，返回数组取到对象数组后，我们来循环检测它是不是被选中
-            var checkTrue = new Array();
-            var j = 0;
-            for (var i = 0; i < obj.length; i++) {
-                if (obj[i].checked) {
-                    checkTrue[j] = obj[i].value;
-                    j++;
-                }
-            }
-            return checkTrue;
-        }
-
-        function getJson(URL) {
-            var jsonString = null;
-            $.ajax({
-                type: "get",
-                async: false,
-                url: URL,
-                dataType: "json",
-                success: function (data) {
-                    jsonString = data;
-                    document.location.href = 'redirect:/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>';
-                },
-            });
-            return jsonString;
-        }
-
-        $("#exportSubmit").click(function (e) {
-            var moduleIds = new Array();
-            moduleIds = chk();
-            if (moduleIds.length == 0) {
-                $("#showConfigTip").text("模块不能为空");
-            }
-            else {
-                window.location.href = '/superdiamond/module/export/<c:out value="${type}"/>/<c:out value="${projectId}"/>/<c:out value="${sessionScope.sessionUser.userName}"/>/' + moduleIds;
-                var URL = '/superdiamond/module/export/<c:out value="${type}"/>/<c:out value="${projectId}"/>/<c:out value="${sessionScope.sessionUser.userName}"/>/' + moduleIds;
-                var jsonData = getJson(URL);
-                exportJson(jsonData);
-                window.location.href='/superdiamond/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>';
-            }
-        });
-
-        function exportJson(jsonString) {
-            var jsonF = JSON.stringify(jsonString, null, 2);
-            var jsonFormat = [jsonF];
-            var blob = new Blob(jsonFormat, {type: 'application/json'});
-            var name = document.getElementById("projectName").value.toString();
-            saveAs(blob, name + ".json");
-        }
 
         $("#saveConfig").click(function (e) {
             if (!$("#config-moduleId").val()) {

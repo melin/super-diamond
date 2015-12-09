@@ -8,8 +8,6 @@ package com.github.diamond.web.model;
  */
 public class ConfigCheckResult {
 
-
-
     /**
      * 检查是否成功 0表示失败，1和2表示成功，1表示无重复数据，2表示数据重复
      */

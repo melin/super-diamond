@@ -1,3 +1,4 @@
+/.idea
 /.project
 /.settings
 /super-diamond-client/target
@@ -10,5 +11,6 @@
 /super-diamond-server/target
 
 /super-diamond-client/.springBeans
-/.idea
+/*.iml
 /super-diamond-client/*.iml
+/super-diamond-server/*.iml
