@@ -20,7 +20,6 @@ public class AuthorizationFilter implements Filter {
 
     }
 
-
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
             ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
@@ -37,7 +36,6 @@ public class AuthorizationFilter implements Filter {
             SessionHolder.remove();
         }
     }
-
 
     public void init(FilterConfig filterConfig) throws ServletException {
     }

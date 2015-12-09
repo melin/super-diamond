@@ -12,7 +12,8 @@ super-diamond
 - 支持php项目从superdiamond中获取配置参数。
 
 系统功能截图：
-![](https://raw.githubusercontent.com/melin/super-diamond/master/diamond.png)
+![](https://raw.githubusercontent.com/melin/super-diamond/master/diamond.png "功能截图")
+![](https://raw.githubusercontent.com/talywy/super-diamond/master/export.png "配置导出")
 
 项目profile请参考：http://melin.iteye.com/blog/1339060
 

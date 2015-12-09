@@ -3,17 +3,40 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+	<!--<bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">-->
+		<!--<property name="properties" ref="propertiesConfiguration" />-->
+	<!--</bean>-->
+	<!-- -->
+	<!--<bean id="propertiesConfiguration" class="com.github.diamond.client.PropertiesConfigurationFactoryBean">-->
+		<!--<constructor-arg index="0" value="localhost" />-->
+		<!--<constructor-arg index="1" value="8283" />-->
+		<!--<constructor-arg index="2" value="test" />-->
+		<!--<constructor-arg index="3" value="development" />-->
+	<!--</bean>-->
+
 	<bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
 		<property name="properties" ref="propertiesConfiguration" />
 	</bean>
-	
+
+	<!--<bean id="propertiesConfiguration" class="com.github.diamond.client.PropertiesConfigurationFactoryBean">-->
+		<!--<constructor-arg index="0" value="172.16.79.21" />-->
+		<!--<constructor-arg index="1" value="8283" />-->
+		<!--<constructor-arg index="2" value="changyan.yun.cyservice" />-->
+		<!--<constructor-arg index="3" value="development" />-->
+	<!--</bean>-->
+
+	<!--<bean id="propertiesConfiguration" class="com.github.diamond.client.PropertiesConfigurationFactoryBean">-->
+	<!--<constructor-arg index="0" value="123.57.204.61" />-->
+	<!--<constructor-arg index="1" value="18080" />-->
+	<!--<constructor-arg index="2" value="cloud-service" />-->
+	<!--<constructor-arg index="3" value="development" />-->
+		<!--<constructor-arg index="4" value="" />-->
+	<!--</bean>-->
+
 	<bean id="propertiesConfiguration" class="com.github.diamond.client.PropertiesConfigurationFactoryBean">
-		<constructor-arg index="0" value="localhost" />
-		<constructor-arg index="1" value="8283" />
-		<constructor-arg index="2" value="test" />
-		<constructor-arg index="3" value="development" />
 	</bean>
-	
+
+
 	<bean class="com.github.diamond.client.DatasourceTest">
 		<property name="url" value="${jdbc.url}" />
 	</bean>

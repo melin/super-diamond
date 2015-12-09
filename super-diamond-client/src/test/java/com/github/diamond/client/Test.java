@@ -18,7 +18,7 @@ public class Test {
 	 * @throws ConfigurationException
 	 */
 	public static void main(String[] args) throws Exception {
-		PropertiesConfiguration config = new PropertiesConfiguration("localhost", 8283, "cloud-service", "development", "jdbc");
+		PropertiesConfiguration config = new PropertiesConfiguration("127.0.0.1", 8283, "t_cyservice_performance", "development");
 		config.addConfigurationListener(new ConfigurationListenerTest());
 		System.out.println(config.getString("jdbc.url"));
 		
