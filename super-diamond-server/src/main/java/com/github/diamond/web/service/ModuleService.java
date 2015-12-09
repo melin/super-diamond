@@ -16,8 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Create on @2013-8-21 @下午8:18:44
- *
+ * Create on @2013-8-21 @下午8:18:44 
  * @author bsli@ustcinfo.com
  */
 @Service
@@ -156,8 +155,7 @@ public class ModuleService {
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("id", projectId);
         paramMap.put("moduleIds", moduleId);
-        NamedParameterJdbcTemplate namedParameterJdbcTemplate =
-                new NamedParameterJdbcTemplate(jdbcTemplate);
+        NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
         String sql = "select a.MODULE_ID,b.CONFIG_ID,a.MODULE_NAME,b.CONFIG_KEY,b.CONFIG_VALUE,b.CONFIG_DESC FROM conf_project_module a,conf_project_config b  where a.PROJ_ID=b.PROJECT_ID and b.PROJECT_ID=:id  and a.MODULE_ID=b.MODULE_ID AND a.MODULE_ID in (:moduleIds) ORDER BY a.MODULE_ID";
 
         moduleConfigListData = namedParameterJdbcTemplate.queryForList(sql, paramMap);

@@ -4,7 +4,6 @@
 package com.github.diamond.web.controller;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.alibaba.fastjson.JSON;
@@ -77,7 +76,6 @@ public class ModuleController extends BaseController {
                 exportDataStr = new String(fileBytes);
 
                 exportData = JSON.parseObject(exportDataStr, ConfigExportData.class);
-
                 DATE = new Date();
 
                 List<Map<String, String>> saveRepeatData = new ArrayList<>();
@@ -98,10 +96,9 @@ public class ModuleController extends BaseController {
 
                             //configService.updateConfig(type, moduleConfigId.getProjectId(), configKey, configValue, configDesc, projectId, moduleConfigId.getModuleId(), user.getUserCode());
                         }  //该模型与配置还不存在
-
+                        //configService.insertConfig(configKey, configValue, configDesc, projectId, moduleConfigId.getModuleId(), user.getUserCode());
                     }
                 }
-
                 if (saveRepeatData.size() != 0) {
                     String message = "重复的配置信息如下：" + "\n";
                     for (Map<String, String> m : saveRepeatData) {
@@ -110,25 +107,24 @@ public class ModuleController extends BaseController {
                     }
                     checkResult.setCheckSuccess(1);
                     checkResult.setMessage(message);
-                    { // TODO: 处理新增模块的记录
-                        for (Module module : modules) {
-                            ArrayList<Config> configs = module.getConfigs();
-                            String moduleName = module.getName();          //得到模型name
-                            for (Config config : configs) {
-                                String configKey = config.getKey();
-                                String configValue = config.getValue();
-                                String configDesc = config.getDescription();
-                                ModuleIdExist moduleIdExist = moduleService.isExist(moduleName, projectId);
-                                if (moduleIdExist.isExist()) {
-                                    configService.insertConfig(configKey, configValue, configDesc, projectId, moduleIdExist.getModuleId(), user.getUserCode());
-                                } else {
-                                    long moduleId = moduleService.save(projectId, moduleName);
-                                    configService.insertConfig(configKey, configValue, configDesc, projectId, moduleId, user.getUserCode());
-                                }
+                } else {// TODO: 处理新增模块的记录
+                    for (Module module : modules) {
+                        ArrayList<Config> configs = module.getConfigs();
+                        String moduleName = module.getName();          //得到模型name
+                        for (Config config : configs) {
+                            String configKey = config.getKey();
+                            String configValue = config.getValue();
+                            String configDesc = config.getDescription();
+                            ModuleIdExist moduleIdExist = moduleService.isExist(moduleName, projectId);
+                            if (moduleIdExist.isExist()) {
+                                configService.insertConfig(configKey, configValue, configDesc, projectId, moduleIdExist.getModuleId(), user.getUserCode());
+                            } else {
+                                long moduleId = moduleService.save(projectId, moduleName);
+                                configService.insertConfig(configKey, configValue, configDesc, projectId, moduleId, user.getUserCode());
                             }
                         }
-                        checkResult.setCheckSuccess(2);
                     }
+                    checkResult.setCheckSuccess(2);
                 }
             }
         } catch (Exception ex) {
@@ -155,8 +151,8 @@ public class ModuleController extends BaseController {
             IMPORT_CONFIG_MAP.remove(checkId);
         }
 
-        ConfigExportData exportData = IMPORT_CONFIG_MAP.get(checkId);
         User user = (User) SessionHolder.getSession().getAttribute("sessionUser");
+        ConfigExportData exportData = IMPORT_CONFIG_MAP.get(checkId);
         if (exportData == null) {
             return "error import data is null";
         } else {// TODO: 执行具体的操作，插入数据库什么的,注意用事务保证数据可以整体操作成功
@@ -174,7 +170,6 @@ public class ModuleController extends BaseController {
                         if (!moduleConfigId.isExist()) { //找出不存在的配置，执行插入操作
                             if (moduleIdExist.isExist()) {
                                 configService.insertConfig(configKey, configValue, configDesc, projectId, moduleIdExist.getModuleId(), user.getUserCode());
-
                             } else {
                                 long moduleId = moduleService.save(projectId, moduleName);
                                 configService.insertConfig(configKey, configValue, configDesc, projectId, moduleId, user.getUserCode());
@@ -208,7 +203,6 @@ public class ModuleController extends BaseController {
                         }
                     }
                 }
-                ;
                 IMPORT_CONFIG_MAP.remove(checkId);
                 session.setAttribute("message", "导入成功");
                 return "{\"data\":\"success\"}";
@@ -238,14 +232,15 @@ public class ModuleController extends BaseController {
         }
     }
 
-
     @RequestMapping("/module/export/{type}/{projectId}/{userName}/{moduleIds}")
     @ResponseBody
-    public String export(HttpServletResponse response, @PathVariable String type, @PathVariable long projectId, @PathVariable String userName, @PathVariable long[] moduleIds) {
+    public String export(@PathVariable String type, @PathVariable long projectId, @PathVariable String userName, @PathVariable long[] moduleIds) {
+
 
         ConfigExportData configExportData = projectService.getConfigExportData(projectId, userName);
 
         List<Map<String, Object>> getModuleData = moduleService.getModuleConfigData(projectId, moduleIds);
+        // TODO: 改成一次性获取
 
         for (int i = 0; i < moduleIds.length; i++) {
             Module module = new Module();
@@ -271,5 +266,6 @@ public class ModuleController extends BaseController {
 
         String json = JSON.toJSONString(configExportData, true);
         return json;
+
     }
 }
