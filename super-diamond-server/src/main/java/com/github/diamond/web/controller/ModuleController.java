@@ -87,7 +87,7 @@ public class ModuleController extends BaseController {
                     String moduleName = module.getName();          //得到模型name
                     for (Config config : configs) {
                         String configKey = config.getKey();
-                        ModuleConfigId moduleConfigId = moduleService.isExist(configKey, moduleName);
+                        ModuleConfigId moduleConfigId = moduleService.moduleConfigIdIsExist(configKey, moduleName, projectId);
                         if (moduleConfigId.isExist()) { //该模型与配置已经存在,将重复的数据添加到saveRepeatData变量中
                             Map<String, String> singleRepeatData = new HashMap<>();
 
@@ -115,7 +115,7 @@ public class ModuleController extends BaseController {
                             String configKey = config.getKey();
                             String configValue = config.getValue();
                             String configDesc = config.getDescription();
-                            ModuleIdExist moduleIdExist = moduleService.isExist(moduleName, projectId);
+                            ModuleIdExist moduleIdExist = moduleService.moduleIdIsExist(moduleName, projectId);
                             if (moduleIdExist.isExist()) {
                                 configService.insertConfig(configKey, configValue, configDesc, projectId, moduleIdExist.getModuleId(), user.getUserCode());
                             } else {
@@ -165,8 +165,8 @@ public class ModuleController extends BaseController {
                         String configKey = config.getKey();
                         String configValue = config.getValue();
                         String configDesc = config.getDescription();
-                        ModuleConfigId moduleConfigId = moduleService.isExist(configKey, moduleName);
-                        ModuleIdExist moduleIdExist = moduleService.isExist(moduleName, projectId);
+                        ModuleConfigId moduleConfigId = moduleService.moduleConfigIdIsExist(configKey, moduleName, projectId);
+                        ModuleIdExist moduleIdExist = moduleService.moduleIdIsExist(moduleName, projectId);
                         if (!moduleConfigId.isExist()) { //找出不存在的配置，执行插入操作
                             if (moduleIdExist.isExist()) {
                                 configService.insertConfig(configKey, configValue, configDesc, projectId, moduleIdExist.getModuleId(), user.getUserCode());
@@ -189,8 +189,8 @@ public class ModuleController extends BaseController {
                         String configKey = config.getKey();
                         String configValue = config.getValue();
                         String configDesc = config.getDescription();
-                        ModuleConfigId moduleConfigId = moduleService.isExist(configKey, moduleName);
-                        ModuleIdExist moduleIdExist = moduleService.isExist(moduleName, projectId);
+                        ModuleConfigId moduleConfigId = moduleService.moduleConfigIdIsExist(configKey, moduleName, projectId);
+                        ModuleIdExist moduleIdExist = moduleService.moduleIdIsExist(moduleName, projectId);
                         if (moduleConfigId.isExist()) {
                             configService.updateConfig(type, moduleConfigId.getConfigId(), configKey, configValue, configDesc, projectId, moduleConfigId.getModuleId(), user.getUserCode());
                         } else { //找出不存在的配置，执行插入操作

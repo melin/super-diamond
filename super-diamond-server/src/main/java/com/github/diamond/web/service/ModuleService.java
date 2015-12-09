@@ -63,44 +63,14 @@ public class ModuleService {
     }
 
     @Transactional
-    public Module getExportModule(long projectId, long moduleId) {
-        String name = null;
-        String sql = "select MODULE_NAME from CONF_PROJECT_MODULE where PROJ_ID = ? and MODULE_ID = ? ";
-        List<Map<String, Object>> modules = null;
-        try {
-            modules = jdbcTemplate.queryForList(sql, projectId, moduleId);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        for (Map<String, Object> module : modules) {
-            name = module.get("MODULE_NAME").toString();
-        }
-        return new Module(name);
-    }
-
-    @Transactional
-    public List<Long> getConfigCount(long projectId, long moduleId) {
-        int count = 0;
-        List<Long> configIDs = null;
-        String sql = "select CONFIG_ID from CONF_PROJECT_CONFIG where PROJECT_ID = ? and MODULE_ID = ? and DELETE_FLAG <> 1";
-        try {
-            configIDs = jdbcTemplate.queryForList(sql, Long.class, projectId, moduleId);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
-        return configIDs;
-    }
-
-    @Transactional
-    public ModuleConfigId isExist(String configName, String moduleName) {
+    public ModuleConfigId moduleConfigIdIsExist(String configName, String moduleName,Long projectId) {
         List<Long> moduleIds = null;
         boolean isExist = false;
         Long configId = null;
         Long moduleId = null;
-        String sql = "select MODULE_ID from CONF_PROJECT_MODULE where MODULE_NAME=?";
+        String sql = "select MODULE_ID from CONF_PROJECT_MODULE where MODULE_NAME=? and PROJ_ID=?";
         try {
-            moduleIds = jdbcTemplate.queryForList(sql, Long.class, moduleName);
+            moduleIds = jdbcTemplate.queryForList(sql, Long.class, moduleName,projectId);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -125,7 +95,7 @@ public class ModuleService {
 
 
     @Transactional
-    public ModuleIdExist isExist(String moduleName, long projectId) {
+    public ModuleIdExist moduleIdIsExist(String moduleName, long projectId) {
         boolean isExist = false;
         String sql = "select MODULE_ID from CONF_PROJECT_MODULE where MODULE_NAME=? and PROJ_ID=?";
         List<Long> moduleId = null;
