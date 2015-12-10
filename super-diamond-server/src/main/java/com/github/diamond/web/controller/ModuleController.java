@@ -49,9 +49,9 @@ public class ModuleController extends BaseController {
     private ModuleService moduleService;
 
     /**
-     *  配置导入检查
+     * 配置导入检查
      *
-     * @param file 配置文件
+     * @param file      配置文件
      * @param projectId 项目编号
      * @return
      * @throws ServletException
@@ -87,7 +87,7 @@ public class ModuleController extends BaseController {
                     String moduleName = module.getName();          //得到模型name
                     for (Config config : configs) {
                         String configKey = config.getKey();
-                        ModuleConfigId moduleConfigId = moduleService.isExist(configKey, moduleName);
+                        ModuleConfigId moduleConfigId = moduleService.moduleConfigIdIsExist(configKey, moduleName, projectId);
                         if (moduleConfigId.isExist()) { //该模型与配置已经存在,将重复的数据添加到saveRepeatData变量中
                             Map<String, String> singleRepeatData = new HashMap<>();
 
@@ -115,7 +115,7 @@ public class ModuleController extends BaseController {
                             String configKey = config.getKey();
                             String configValue = config.getValue();
                             String configDesc = config.getDescription();
-                            ModuleIdExist moduleIdExist = moduleService.isExist(moduleName, projectId);
+                            ModuleIdExist moduleIdExist = moduleService.moduleIdIsExist(moduleName, projectId);
                             if (moduleIdExist.isExist()) {
                                 configService.insertConfig(configKey, configValue, configDesc, projectId, moduleIdExist.getModuleId(), user.getUserCode());
                             } else {
@@ -148,8 +148,9 @@ public class ModuleController extends BaseController {
         long nm = 1000 * 60;
         Date dateNow = new Date();
         if ((dateNow.getTime() - DATE.getTime()) % nd % nh / nm >= 10) { // TODO: 新增一个计时器，定时删除不再访问的配置检查数据，设定的时间为十分钟
-            IMPORT_CONFIG_MAP.clear();
+            IMPORT_CONFIG_MAP.remove(checkId);
         }
+
         User user = (User) SessionHolder.getSession().getAttribute("sessionUser");
         ConfigExportData exportData = IMPORT_CONFIG_MAP.get(checkId);
         if (exportData == null) {
@@ -164,8 +165,8 @@ public class ModuleController extends BaseController {
                         String configKey = config.getKey();
                         String configValue = config.getValue();
                         String configDesc = config.getDescription();
-                        ModuleConfigId moduleConfigId = moduleService.isExist(configKey, moduleName);
-                        ModuleIdExist moduleIdExist = moduleService.isExist(moduleName, projectId);
+                        ModuleConfigId moduleConfigId = moduleService.moduleConfigIdIsExist(configKey, moduleName, projectId);
+                        ModuleIdExist moduleIdExist = moduleService.moduleIdIsExist(moduleName, projectId);
                         if (!moduleConfigId.isExist()) { //找出不存在的配置，执行插入操作
                             if (moduleIdExist.isExist()) {
                                 configService.insertConfig(configKey, configValue, configDesc, projectId, moduleIdExist.getModuleId(), user.getUserCode());
@@ -176,7 +177,7 @@ public class ModuleController extends BaseController {
                         }
                     }
                 }
-                IMPORT_CONFIG_MAP.clear();
+                IMPORT_CONFIG_MAP.remove(checkId);
                 session.setAttribute("message", "导入成功");
                 return "{\"data\":\"success\"}";
             } else if (operation == 2) {
@@ -188,8 +189,8 @@ public class ModuleController extends BaseController {
                         String configKey = config.getKey();
                         String configValue = config.getValue();
                         String configDesc = config.getDescription();
-                        ModuleConfigId moduleConfigId = moduleService.isExist(configKey, moduleName);
-                        ModuleIdExist moduleIdExist = moduleService.isExist(moduleName, projectId);
+                        ModuleConfigId moduleConfigId = moduleService.moduleConfigIdIsExist(configKey, moduleName, projectId);
+                        ModuleIdExist moduleIdExist = moduleService.moduleIdIsExist(moduleName, projectId);
                         if (moduleConfigId.isExist()) {
                             configService.updateConfig(type, moduleConfigId.getConfigId(), configKey, configValue, configDesc, projectId, moduleConfigId.getModuleId(), user.getUserCode());
                         } else { //找出不存在的配置，执行插入操作
@@ -202,11 +203,11 @@ public class ModuleController extends BaseController {
                         }
                     }
                 }
-                IMPORT_CONFIG_MAP.clear();
+                IMPORT_CONFIG_MAP.remove(checkId);
                 session.setAttribute("message", "导入成功");
                 return "{\"data\":\"success\"}";
             } else {
-                IMPORT_CONFIG_MAP.clear();
+                IMPORT_CONFIG_MAP.remove(checkId);
                 return "{\"data\":\"success\"}";
             }
         }
@@ -236,21 +237,35 @@ public class ModuleController extends BaseController {
     public String export(@PathVariable String type, @PathVariable long projectId, @PathVariable String userName, @PathVariable long[] moduleIds) {
 
 
-        // TODO: 改成一次性获取
-
         ConfigExportData configExportData = projectService.getConfigExportData(projectId, userName);
 
-        for (int i = 0; i < moduleIds.length; i++) {
-            Module module = moduleService.getExportModule(projectId, moduleIds[i]);
-            configExportData.getModules().add(module);
+        List<Map<String, Object>> getModuleData = moduleService.getModuleConfigData(projectId, moduleIds);
+        // TODO: 改成一次性获取
 
-            List<Long> configIds = moduleService.getConfigCount(projectId, moduleIds[i]);
-            for (int j = 0; j < configIds.size(); j++) {
-                Config config = configService.getExportConfig(projectId, moduleIds[i], configIds.get(j), type);
-                module.getConfigs().add(config);
+        for (int i = 0; i < moduleIds.length; i++) {
+            Module module = new Module();
+            module.setConfigs(new ArrayList<Config>());
+            for (int j = 0; j < getModuleData.size(); j++) {
+                if (moduleIds[i] == Integer.parseInt(getModuleData.get(j).get("MODULE_ID").toString())) {
+                    if (!(getModuleData.get(j).get("MODULE_NAME").toString().equals(module.getName()))) {
+                        module.setName(getModuleData.get(j).get("MODULE_NAME").toString());
+                        configExportData.getModules().add(module);
+                    }
+                    Config config = new Config();
+                    config.setKey(getModuleData.get(j).get("CONFIG_KEY").toString());
+                    config.setValue(getModuleData.get(j).get("CONFIG_VALUE").toString());
+                    config.setDescription(getModuleData.get(j).get("CONFIG_DESC").toString());
+                    try {
+                        module.getConfigs().add(config);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
+
         String json = JSON.toJSONString(configExportData, true);
         return json;
+
     }
 }
