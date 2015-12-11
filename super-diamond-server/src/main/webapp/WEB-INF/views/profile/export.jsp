@@ -222,7 +222,8 @@
                 dataType: "json",
                 success: function (data) {
                     jsonString = data;
-                    document.location.href = 'redirect:/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>';
+                    document.location.href = '/superdiamond/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>';
+                    //document.location.href = 'redirect:/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>';
                 },
             });
             return jsonString;
