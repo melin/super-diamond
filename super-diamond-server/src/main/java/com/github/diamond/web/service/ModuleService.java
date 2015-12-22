@@ -76,7 +76,7 @@ public class ModuleService {
         }
         if (moduleIds.size() != 0) {
             moduleId = moduleIds.get(0);
-            String enquerySql = "select CONFIG_ID from CONF_PROJECT_CONFIG where MODULE_ID=? and CONFIG_KEY=?";
+            String enquerySql = "select CONFIG_ID from CONF_PROJECT_CONFIG where MODULE_ID=? and CONFIG_KEY=? and DELETE_FLAG=0";
             List<Long> configs = null;
             try {
                 configs = jdbcTemplate.queryForList(enquerySql, Long.class, moduleId, configName);
@@ -121,12 +121,11 @@ public class ModuleService {
         for (int i = 0; i < moduleIds.length; i++) {
             moduleId.add(moduleIds[i]);
         }
-
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("id", projectId);
         paramMap.put("moduleIds", moduleId);
         NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
-        String sql = "select a.MODULE_ID,b.CONFIG_ID,a.MODULE_NAME,b.CONFIG_KEY,b.CONFIG_VALUE,b.CONFIG_DESC FROM conf_project_module a,conf_project_config b  where a.PROJ_ID=b.PROJECT_ID and b.PROJECT_ID=:id  and a.MODULE_ID=b.MODULE_ID AND a.MODULE_ID in (:moduleIds) ORDER BY a.MODULE_ID";
+        String sql = "select a.MODULE_ID,b.CONFIG_ID,a.MODULE_NAME,b.CONFIG_KEY,b.CONFIG_VALUE,b.CONFIG_DESC FROM CONF_PROJECT_MODULE a,CONF_PROJECT_CONFIG b  where a.PROJ_ID=b.PROJECT_ID AND b.PROJECT_ID=:id AND b.DELETE_FLAG=0 AND a.MODULE_ID=b.MODULE_ID AND a.MODULE_ID in (:moduleIds) ORDER BY a.MODULE_ID";
 
         moduleConfigListData = namedParameterJdbcTemplate.queryForList(sql, paramMap);
         return moduleConfigListData;
