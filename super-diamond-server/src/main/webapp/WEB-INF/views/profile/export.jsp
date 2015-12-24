@@ -1,3 +1,5 @@
+<%@ page import="com.alibaba.fastjson.JSON" %>
+<%@ page import="java.net.URLDecoder" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <% String reuUri = request.getRequestURI();
@@ -17,7 +19,7 @@
               action="<c:url value="/module/import/${type}/${projectId}/${currentPage}" />"
               method="post" enctype="multipart/form-data">
             <div class="control-group">
-                请选择要上传的文件：<input id="file" type="FILE" name="file" size="30" accept=".json">
+                请选择要上传的文件：<input id="file" type="FILE" name="file" size="30"  accept=".json,.properties">
             </div>
         </form>
     </div>
@@ -59,7 +61,8 @@
         </div>
         <div class="pull-right">
             <button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
-            <button class="btn btn-primary" id="exportSubmit">确定</button>
+            <button class="btn btn-primary" id="exportSubmit">导出json</button>
+            <button class="btn btn-primary" id="exportProperties">导出properties</button>
         </div>
     </div>
 </div>
@@ -117,6 +120,7 @@
         });
 
         function ajaxFileUpload() {
+            //if(document.getElementById("file").value.toString().indexOf(".json")>0)
             $.ajaxFileUpload({
                 url: "<c:url value="/module/import/${type}/${projectId}/${currentPage}" />",
                 type: 'post',
@@ -125,8 +129,8 @@
                 dataType: 'text',
                 success: function (data, status) {
                     try {
-                        var data = JSON ? JSON.parse(data) : eval('(' + data + ')');
-
+                        var dataDecode = decodeURIComponent(decodeURIComponent(escape(data)));
+                        var data = JSON ? JSON.parse(dataDecode) : eval('(' + dataDecode + ')');
                         if (data['checkSuccess'] == 1) {
 
                             $('#message').val(data['message']);
@@ -149,6 +153,7 @@
                 error: function (data, status, e) {
                     alert(data);
                 }
+
             });
         }
 
@@ -205,13 +210,12 @@
                 $("#showConfigTip").text("模块不能为空");
             }
             else {
-                var URL = '/superdiamond/module/export/${type}/${projectId}/${sessionScope.sessionUser.userName}/' + moduleIds;
+                var URL = '/superdiamond/module/exportJson/${type}/${projectId}/${sessionScope.sessionUser.userName}/' + moduleIds;
                 var jsonData = getJson(URL);
                 exportJson(jsonData);
                 window.location.href = '/superdiamond/profile/${type}/${projectId}';
             }
         });
-
 
         function getJson(URL) {
             var jsonString = null;
@@ -235,6 +239,42 @@
             var blob = new Blob(jsonFormat, {type: 'application/json'});
             var name = document.getElementById("projectName").value.toString();
             saveAs(blob, name + ".json");
+        }
+
+        $("#exportProperties").click(function(e) {
+            var moduleIds = getCheckedModules();
+            if (moduleIds.length == 0) {
+                $("#showConfigTip").text("模块不能为空");
+            }
+            else {
+                var URL = '/superdiamond/module/exportProperties/${type}/${projectId}/${sessionScope.sessionUser.userName}/' + moduleIds;
+                var propertiesData = getProperties(URL);
+                exportProperties(propertiesData);
+                window.location.href = '/superdiamond/profile/${type}/${projectId}';
+            }
+        });
+
+        function getProperties(URL) {
+            var propertiesString=null;
+            $.ajax({
+                type: "get",
+                async: false,
+                url: URL,
+                dataType: "text",
+                success: function (data) {
+                    document.location.href = '/superdiamond/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>';
+                    propertiesString=data;
+                    //document.location.href = 'redirect:/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>';
+                },
+            });
+            return propertiesString;
+        }
+
+        function exportProperties(propertiesString) {
+            var propertiseFormat=[propertiesString]
+            var blob = new Blob(propertiseFormat, {type: 'application/plain'});
+            var name = document.getElementById("projectName").value.toString();
+            saveAs(blob, name + ".properties");
         }
     })
 </script>

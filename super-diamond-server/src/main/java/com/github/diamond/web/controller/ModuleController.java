@@ -23,10 +23,13 @@ import com.github.diamond.web.service.ModuleService;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import java.io.*;
+import java.net.URLEncoder;
 import java.util.*;
 import java.util.List;
+import java.util.Properties;
 
 
 /**
@@ -59,12 +62,12 @@ public class ModuleController extends BaseController {
      */
     @RequestMapping("/module/import/{type}/{projectId}/{currentPage}")
     @ResponseBody
-    public String importModuleCheck(@RequestParam("file") MultipartFile file, @PathVariable long projectId) throws ServletException, IOException {
+    public String importModuleCheck(@RequestParam("file") MultipartFile file, @PathVariable long projectId,MultipartHttpServletRequest request) throws ServletException, IOException {
 
         final ConfigCheckResult checkResult = new ConfigCheckResult() {{
             setCheckId(UUID.randomUUID().toString());
         }};
-        ConfigExportData exportData = null;
+        ConfigExportData exportData = new ConfigExportData();
         User user = (User) SessionHolder.getSession().getAttribute("sessionUser");
         try {
             String exportDataStr;
@@ -75,7 +78,29 @@ public class ModuleController extends BaseController {
                 byte[] fileBytes = file.getBytes();
                 exportDataStr = new String(fileBytes);
 
-                exportData = JSON.parseObject(exportDataStr, ConfigExportData.class);
+                if ( file.getOriginalFilename().toString().indexOf(".json") > 0) {
+                    exportData = JSON.parseObject(exportDataStr, ConfigExportData.class);
+                }
+                else
+                {
+                    exportData.setModules(new ArrayList<Module>());
+                    InputStream in = file.getInputStream();
+                    Properties properties = new Properties();
+                    properties.load(in);
+                    Module module=new Module();
+                    module.setConfigs(new ArrayList<Config>());
+                    module.setName("sysConfig");
+                    Iterator<String> it=properties.stringPropertyNames().iterator();
+                                while(it.hasNext()){
+                                   String key=it.next();
+                                    Config config =new Config();
+                                    config.setKey(key);
+                                    config.setValue(properties.getProperty(key));
+                                    config.setDescription("");
+                                    module.getConfigs().add(config);
+                             }
+                    exportData.getModules().add(module);
+                }
                 DATE = new Date();
 
                 List<Map<String, String>> saveRepeatData = new ArrayList<>();
@@ -103,7 +128,7 @@ public class ModuleController extends BaseController {
                     String message = "重复的配置信息如下：" + "\n";
                     for (Map<String, String> m : saveRepeatData) {
                         for (String key : m.keySet())
-                            message += ("模块名：" + key + "  " + "配置名：" + m.get(key) + "  " + "\n");
+                            message += ("模块名：" + key + "\t" + "配置名：" + m.get(key) + "\t" + "\n");
                     }
                     checkResult.setCheckSuccess(1);
                     checkResult.setMessage(message);
@@ -127,7 +152,7 @@ public class ModuleController extends BaseController {
                     checkResult.setCheckSuccess(2);
                 }
             }
-        } catch (Exception ex) {
+        }catch(Exception ex){
             checkResult.setCheckSuccess(0);
             checkResult.setMessage(ex.getMessage());
         }
@@ -135,8 +160,8 @@ public class ModuleController extends BaseController {
         if (checkResult.getCheckSuccess() == 1) {
             IMPORT_CONFIG_MAP.put(checkResult.getCheckId(), exportData);
         }
-
-        return JSON.toJSONString(checkResult);
+        return URLEncoder.encode(JSON.toJSONString(checkResult), "utf-8");
+        //return JSON.toJSONString(checkResult);
     }
 
     @RequestMapping("/module/import/perform/{checkId}/{operation}/{projectId}/{type}")
@@ -154,7 +179,7 @@ public class ModuleController extends BaseController {
         User user = (User) SessionHolder.getSession().getAttribute("sessionUser");
         ConfigExportData exportData = IMPORT_CONFIG_MAP.get(checkId);
         if (exportData == null) {
-            return "error import data is null";
+            return "error: import data is null";
         } else {// TODO: 执行具体的操作，插入数据库什么的,注意用事务保证数据可以整体操作成功
             if (operation == 1) {
                 ArrayList<Module> modules = exportData.getModules();
@@ -232,10 +257,9 @@ public class ModuleController extends BaseController {
         }
     }
 
-    @RequestMapping("/module/export/{type}/{projectId}/{userName}/{moduleIds}")
+    @RequestMapping("/module/exportJson/{type}/{projectId}/{userName}/{moduleIds}")
     @ResponseBody
-    public String export(@PathVariable String type, @PathVariable long projectId, @PathVariable String userName, @PathVariable long[] moduleIds) {
-
+    public String exportJson(@PathVariable String type, @PathVariable long projectId, @PathVariable String userName, @PathVariable long[] moduleIds) {
 
         ConfigExportData configExportData = projectService.getConfigExportData(projectId, userName);
 
@@ -255,17 +279,35 @@ public class ModuleController extends BaseController {
                     config.setKey(getModuleData.get(j).get("CONFIG_KEY").toString());
                     config.setValue(getModuleData.get(j).get("CONFIG_VALUE").toString());
                     config.setDescription(getModuleData.get(j).get("CONFIG_DESC").toString());
-                    try {
-                        module.getConfigs().add(config);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                    module.getConfigs().add(config);
                 }
             }
         }
-
         String json = JSON.toJSONString(configExportData, true);
         return json;
+    }
 
+    @RequestMapping("/module/exportProperties/{type}/{projectId}/{userName}/{moduleIds}")
+    @ResponseBody
+    public String exportProperties(@PathVariable String type, @PathVariable long projectId, @PathVariable String userName, @PathVariable long[] moduleIds) {
+
+        String propertiesString=new String();
+        propertiesString+=("#"+"sysConfig");
+
+        List<Map<String, Object>> getModuleData = moduleService.getModuleConfigData(projectId, moduleIds);
+
+        for (int i = 0; i < moduleIds.length; i++) {
+            String moduleName="";
+            for (int j = 0; j < getModuleData.size(); j++) {
+                if (moduleIds[i] == Integer.parseInt(getModuleData.get(j).get("MODULE_ID").toString())) {
+                    if (!(getModuleData.get(j).get("MODULE_NAME").toString().equals(moduleName))) {
+                        propertiesString+="\n";
+                        moduleName=getModuleData.get(j).get("MODULE_NAME").toString();
+                    }
+                    propertiesString+=("\n"+getModuleData.get(j).get("CONFIG_KEY").toString()+"="+getModuleData.get(j).get("CONFIG_VALUE").toString());
+                }
+            }
+        }
+        return propertiesString;
     }
 }
