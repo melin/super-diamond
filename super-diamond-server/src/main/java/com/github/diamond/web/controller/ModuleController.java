@@ -78,7 +78,8 @@ public class ModuleController extends BaseController {
                 byte[] fileBytes = file.getBytes();
                 exportDataStr = new String(fileBytes);
 
-                if ( file.getOriginalFilename().toString().indexOf(".json") > 0) {
+                if ( file.getOriginalFilename().toString().indexOf(".json") > 0)
+                {
                     exportData = JSON.parseObject(exportDataStr, ConfigExportData.class);
                 }
                 else
@@ -91,14 +92,25 @@ public class ModuleController extends BaseController {
                     module.setConfigs(new ArrayList<Config>());
                     module.setName("sysConfig");
                     Iterator<String> it=properties.stringPropertyNames().iterator();
-                                while(it.hasNext()){
-                                   String key=it.next();
-                                    Config config =new Config();
-                                    config.setKey(key);
-                                    config.setValue(properties.getProperty(key));
-                                    config.setDescription("");
-                                    module.getConfigs().add(config);
-                             }
+                    while(it.hasNext()){
+                        String key=it.next();
+                        Config config =new Config();
+                        config.setKey(key);
+                        int indexKey=exportDataStr.indexOf(key);
+                        int indexEqual=exportDataStr.indexOf("=",indexKey);
+                        int indexSpace=exportDataStr.indexOf("\n",indexEqual);
+                        String valueString =exportDataStr.substring((indexEqual+1),indexSpace);
+                        CharSequence backSlash="\\";
+                        if(valueString.contains(backSlash))
+                        {
+                            config.setValue(valueString);
+                        }
+                        else{
+                            config.setValue(properties.getProperty(key));
+                        }
+                        config.setDescription("");
+                        module.getConfigs().add(config);
+                    }
                     exportData.getModules().add(module);
                 }
                 DATE = new Date();
@@ -118,7 +130,6 @@ public class ModuleController extends BaseController {
 
                             singleRepeatData.put(moduleName, configKey);
                             saveRepeatData.add(singleRepeatData);
-
                             //configService.updateConfig(type, moduleConfigId.getProjectId(), configKey, configValue, configDesc, projectId, moduleConfigId.getModuleId(), user.getUserCode());
                         }  //该模型与配置还不存在
                         //configService.insertConfig(configKey, configValue, configDesc, projectId, moduleConfigId.getModuleId(), user.getUserCode());
@@ -308,6 +319,7 @@ public class ModuleController extends BaseController {
                 }
             }
         }
+        propertiesString+="\n";
         return propertiesString;
     }
 }
