@@ -274,7 +274,7 @@ public class ModuleController extends BaseController {
 
         ConfigExportData configExportData = projectService.getConfigExportData(projectId, userName);
 
-        List<Map<String, Object>> getModuleData = moduleService.getModuleConfigData(projectId, moduleIds);
+        List<Map<String, Object>> getModuleData = moduleService.getModuleConfigData(projectId, moduleIds,type);
         // TODO: 改成一次性获取
 
         for (int i = 0; i < moduleIds.length; i++) {
@@ -288,7 +288,16 @@ public class ModuleController extends BaseController {
                     }
                     Config config = new Config();
                     config.setKey(getModuleData.get(j).get("CONFIG_KEY").toString());
-                    config.setValue(getModuleData.get(j).get("CONFIG_VALUE").toString());
+
+                    if("development".equals(type))
+                        config.setValue(getModuleData.get(j).get("CONFIG_VALUE").toString());
+                    else if("test".equals(type))
+                        config.setValue(getModuleData.get(j).get("TEST_VALUE").toString());
+                    else if("build".equals(type))
+                        config.setValue(getModuleData.get(j).get("BUILD_VALUE").toString());
+                    else
+                        config.setValue(getModuleData.get(j).get("PRODUCTION_VALUE").toString());
+
                     config.setDescription(getModuleData.get(j).get("CONFIG_DESC").toString());
                     module.getConfigs().add(config);
                 }
@@ -305,7 +314,7 @@ public class ModuleController extends BaseController {
         String propertiesString=new String();
         propertiesString+=("#"+"sysConfig");
 
-        List<Map<String, Object>> getModuleData = moduleService.getModuleConfigData(projectId, moduleIds);
+        List<Map<String, Object>> getModuleData = moduleService.getModuleConfigData(projectId, moduleIds,type);
 
         for (int i = 0; i < moduleIds.length; i++) {
             String moduleName="";
@@ -315,7 +324,17 @@ public class ModuleController extends BaseController {
                         propertiesString+="\n";
                         moduleName=getModuleData.get(j).get("MODULE_NAME").toString();
                     }
-                    propertiesString+=("\n"+getModuleData.get(j).get("CONFIG_KEY").toString()+"="+getModuleData.get(j).get("CONFIG_VALUE").toString());
+                    if("development".equals(type))
+                        propertiesString+=("\n"+getModuleData.get(j).get("CONFIG_KEY").toString()+"="+getModuleData.get(j).get("CONFIG_VALUE").toString());
+
+                    else if("test".equals(type))
+                        propertiesString+=("\n"+getModuleData.get(j).get("CONFIG_KEY").toString()+"="+getModuleData.get(j).get("TEST_VALUE").toString());
+
+                    else if("build".equals(type))
+                        propertiesString+=("\n"+getModuleData.get(j).get("CONFIG_KEY").toString()+"="+getModuleData.get(j).get("BUILD_VALUE").toString());
+
+                    else
+                        propertiesString+=("\n"+getModuleData.get(j).get("CONFIG_KEY").toString()+"="+getModuleData.get(j).get("PRODUCTION_VALUE").toString());
                 }
             }
         }

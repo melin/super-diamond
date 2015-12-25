@@ -7,8 +7,8 @@
 <button type="button" id="importModule" class="btn btn-primary">导入</button>
 <% } %>
 <button type="button" id="exportModule" class="btn btn-primary">导出</button>
-<input id="projectName" type="text" style="display:none" value="<c:out value="${project.PROJ_NAME}"/>"/>
 
+<input id="projectName" type="text" style="display:none" value="<c:out value="${project.PROJ_NAME}"/>"/>
 <div id="importModuleWin" class="modal hide fade" tabindex="-1" role="dialog"
      aria-labelledby="importLabel" aria-hidden="true">
     <div class="modal-header">
@@ -190,7 +190,6 @@
                 error: function (data, status, e) {
                     alert(data);
                     window.location.href = '/superdiamond/profile/${type}/${projectId}';
-
                 }
             });
         }
