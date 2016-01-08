@@ -8,6 +8,7 @@
 <% } %>
 <button type="button" id="exportModule" class="btn btn-primary">导出</button>
 
+<input id="projectName" type="text" style="display:none" value="<c:out value="${project.PROJ_NAME}"/>"/>
 <div id="importModuleWin" class="modal hide fade" tabindex="-1" role="dialog"
      aria-labelledby="importLabel" aria-hidden="true">
     <div class="modal-header">
@@ -189,7 +190,6 @@
                 error: function (data, status, e) {
                     alert(data);
                     window.location.href = '/superdiamond/profile/${type}/${projectId}';
-
                 }
             });
         }
@@ -238,7 +238,7 @@
             var jsonFormat = [jsonF];
             var blob = new Blob(jsonFormat, {type: 'application/json'});
             var name = document.getElementById("projectName").value.toString();
-            saveAs(blob, name + ".json");
+            saveAs(blob,name+".json");
         }
 
         $("#exportProperties").click(function(e) {
@@ -246,7 +246,8 @@
             if (moduleIds.length == 0) {
                 $("#showConfigTip").text("模块不能为空");
             }
-            else {
+            else
+            {
                 var URL = '/superdiamond/module/exportProperties/${type}/${projectId}/${sessionScope.sessionUser.userName}/' + moduleIds;
                 var propertiesData = getProperties(URL);
                 exportProperties(propertiesData);

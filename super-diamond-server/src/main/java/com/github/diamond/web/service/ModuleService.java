@@ -114,7 +114,7 @@ public class ModuleService {
     }
 
     @Transactional
-    public List<Map<String, Object>> getModuleConfigData(long projectId, long[] moduleIds) {
+    public List<Map<String, Object>> getModuleConfigData(long projectId, long[] moduleIds,String type) {
         List<Map<String, Object>> moduleConfigListData = new ArrayList<Map<String, Object>>();
 
         List<Long> moduleId = new ArrayList<Long>();
@@ -124,8 +124,19 @@ public class ModuleService {
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("id", projectId);
         paramMap.put("moduleIds", moduleId);
+        String sql=null;
         NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
-        String sql = "select a.MODULE_ID,b.CONFIG_ID,a.MODULE_NAME,b.CONFIG_KEY,b.CONFIG_VALUE,b.CONFIG_DESC FROM CONF_PROJECT_MODULE a,CONF_PROJECT_CONFIG b  where a.PROJ_ID=b.PROJECT_ID AND b.PROJECT_ID=:id AND b.DELETE_FLAG=0 AND a.MODULE_ID=b.MODULE_ID AND a.MODULE_ID in (:moduleIds) ORDER BY a.MODULE_ID";
+        if("development".equals(type))
+            sql = "select a.MODULE_ID,b.CONFIG_ID,a.MODULE_NAME,b.CONFIG_KEY,b.CONFIG_VALUE,b.CONFIG_DESC FROM CONF_PROJECT_MODULE a,CONF_PROJECT_CONFIG b  where a.PROJ_ID=b.PROJECT_ID AND b.PROJECT_ID=:id AND b.DELETE_FLAG=0 AND a.MODULE_ID=b.MODULE_ID AND a.MODULE_ID in (:moduleIds) ORDER BY a.MODULE_ID";
+
+        else if("test".equals(type))
+            sql = "select a.MODULE_ID,b.CONFIG_ID,a.MODULE_NAME,b.CONFIG_KEY,b.TEST_VALUE,b.CONFIG_DESC FROM CONF_PROJECT_MODULE a,CONF_PROJECT_CONFIG b  where a.PROJ_ID=b.PROJECT_ID AND b.PROJECT_ID=:id AND b.DELETE_FLAG=0 AND a.MODULE_ID=b.MODULE_ID AND a.MODULE_ID in (:moduleIds) ORDER BY a.MODULE_ID";
+
+        else if("build".equals(type))
+            sql = "select a.MODULE_ID,b.CONFIG_ID,a.MODULE_NAME,b.CONFIG_KEY,b.BUILD_VALUE,b.CONFIG_DESC FROM CONF_PROJECT_MODULE a,CONF_PROJECT_CONFIG b  where a.PROJ_ID=b.PROJECT_ID AND b.PROJECT_ID=:id AND b.DELETE_FLAG=0 AND a.MODULE_ID=b.MODULE_ID AND a.MODULE_ID in (:moduleIds) ORDER BY a.MODULE_ID";
+
+        else
+            sql = "select a.MODULE_ID,b.CONFIG_ID,a.MODULE_NAME,b.CONFIG_KEY,b.PRODUCTION_VALUE,b.CONFIG_DESC FROM CONF_PROJECT_MODULE a,CONF_PROJECT_CONFIG b  where a.PROJ_ID=b.PROJECT_ID AND b.PROJECT_ID=:id AND b.DELETE_FLAG=0 AND a.MODULE_ID=b.MODULE_ID AND a.MODULE_ID in (:moduleIds) ORDER BY a.MODULE_ID";
 
         moduleConfigListData = namedParameterJdbcTemplate.queryForList(sql, paramMap);
         return moduleConfigListData;

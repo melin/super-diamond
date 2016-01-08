@@ -40,6 +40,8 @@ public class UserService {
 				return user;
 			} else if(user.getDeleteFlag() == 1)
 				return "用户已经被注销";
+
+
 			else 
 				return "登录失败，用户密码不正确";
 		} catch(TransientDataAccessResourceException e) {
