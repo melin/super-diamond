@@ -1,6 +1,5 @@
-super-diamond
-=============
-
+#super-diamond
+###简介
 - 配置管理系统提供系统参数配置管理，例如数据库的配置信息等，配置参数修改以后可以实时推送到客户端(基于netty4)，
 方便系统动态修改运行参数。
 - 可以建多个项目，每个项目分为三种profile（development、test、production）， 能够控制profile 级别的权限。
@@ -23,8 +22,7 @@ super-diamond
 
 项目profile请参考：http://melin.iteye.com/blog/1339060
 
-super-diamond-server 安装
---------------------
+###super-diamond-server 安装
 1. 下载super-diamond代码： git clone https://github.com/melin/super-diamond.git
 2. 进入super-diamond目录，构建super-diamond父工程： mvn install
 3. super-diamond-server中嵌入jetty运行，构建部署包：mvn install assembly:single -Pproduction，生成super-diamond-server-${version}-bin.tar.gz文件，
@@ -36,9 +34,7 @@ commit;
 6. 访问super-diamond-server，jetty默认端口为8090，可以在：conf/META-INF/res/jetty.properties中修改。
 	http://localhost:8090/superdiamond
 
-super-diamond-client
---------------------
-
+###super-diamond-client
 客户端参考apache configuration，实现其中的部分功能。例如：
 ```java
 public class PropertiesConfigurationTest {
@@ -93,17 +89,15 @@ public class PropertiesConfigurationTest {
 }
 ```
 
-客户端连接服务器端方式：
-----------------------
-
+###客户端连接服务器端方式：
+1. java 使用方式
 ```java
 PropertiesConfiguration config = new PropertiesConfiguration("localhost", 5001, "test", "development");
 config.addConfigurationListener(new ConfigurationListenerTest());
 config.getString("jdbc.url")
 ```
 
-<b>spring 使用方式</b>
-
+2. spring 使用方式
 ```xml
 <bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
 	<property name="properties" ref="propertiesConfiguration" />
@@ -117,8 +111,9 @@ config.getString("jdbc.url")
 </bean>
 ```
 
-客户端链接服务的参数projcode、profile、host和port可以通过环境变量和jvm参数两种方式设置，避免固定在工程配置文件中。
-
+3. 客户端链接服务的参数
+  客户端链接服务的参数projcode、profile、host和port可以通过环境变量和jvm参数两种方式设置，避免固定在工程配置文件中。
+* 环境变量
 ```shell
 export SPUERDIAMOND_HOST=192.168.0.1
 export SPUERDIAMOND_PORT=8283
@@ -128,11 +123,11 @@ export SUPERDIAMOND_MODULES=jdbc,common #多个模块之间用逗号分隔，可
 export SUPERDIAMOND_ENCRYPTPROPNAMES=jdbc.url,jdbc.password #多个配置名之间用逗号分隔，可以设置为空，获取所有加密配置名。
 export SUPERDIAMOND_LOCALFILEPATH=classpath:/data.properties #自定义客户端本地配置文件备份路径，可以设置为空。
 ```
-或者
+* jvm参数
 ```shell
  -Dsuperdiamond.host=127.0.0.1 -Dsuperdiamond.port=8283  -Dsuperdiamond.projcode=javademo -Dsuperdiamond.profile=production -Dsuperdiamond.modules=jdbc -Dsuperdiamond.encryptPropNames=COMMON.jdbc.password -Dsuperdiamond.localFilePath=classpath:/data.properties
 ```
-
+* 构造函数
 ```xml
 <bean id="propertiesConfiguration" class="com.github.diamond.client.PropertiesConfigurationFactoryBean">
 	<constructor-arg index="0" value="localhost" />
@@ -144,15 +139,14 @@ export SUPERDIAMOND_LOCALFILEPATH=classpath:/data.properties #自定义客户端
 	<constructor-arg index="6" value="classpath:/dubbo.properties" />
 </bean>
 ```
-
+* java获取配置信息
 ```java
 ApplicationContext applicationContext = new ClassPathXmlApplicationContext("bean.xml");
 PropertiesConfiguration config = PropertiesConfigurationFactoryBean.getPropertiesConfiguration();
 config.getString("jdbc.url")
 ```
 
-Rest 接口获取配置：
-----------------------
+###Rest 接口获取配置：
 通过http获取配置信息，http url格式为：
 
 - properties格式
@@ -170,8 +164,7 @@ Rest 接口获取配置：
 	http://host:port/superdiamond/preview/${项目编码}/${module}[,${module}]/${profile}?  //支持设置多个module值，用逗号分割format=json
 
 
-PHP项目应用：
-----------------------
+###PHP项目应用：
 结合Phing从superdiamond获取配置参数。完整的phing build.xml配置请参考：
 https://gist.github.com/melin/fa4818acc9fd55666b77
 
