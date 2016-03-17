@@ -18,8 +18,8 @@ super-diamond
 - 支持项目中界面操作配置项更换模块。
 
 系统功能截图：
-![](https://raw.githubusercontent.com/melin/super-diamond/master/diamond.png "功能截图")
-![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image.png "配置导出")
+![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/diamond_1.png "功能截图1")
+![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/diamond_2.png "功能截图2")
 
 项目profile请参考：http://melin.iteye.com/blog/1339060
 
@@ -120,22 +120,28 @@ config.getString("jdbc.url")
 客户端链接服务的参数projcode、profile、host和port可以通过环境变量和jvm参数两种方式设置，避免固定在工程配置文件中。
 
 ```shell
-export SUPERDIAMOND_PROJCODE=javademo
-export SUPERDIAMOND_PROFILE=production
-export SUPERDIAMOND_MODULES=jdbc,common #多个模块之用逗号分隔，可以设置为空，获取所有模块配置。
 export SPUERDIAMOND_HOST=192.168.0.1
 export SPUERDIAMOND_PORT=8283
+export SUPERDIAMOND_PROJCODE=javademo
+export SUPERDIAMOND_PROFILE=production
+export SUPERDIAMOND_MODULES=jdbc,common #多个模块之间用逗号分隔，可以设置为空，获取所有模块配置。
+export SUPERDIAMOND_ENCRYPTPROPNAMES=jdbc.url,jdbc.password #多个配置名之间用逗号分隔，可以设置为空，获取所有加密配置名。
+export SUPERDIAMOND_LOCALFILEPATH=classpath:/data.properties #自定义客户端本地配置文件备份路径，可以设置为空。
 ```
 或者
 ```shell
- -Dsuperdiamond.projcode=javademo -Dsuperdiamond.profile=production -Dspuerdiamond.host=127.0.0.1 -Dspuerdiamond.port=8283 
+ -Dsuperdiamond.host=127.0.0.1 -Dsuperdiamond.port=8283  -Dsuperdiamond.projcode=javademo -Dsuperdiamond.profile=production -Dsuperdiamond.modules=jdbc -Dsuperdiamond.encryptPropNames=COMMON.jdbc.password -Dsuperdiamond.localFilePath=classpath:/data.properties
 ```
 
 ```xml
 <bean id="propertiesConfiguration" class="com.github.diamond.client.PropertiesConfigurationFactoryBean">
-	<constructor-arg index="0" value="test" />
-	<constructor-arg index="1" value="development" />
-	<constructor-arg index="2" value="development" />
+	<constructor-arg index="0" value="localhost" />
+	<constructor-arg index="1" value="8283" />
+	<constructor-arg index="2" value="projeceCode" />
+	<constructor-arg index="3" value="development" />
+	<constructor-arg index="4" value="jdbc" />
+	<constructor-arg index="5" value="COMMON.jdbc.password" />
+	<constructor-arg index="6" value="classpath:/dubbo.properties" />
 </bean>
 ```
 
