@@ -1,7 +1,12 @@
-/**        
- * Copyright (c) 2013 by 苏州科大国创信息技术有限公司.    
- */    
+/**
+ * Copyright (c) 2013 by 苏州科大国创信息技术有限公司.
+ */
+
 package com.github.diamond.client.config;
+
+import com.github.diamond.client.ConversionException;
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.awt.Color;
 import java.lang.reflect.Array;
@@ -24,11 +29,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-
-import com.github.diamond.client.ConversionException;
-
 /**
  * A utility class to convert the configuration properties into any type.
  *
@@ -36,8 +36,7 @@ import com.github.diamond.client.ConversionException;
  * @version $Id: PropertyConverter.java 1301990 2012-03-17 20:10:46Z oheger $
  * @since 1.1
  */
-public final class PropertyConverter
-{
+public final class PropertyConverter {
     /** Constant for the list delimiter as char.*/
     static final char LIST_ESC_CHAR = '\\';
 
@@ -59,14 +58,13 @@ public final class PropertyConverter
     /** Constant for the argument classes of the Number constructor that takes a String. */
     private static final Class<?>[] CONSTR_ARGS = {String.class};
 
-    /** The fully qualified name of {@link javax.mail.internet.InternetAddress} */
+    /** The fully qualified name of {@link javax}. */
     private static final String INTERNET_ADDRESS_CLASSNAME = "javax.mail.internet.InternetAddress";
 
     /**
      * Private constructor prevents instances from being created.
      */
-    private PropertyConverter()
-    {
+    private PropertyConverter() {
         // to prevent instantiation...
     }
 
@@ -83,82 +81,46 @@ public final class PropertyConverter
      *
      * @since 1.5
      */
-    static Object to(Class<?> cls, Object value, Object[] params) throws ConversionException
-    {
-        if (cls.isInstance(value))
-        {
+    static Object to(Class<?> cls, Object value, Object[] params) throws ConversionException {
+        if (cls.isInstance(value)) {
             return value; // no conversion needed
         }
 
-        if (Boolean.class.equals(cls) || Boolean.TYPE.equals(cls))
-        {
+        if (Boolean.class.equals(cls) || Boolean.TYPE.equals(cls)) {
             return toBoolean(value);
-        }
-        else if (Number.class.isAssignableFrom(cls) || cls.isPrimitive())
-        {
-            if (Integer.class.equals(cls) || Integer.TYPE.equals(cls))
-            {
+        } else if (Number.class.isAssignableFrom(cls) || cls.isPrimitive()) {
+            if (Integer.class.equals(cls) || Integer.TYPE.equals(cls)) {
                 return toInteger(value);
-            }
-            else if (Long.class.equals(cls) || Long.TYPE.equals(cls))
-            {
+            } else if (Long.class.equals(cls) || Long.TYPE.equals(cls)) {
                 return toLong(value);
-            }
-            else if (Byte.class.equals(cls) || Byte.TYPE.equals(cls))
-            {
+            } else if (Byte.class.equals(cls) || Byte.TYPE.equals(cls)) {
                 return toByte(value);
-            }
-            else if (Short.class.equals(cls) || Short.TYPE.equals(cls))
-            {
+            } else if (Short.class.equals(cls) || Short.TYPE.equals(cls)) {
                 return toShort(value);
-            }
-            else if (Float.class.equals(cls) || Float.TYPE.equals(cls))
-            {
+            } else if (Float.class.equals(cls) || Float.TYPE.equals(cls)) {
                 return toFloat(value);
-            }
-            else if (Double.class.equals(cls) || Double.TYPE.equals(cls))
-            {
+            } else if (Double.class.equals(cls) || Double.TYPE.equals(cls)) {
                 return toDouble(value);
-            }
-            else if (BigInteger.class.equals(cls))
-            {
+            } else if (BigInteger.class.equals(cls)) {
                 return toBigInteger(value);
-            }
-            else if (BigDecimal.class.equals(cls))
-            {
+            } else if (BigDecimal.class.equals(cls)) {
                 return toBigDecimal(value);
             }
-        }
-        else if (Date.class.equals(cls))
-        {
+        } else if (Date.class.equals(cls)) {
             return toDate(value, (String) params[0]);
-        }
-        else if (Calendar.class.equals(cls))
-        {
+        } else if (Calendar.class.equals(cls)) {
             return toCalendar(value, (String) params[0]);
-        }
-        else if (URL.class.equals(cls))
-        {
-            return toURL(value);
-        }
-        else if (Locale.class.equals(cls))
-        {
+        } else if (URL.class.equals(cls)) {
+            return toUrl(value);
+        } else if (Locale.class.equals(cls)) {
             return toLocale(value);
-        }
-        else if (isEnum(cls))
-        {
+        } else if (isEnum(cls)) {
             return convertToEnum(cls, value);
-        }
-        else if (Color.class.equals(cls))
-        {
+        } else if (Color.class.equals(cls)) {
             return toColor(value);
-        }
-        else if (cls.getName().equals(INTERNET_ADDRESS_CLASSNAME))
-        {
+        } else if (cls.getName().equals(INTERNET_ADDRESS_CLASSNAME)) {
             return toInternetAddress(value);
-        }
-        else if (InetAddress.class.isAssignableFrom(cls))
-        {
+        } else if (InetAddress.class.isAssignableFrom(cls)) {
             return toInetAddress(value);
         }
 
@@ -179,23 +141,16 @@ public final class PropertyConverter
      * @return the converted value
      * @throws ConversionException thrown if the value cannot be converted to a boolean
      */
-    public static Boolean toBoolean(Object value) throws ConversionException
-    {
-        if (value instanceof Boolean)
-        {
+    public static Boolean toBoolean(Object value) throws ConversionException {
+        if (value instanceof Boolean) {
             return (Boolean) value;
-        }
-        else if (value instanceof String)
-        {
-            Boolean b = BooleanUtils.toBooleanObject((String) value);
-            if (b == null)
-            {
+        } else if (value instanceof String) {
+            Boolean result = BooleanUtils.toBooleanObject((String) value);
+            if (result == null) {
                 throw new ConversionException("The value " + value + " can't be converted to a Boolean object");
             }
-            return b;
-        }
-        else
-        {
+            return result;
+        } else {
             throw new ConversionException("The value " + value + " can't be converted to a Boolean object");
         }
     }
@@ -207,16 +162,12 @@ public final class PropertyConverter
      * @return the converted value
      * @throws ConversionException thrown if the value cannot be converted to a byte
      */
-    public static Byte toByte(Object value) throws ConversionException
-    {
-        Number n = toNumber(value, Byte.class);
-        if (n instanceof Byte)
-        {
-            return (Byte) n;
-        }
-        else
-        {
-            return new Byte(n.byteValue());
+    public static Byte toByte(Object value) throws ConversionException {
+        Number num = toNumber(value, Byte.class);
+        if (num instanceof Byte) {
+            return (Byte) num;
+        } else {
+            return new Byte(num.byteValue());
         }
     }
 
@@ -227,16 +178,12 @@ public final class PropertyConverter
      * @return the converted value
      * @throws ConversionException thrown if the value cannot be converted to a short
      */
-    public static Short toShort(Object value) throws ConversionException
-    {
-        Number n = toNumber(value, Short.class);
-        if (n instanceof Short)
-        {
-            return (Short) n;
-        }
-        else
-        {
-            return new Short(n.shortValue());
+    public static Short toShort(Object value) throws ConversionException {
+        Number num = toNumber(value, Short.class);
+        if (num instanceof Short) {
+            return (Short) num;
+        } else {
+            return new Short(num.shortValue());
         }
     }
 
@@ -247,16 +194,12 @@ public final class PropertyConverter
      * @return the converted value
      * @throws ConversionException thrown if the value cannot be converted to an integer
      */
-    public static Integer toInteger(Object value) throws ConversionException
-    {
-        Number n = toNumber(value, Integer.class);
-        if (n instanceof Integer)
-        {
-            return (Integer) n;
-        }
-        else
-        {
-            return new Integer(n.intValue());
+    public static Integer toInteger(Object value) throws ConversionException {
+        Number num = toNumber(value, Integer.class);
+        if (num instanceof Integer) {
+            return (Integer) num;
+        } else {
+            return new Integer(num.intValue());
         }
     }
 
@@ -267,16 +210,12 @@ public final class PropertyConverter
      * @return the converted value
      * @throws ConversionException thrown if the value cannot be converted to a Long
      */
-    public static Long toLong(Object value) throws ConversionException
-    {
-        Number n = toNumber(value, Long.class);
-        if (n instanceof Long)
-        {
-            return (Long) n;
-        }
-        else
-        {
-            return new Long(n.longValue());
+    public static Long toLong(Object value) throws ConversionException {
+        Number num = toNumber(value, Long.class);
+        if (num instanceof Long) {
+            return (Long) num;
+        } else {
+            return new Long(num.longValue());
         }
     }
 
@@ -287,16 +226,12 @@ public final class PropertyConverter
      * @return the converted value
      * @throws ConversionException thrown if the value cannot be converted to a Float
      */
-    public static Float toFloat(Object value) throws ConversionException
-    {
-        Number n = toNumber(value, Float.class);
-        if (n instanceof Float)
-        {
-            return (Float) n;
-        }
-        else
-        {
-            return new Float(n.floatValue());
+    public static Float toFloat(Object value) throws ConversionException {
+        Number num = toNumber(value, Float.class);
+        if (num instanceof Float) {
+            return (Float) num;
+        } else {
+            return new Float(num.floatValue());
         }
     }
 
@@ -307,16 +242,12 @@ public final class PropertyConverter
      * @return the converted value
      * @throws ConversionException thrown if the value cannot be converted to a Double
      */
-    public static Double toDouble(Object value) throws ConversionException
-    {
-        Number n = toNumber(value, Double.class);
-        if (n instanceof Double)
-        {
-            return (Double) n;
-        }
-        else
-        {
-            return new Double(n.doubleValue());
+    public static Double toDouble(Object value) throws ConversionException {
+        Number num = toNumber(value, Double.class);
+        if (num instanceof Double) {
+            return (Double) num;
+        } else {
+            return new Double(num.doubleValue());
         }
     }
 
@@ -327,16 +258,12 @@ public final class PropertyConverter
      * @return the converted value
      * @throws ConversionException thrown if the value cannot be converted to a BigInteger
      */
-    public static BigInteger toBigInteger(Object value) throws ConversionException
-    {
-        Number n = toNumber(value, BigInteger.class);
-        if (n instanceof BigInteger)
-        {
-            return (BigInteger) n;
-        }
-        else
-        {
-            return BigInteger.valueOf(n.longValue());
+    public static BigInteger toBigInteger(Object value) throws ConversionException {
+        Number num = toNumber(value, BigInteger.class);
+        if (num instanceof BigInteger) {
+            return (BigInteger) num;
+        } else {
+            return BigInteger.valueOf(num.longValue());
         }
     }
 
@@ -347,16 +274,12 @@ public final class PropertyConverter
      * @return the converted value
      * @throws ConversionException thrown if the value cannot be converted to a BigDecimal
      */
-    public static BigDecimal toBigDecimal(Object value) throws ConversionException
-    {
-        Number n = toNumber(value, BigDecimal.class);
-        if (n instanceof BigDecimal)
-        {
-            return (BigDecimal) n;
-        }
-        else
-        {
-            return new BigDecimal(n.doubleValue());
+    public static BigDecimal toBigDecimal(Object value) throws ConversionException {
+        Number num = toNumber(value, BigDecimal.class);
+        if (num instanceof BigDecimal) {
+            return (BigDecimal) num;
+        } else {
+            return new BigDecimal(num.doubleValue());
         }
     }
 
@@ -372,56 +295,39 @@ public final class PropertyConverter
      * @return the converted number
      * @throws ConversionException if the object cannot be converted
      */
-    static Number toNumber(Object value, Class<?> targetClass) throws ConversionException
-    {
-        if (value instanceof Number)
-        {
+    static Number toNumber(Object value, Class<?> targetClass) throws ConversionException {
+        if (value instanceof Number) {
             return (Number) value;
-        }
-        else
-        {
+        } else {
             String str = value.toString();
-            if (str.startsWith(HEX_PREFIX))
-            {
-                try
-                {
+            if (str.startsWith(HEX_PREFIX)) {
+                try {
                     return new BigInteger(str.substring(HEX_PREFIX.length()), HEX_RADIX);
-                }
-                catch (NumberFormatException nex)
-                {
+                } catch (NumberFormatException nex) {
                     throw new ConversionException("Could not convert " + str
                             + " to " + targetClass.getName()
                             + "! Invalid hex number.", nex);
                 }
             }
 
-            if (str.startsWith(BIN_PREFIX))
-            {
-                try
-                {
+            if (str.startsWith(BIN_PREFIX)) {
+                try {
                     return new BigInteger(str.substring(BIN_PREFIX.length()), BIN_RADIX);
-                }
-                catch (NumberFormatException nex)
-                {
+                } catch (NumberFormatException nex) {
                     throw new ConversionException("Could not convert " + str
                             + " to " + targetClass.getName()
                             + "! Invalid binary number.", nex);
                 }
             }
 
-            try
-            {
+            try {
                 Constructor<?> constr = targetClass.getConstructor(CONSTR_ARGS);
                 return (Number) constr.newInstance(new Object[]{str});
-            }
-            catch (InvocationTargetException itex)
-            {
+            } catch (InvocationTargetException itex) {
                 throw new ConversionException("Could not convert " + str
                         + " to " + targetClass.getName(), itex
                         .getTargetException());
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 // Treat all possible exceptions the same way
                 throw new ConversionException(
                         "Conversion error when trying to convert " + str
@@ -437,25 +343,16 @@ public final class PropertyConverter
      * @return the converted value
      * @throws ConversionException thrown if the value cannot be converted to an URL
      */
-    public static URL toURL(Object value) throws ConversionException
-    {
-        if (value instanceof URL)
-        {
+    public static URL toUrl(Object value) throws ConversionException {
+        if (value instanceof URL) {
             return (URL) value;
-        }
-        else if (value instanceof String)
-        {
-            try
-            {
+        } else if (value instanceof String) {
+            try {
                 return new URL((String) value);
-            }
-            catch (MalformedURLException e)
-            {
+            } catch (MalformedURLException e) {
                 throw new ConversionException("The value " + value + " can't be converted to an URL", e);
             }
-        }
-        else
-        {
+        } else {
             throw new ConversionException("The value " + value + " can't be converted to an URL");
         }
     }
@@ -467,32 +364,23 @@ public final class PropertyConverter
      * @return the converted value
      * @throws ConversionException thrown if the value cannot be converted to a Locale
      */
-    public static Locale toLocale(Object value) throws ConversionException
-    {
-        if (value instanceof Locale)
-        {
+    public static Locale toLocale(Object value) throws ConversionException {
+        if (value instanceof Locale) {
             return (Locale) value;
-        }
-        else if (value instanceof String)
-        {
+        } else if (value instanceof String) {
             List<String> elements = split((String) value, '_');
             int size = elements.size();
 
-            if (size >= 1 && ((elements.get(0)).length() == 2 || (elements.get(0)).length() == 0))
-            {
+            if (size >= 1 && ((elements.get(0)).length() == 2 || (elements.get(0)).length() == 0)) {
                 String language = elements.get(0);
                 String country = (size >= 2) ? elements.get(1) : "";
                 String variant = (size >= 3) ? elements.get(2) : "";
 
                 return new Locale(language, country, variant);
-            }
-            else
-            {
+            } else {
                 throw new ConversionException("The value " + value + " can't be converted to a Locale");
             }
-        }
-        else
-        {
+        } else {
             throw new ConversionException("The value " + value + " can't be converted to a Locale");
         }
     }
@@ -500,18 +388,14 @@ public final class PropertyConverter
     /**
      * Split a string on the specified delimiter. To be removed when
      * commons-lang has a better replacement available (Tokenizer?).
-     *
      * todo: replace with a commons-lang equivalent
-     *
-     * @param s          the string to split
+     * @param str          the string to split
      * @param delimiter  the delimiter
      * @param trim       a flag whether the single elements should be trimmed
      * @return a list with the single tokens
      */
-    public static List<String> split(String s, char delimiter, boolean trim)
-    {
-        if (s == null)
-        {
+    public static List<String> split(String str, char delimiter, boolean trim) {
+        if (str == null) {
             return new ArrayList<String>();
         }
 
@@ -521,61 +405,46 @@ public final class PropertyConverter
         int begin = 0;
         boolean inEscape = false;
 
-        while (begin < s.length())
-        {
-            char c = s.charAt(begin);
-            if (inEscape)
-            {
+        while (begin < str.length()) {
+            char var = str.charAt(begin);
+            if (inEscape) {
                 // last character was the escape marker
                 // can current character be escaped?
-                if (c != delimiter && c != LIST_ESC_CHAR)
-                {
+                if (var != delimiter && var != LIST_ESC_CHAR) {
                     // no, also add escape character
                     token.append(LIST_ESC_CHAR);
                 }
-                token.append(c);
+                token.append(var);
                 inEscape = false;
-            }
-
-            else
-            {
-                if (c == delimiter)
-                {
+            } else {
+                if (var == delimiter) {
                     // found a list delimiter -> add token and resetDefaultFileSystem buffer
-                    String t = token.toString();
-                    if (trim)
-                    {
-                        t = t.trim();
+                    String strTemp = token.toString();
+                    if (trim) {
+                        strTemp = strTemp.trim();
                     }
-                    list.add(t);
+                    list.add(strTemp);
                     token = new StringBuilder();
-                }
-                else if (c == LIST_ESC_CHAR)
-                {
+                } else if (var == LIST_ESC_CHAR) {
                     // eventually escape next character
                     inEscape = true;
-                }
-                else
-                {
-                    token.append(c);
+                } else {
+                    token.append(var);
                 }
             }
-
             begin++;
         }
 
         // Trailing delimiter?
-        if (inEscape)
-        {
+        if (inEscape) {
             token.append(LIST_ESC_CHAR);
         }
         // Add last token
-        String t = token.toString();
-        if (trim)
-        {
-            t = t.trim();
+        String strTmp = token.toString();
+        if (trim) {
+            strTmp = strTmp.trim();
         }
-        list.add(t);
+        list.add(strTmp);
 
         return list;
     }
@@ -584,13 +453,12 @@ public final class PropertyConverter
      * Split a string on the specified delimiter always trimming the elements.
      * This is a shortcut for {@code split(s, delimiter, true)}.
      *
-     * @param s          the string to split
+     * @param str          the string to split
      * @param delimiter  the delimiter
      * @return a list with the single tokens
      */
-    public static List<String> split(String s, char delimiter)
-    {
-        return split(s, delimiter, true);
+    public static List<String> split(String str, char delimiter) {
+        return split(str, delimiter, true);
     }
 
     /**
@@ -598,13 +466,12 @@ public final class PropertyConverter
      * method works like {@link #escapeListDelimiter(String, char)}. In addition,
      * a single backslash will also be escaped.
      *
-     * @param s the string with the value
+     * @param str the string with the value
      * @param delimiter the list delimiter to use
      * @return the correctly escaped string
      */
-    public static String escapeDelimiters(String s, char delimiter)
-    {
-        String s1 = StringUtils.replace(s, LIST_ESCAPE, LIST_ESCAPE + LIST_ESCAPE);
+    public static String escapeDelimiters(String str, char delimiter) {
+        String s1 = StringUtils.replace(str, LIST_ESCAPE, LIST_ESCAPE + LIST_ESCAPE);
         return escapeListDelimiter(s1, delimiter);
     }
 
@@ -615,14 +482,13 @@ public final class PropertyConverter
      * file. Otherwise when loaded again the property will be treated as a list
      * property.
      *
-     * @param s the string with the value
+     * @param str the string with the value
      * @param delimiter the list delimiter to use
      * @return the escaped string
      * @since 1.7
      */
-    public static String escapeListDelimiter(String s, char delimiter)
-    {
-        return StringUtils.replace(s, String.valueOf(delimiter), LIST_ESCAPE
+    public static String escapeListDelimiter(String str, char delimiter) {
+        return StringUtils.replace(str, String.valueOf(delimiter), LIST_ESCAPE
                 + delimiter);
     }
 
@@ -640,59 +506,44 @@ public final class PropertyConverter
      * @return the converted value
      * @throws ConversionException thrown if the value cannot be converted to a Color
      */
-    public static Color toColor(Object value) throws ConversionException
-    {
-        if (value instanceof Color)
-        {
+    public static Color toColor(Object value) throws ConversionException {
+        if (value instanceof Color) {
             return (Color) value;
-        }
-        else if (value instanceof String && !StringUtils.isBlank((String) value))
-        {
+        } else if (value instanceof String && !StringUtils.isBlank((String) value)) {
             String color = ((String) value).trim();
 
             int[] components = new int[3];
 
             // check the size of the string
             int minlength = components.length * 2;
-            if (color.length() < minlength)
-            {
+            if (color.length() < minlength) {
                 throw new ConversionException("The value " + value + " can't be converted to a Color");
             }
 
             // remove the leading #
-            if (color.startsWith("#"))
-            {
+            if (color.startsWith("#")) {
                 color = color.substring(1);
             }
 
-            try
-            {
+            try {
                 // parse the components
-                for (int i = 0; i < components.length; i++)
-                {
+                for (int i = 0; i < components.length; i++) {
                     components[i] = Integer.parseInt(color.substring(2 * i, 2 * i + 2), HEX_RADIX);
                 }
 
                 // parse the transparency
                 int alpha;
-                if (color.length() >= minlength + 2)
-                {
+                if (color.length() >= minlength + 2) {
                     alpha = Integer.parseInt(color.substring(minlength, minlength + 2), HEX_RADIX);
-                }
-                else
-                {
+                } else {
                     alpha = Color.black.getAlpha();
                 }
 
                 return new Color(components[0], components[1], components[2], alpha);
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 throw new ConversionException("The value " + value + " can't be converted to a Color", e);
             }
-        }
-        else
-        {
+        } else {
             throw new ConversionException("The value " + value + " can't be converted to a Color");
         }
     }
@@ -706,25 +557,16 @@ public final class PropertyConverter
      *
      * @since 1.5
      */
-    static InetAddress toInetAddress(Object value) throws ConversionException
-    {
-        if (value instanceof InetAddress)
-        {
+    static InetAddress toInetAddress(Object value) throws ConversionException {
+        if (value instanceof InetAddress) {
             return (InetAddress) value;
-        }
-        else if (value instanceof String)
-        {
-            try
-            {
+        } else if (value instanceof String) {
+            try {
                 return InetAddress.getByName((String) value);
-            }
-            catch (UnknownHostException e)
-            {
+            } catch (UnknownHostException e) {
                 throw new ConversionException("The value " + value + " can't be converted to a InetAddress", e);
             }
-        }
-        else
-        {
+        } else {
             throw new ConversionException("The value " + value + " can't be converted to a InetAddress");
         }
     }
@@ -738,27 +580,18 @@ public final class PropertyConverter
      *
      * @since 1.5
      */
-    static Object toInternetAddress(Object value) throws ConversionException
-    {
-        if (value.getClass().getName().equals(INTERNET_ADDRESS_CLASSNAME))
-        {
+    static Object toInternetAddress(Object value) throws ConversionException {
+        if (value.getClass().getName().equals(INTERNET_ADDRESS_CLASSNAME)) {
             return value;
-        }
-        else if (value instanceof String)
-        {
-            try
-            {
+        } else if (value instanceof String) {
+            try {
                 Constructor<?> ctor = Class.forName(INTERNET_ADDRESS_CLASSNAME)
-                        .getConstructor(new Class[] {String.class});
-                return ctor.newInstance(new Object[] {value});
-            }
-            catch (Exception e)
-            {
+                        .getConstructor(new Class[]{String.class});
+                return ctor.newInstance(new Object[]{value});
+            } catch (Exception e) {
                 throw new ConversionException("The value " + value + " can't be converted to a InternetAddress", e);
             }
-        }
-        else
-        {
+        } else {
             throw new ConversionException("The value " + value + " can't be converted to a InternetAddress");
         }
     }
@@ -766,8 +599,7 @@ public final class PropertyConverter
     /**
      * Calls Class.isEnum() on Java 5, returns false on older JRE.
      */
-    static boolean isEnum(Class<?> cls)
-    {
+    static boolean isEnum(Class<?> cls) {
         return cls.isEnum();
     }
 
@@ -781,37 +613,23 @@ public final class PropertyConverter
      *
      * @since 1.5
      */
-    static <E extends Enum<E>> E toEnum(Object value, Class<E> cls) throws ConversionException
-    {
-        if (value.getClass().equals(cls))
-        {
+    static <E extends Enum<E>> E toEnum(Object value, Class<E> cls) throws ConversionException {
+        if (value.getClass().equals(cls)) {
             return cls.cast(value);
-        }
-        else if (value instanceof String)
-        {
-            try
-            {
+        } else if (value instanceof String) {
+            try {
                 return Enum.valueOf(cls, (String) value);
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 throw new ConversionException("The value " + value + " can't be converted to a " + cls.getName());
             }
-        }
-        else if (value instanceof Number)
-        {
-            try
-            {
+        } else if (value instanceof Number) {
+            try {
                 E[] enumConstants = cls.getEnumConstants();
                 return enumConstants[((Number) value).intValue()];
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 throw new ConversionException("The value " + value + " can't be converted to a " + cls.getName());
             }
-        }
-        else
-        {
+        } else {
             throw new ConversionException("The value " + value + " can't be converted to a " + cls.getName());
         }
     }
@@ -824,29 +642,18 @@ public final class PropertyConverter
      * @return the converted value
      * @throws ConversionException thrown if the value cannot be converted to a Calendar
      */
-    public static Date toDate(Object value, String format) throws ConversionException
-    {
-        if (value instanceof Date)
-        {
+    public static Date toDate(Object value, String format) throws ConversionException {
+        if (value instanceof Date) {
             return (Date) value;
-        }
-        else if (value instanceof Calendar)
-        {
+        } else if (value instanceof Calendar) {
             return ((Calendar) value).getTime();
-        }
-        else if (value instanceof String)
-        {
-            try
-            {
+        } else if (value instanceof String) {
+            try {
                 return new SimpleDateFormat(format).parse((String) value);
-            }
-            catch (ParseException e)
-            {
+            } catch (ParseException e) {
                 throw new ConversionException("The value " + value + " can't be converted to a Date", e);
             }
-        }
-        else
-        {
+        } else {
             throw new ConversionException("The value " + value + " can't be converted to a Date");
         }
     }
@@ -859,33 +666,22 @@ public final class PropertyConverter
      * @return the converted value
      * @throws ConversionException thrown if the value cannot be converted to a Calendar
      */
-    public static Calendar toCalendar(Object value, String format) throws ConversionException
-    {
-        if (value instanceof Calendar)
-        {
+    public static Calendar toCalendar(Object value, String format) throws ConversionException {
+        if (value instanceof Calendar) {
             return (Calendar) value;
-        }
-        else if (value instanceof Date)
-        {
+        } else if (value instanceof Date) {
             Calendar calendar = Calendar.getInstance();
             calendar.setTime((Date) value);
             return calendar;
-        }
-        else if (value instanceof String)
-        {
-            try
-            {
+        } else if (value instanceof String) {
+            try {
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(new SimpleDateFormat(format).parse((String) value));
                 return calendar;
-            }
-            catch (ParseException e)
-            {
+            } catch (ParseException e) {
                 throw new ConversionException("The value " + value + " can't be converted to a Calendar", e);
             }
-        }
-        else
-        {
+        } else {
             throw new ConversionException("The value " + value + " can't be converted to a Calendar");
         }
     }
@@ -899,8 +695,7 @@ public final class PropertyConverter
      * @param delimiter the delimiter for String values
      * @return an iterator for accessing the single values
      */
-    public static Iterator<?> toIterator(Object value, char delimiter)
-    {
+    public static Iterator<?> toIterator(Object value, char delimiter) {
         return flatten(value, delimiter).iterator();
     }
 
@@ -927,37 +722,25 @@ public final class PropertyConverter
      * @return a &quot;flat&quot; collection containing all primitive values of
      *         the passed in object
      */
-    private static Collection<?> flatten(Object value, char delimiter)
-    {
-        if (value instanceof String)
-        {
-            String s = (String) value;
-            if (s.indexOf(delimiter) > 0)
-            {
-                return split(s, delimiter);
+    private static Collection<?> flatten(Object value, char delimiter) {
+        if (value instanceof String) {
+            String str = (String) value;
+            if (str.indexOf(delimiter) > 0) {
+                return split(str, delimiter);
             }
         }
 
         Collection<Object> result = new LinkedList<Object>();
-        if (value instanceof Iterable)
-        {
+        if (value instanceof Iterable) {
             flattenIterator(result, ((Iterable<?>) value).iterator(), delimiter);
-        }
-        else if (value instanceof Iterator)
-        {
+        } else if (value instanceof Iterator) {
             flattenIterator(result, (Iterator<?>) value, delimiter);
-        }
-        else if (value != null)
-        {
-            if (value.getClass().isArray())
-            {
-                for (int len = Array.getLength(value), idx = 0; idx < len; idx++)
-                {
+        } else if (value != null) {
+            if (value.getClass().isArray()) {
+                for (int len = Array.getLength(value), idx = 0; idx < len; idx++) {
                     result.addAll(flatten(Array.get(value, idx), delimiter));
                 }
-            }
-            else
-            {
+            } else {
                 result.add(value);
             }
         }
@@ -973,10 +756,8 @@ public final class PropertyConverter
      * @param it the iterator to process
      * @param delimiter the delimiter for String values
      */
-    private static void flattenIterator(Collection<Object> target, Iterator<?> it, char delimiter)
-    {
-        while (it.hasNext())
-        {
+    private static void flattenIterator(Collection<Object> target, Iterator<?> it, char delimiter) {
+        while (it.hasNext()) {
             target.addAll(flatten(it.next(), delimiter));
         }
     }
@@ -991,8 +772,7 @@ public final class PropertyConverter
      */
     @SuppressWarnings("unchecked")
     // conversion is safe because we know that the class is an Enum class
-    private static Object convertToEnum(Class<?> enumClass, Object value)
-    {
+    private static Object convertToEnum(Class<?> enumClass, Object value) {
         return toEnum(value, enumClass.asSubclass(Enum.class));
     }
 }

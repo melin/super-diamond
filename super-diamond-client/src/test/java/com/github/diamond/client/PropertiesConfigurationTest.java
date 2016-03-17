@@ -1,19 +1,22 @@
 /**        
  * Copyright (c) 2013 by 苏州科大国创信息技术有限公司.    
- */    
+ */
+
 package com.github.diamond.client;
 
 import org.junit.Assert;
 import org.junit.Test;
 
+
 /**
  * Create on @2013-9-1 @下午9:38:08 
  * @author bsli@ustcinfo.com
  */
+
 public class PropertiesConfigurationTest {
 	
 	@Test
-	public void testConfig() throws ConfigurationRuntimeException  {
+	public void testConfig() throws ConfigurationRuntimeException {
 		String config = "username = melin \r\n";
 		config += "port=8000 \r\n";
 		config += "reload=true \r\n";

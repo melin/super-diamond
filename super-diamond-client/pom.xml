@@ -25,6 +25,13 @@
 			<artifactId>spring-context</artifactId>
 			<scope>provided</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>17.0</version>
+			<scope>test</scope>
+		</dependency>
 		
 		<dependency>
 			<groupId>junit</groupId>
