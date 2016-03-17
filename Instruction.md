@@ -6,14 +6,20 @@ super-diamond
 - 可以建多个项目，每个项目分为三种profile（development、test、production）， 能够控制profile 级别的权限。
 - 所有参数均由development profile配置，test和production profile继承development profile配置，也可以覆盖其配置。
   test和production profile只提供修改功能。
-- client 备份配置信息到本地文件系统，如果server不可用，可以使用本地备份。client 能够定时重连server，保证client高可用。
+- client备份配置信息到本地文件系统，如果server不可用，可以使用本地备份。client 能够定时重连server，保证client高可用。
+- client支持自定义备份文件的本地路径。
+- client支持本地环境变量解析替换功能。
 - client 提供ConfigurationListener，当某个属性发生变化（add、update、clear）, ConfigurationListener能够接收到ConfigurationEvent。
 - server 备份配置文件系统系统，如果数据库不用，能够保证对客户端提供数据（待完善）。
+- server 支持配置跨工程替换（包含对加解密的处理）
 - 支持php项目从superdiamond中获取配置参数。
+- 支持服务端配置的导入导出功能（目前导入导出的格式为Json, properties）。
+- 支持管理页面上配置列表中关键配置的隐藏与显示功能以及控制列表显示的记录数量。
+- 支持项目中界面操作配置项更换模块。
 
 系统功能截图：
 ![](https://raw.githubusercontent.com/melin/super-diamond/master/diamond.png "功能截图")
-![](https://raw.githubusercontent.com/talywy/super-diamond/master/export.png "配置导出")
+![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image.png "配置导出")
 
 项目profile请参考：http://melin.iteye.com/blog/1339060
 
