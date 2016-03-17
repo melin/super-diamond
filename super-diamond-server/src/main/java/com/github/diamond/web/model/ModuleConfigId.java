@@ -4,31 +4,31 @@ package com.github.diamond.web.model;
  * Created by xzwang on 2015/10/27.
  */
 public class ModuleConfigId {
-    /*
-    项目名和模块名是否已经存在的标志
+    /**
+     *项目名和模块名是否已经存在的标志.
      */
     private boolean exist;
 
-    /*
-    配置ID
+    /**
+     *配置ID.
      */
-    private Long ConfigId;
+    private int configId;
 
-    /*
-    模块ID
+    /**
+      *模块ID.
      */
-    private Long moduleId;
+    private int moduleId;
 
-    public ModuleConfigId(boolean exist, Long ConfigId, Long moduleId)
-    {
-        this.exist=exist;
-        this.ConfigId=ConfigId;
-        this.moduleId=moduleId;
+    public ModuleConfigId(boolean exist, int configId, int moduleId) {
+        this.exist = exist;
+        this.configId = configId;
+        this.moduleId = moduleId;
     }
-    public ModuleConfigId()
-    {
+
+    public ModuleConfigId() {
 
     }
+
     public boolean isExist() {
         return exist;
     }
@@ -37,19 +37,19 @@ public class ModuleConfigId {
         this.exist = exist;
     }
 
-    public Long getConfigId() {
-        return ConfigId;
+    public int getConfigId() {
+        return configId;
     }
 
-    public void setConfigId(Long configId) {
-        this.ConfigId = configId;
+    public void setConfigId(int configId) {
+        this.configId = configId;
     }
 
-    public Long getModuleId() {
+    public int getModuleId() {
         return moduleId;
     }
 
-    public void setModuleId(Long moduleId) {
+    public void setModuleId(int moduleId) {
         this.moduleId = moduleId;
     }
 }

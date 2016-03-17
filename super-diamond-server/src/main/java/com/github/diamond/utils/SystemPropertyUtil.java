@@ -1,20 +1,19 @@
 package com.github.diamond.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * 代码来自 netty5
- * 
- * @author libinsong1204@gmail.com
  *
+ * @author libinsong1204@gmail.com
  */
 public class SystemPropertyUtil {
-	@SuppressWarnings("all")
+    @SuppressWarnings("all")
     private static boolean initializedLogger;
     private static final Logger logger;
     private static boolean loggedException;
@@ -54,7 +53,7 @@ public class SystemPropertyUtil {
             }
         } catch (Exception e) {
             if (!loggedException) {
-            	logger.warn("Unable to retrieve a system property '" + key + "'; default values will be used.", e);
+                logger.warn("Unable to retrieve a system property '" + key + "'; default values will be used.", e);
                 loggedException = true;
             }
         }
@@ -86,8 +85,8 @@ public class SystemPropertyUtil {
         }
 
         logger.warn(
-                "Unable to parse the boolean system property '" + key + "':" + value + " - " +
-                        "using the default value: " + def);
+                "Unable to parse the boolean system property '" + key + "':" + value + " - "
+                        + "using the default value: " + def);
 
         return def;
     }
@@ -110,8 +109,8 @@ public class SystemPropertyUtil {
         }
 
         logger.warn(
-                "Unable to parse the integer system property '" + key + "':" + value + " - " +
-                        "using the default value: " + def);
+                "Unable to parse the integer system property '" + key + "':" + value + " - "
+                        + "using the default value: " + def);
 
         return def;
     }
@@ -132,8 +131,8 @@ public class SystemPropertyUtil {
         }
 
         logger.warn(
-                "Unable to parse the long integer system property '" + key + "':" + value + " - " +
-                        "using the default value: " + def);
+                "Unable to parse the long integer system property '" + key + "':" + value + " - "
+                        + "using the default value: " + def);
 
         return def;
     }

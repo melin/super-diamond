@@ -6,18 +6,18 @@ package com.github.diamond.web.model;
 public class ModuleIdExist {
 
     /**
-     * 判断moduleId是否存在
+     * 判断moduleId是否存在.
      */
 
     private boolean isExist;
 
 
     /**
-     * 模型Id
+     * 模型Id.
      */
-    private long moduleId;
+    private int moduleId;
 
-    public ModuleIdExist(boolean isExist, long moduleId) {
+    public ModuleIdExist(boolean isExist, int moduleId) {
         this.isExist = isExist;
         this.moduleId = moduleId;
     }
@@ -30,11 +30,11 @@ public class ModuleIdExist {
         this.isExist = isExist;
     }
 
-    public long getModuleId() {
+    public int getModuleId() {
         return moduleId;
     }
 
-    public void setModuleId(long moduleId) {
+    public void setModuleId(int moduleId) {
         this.moduleId = moduleId;
     }
 }

@@ -1,5 +1,8 @@
 package com.github.diamond.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
@@ -20,10 +23,8 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXServiceURL;
 import javax.management.remote.rmi.RMIConnector;
 import javax.management.remote.rmi.RMIServer;
-import javax.rmi.ssl.SslRMIClientSocketFactory;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.rmi.ssl.SslRMIClientSocketFactory;
 
 /**
  * @author libinsong1204@gmail.com
@@ -40,8 +41,8 @@ public class JMXClient {
     private JMXConnector jmxConnector;
     private MBeanServerConnection mbs;
     private RMIServer stub = null;
-	private AtomicBoolean closed = new AtomicBoolean(false);
-	private AtomicInteger referenceCount = new AtomicInteger(0);
+    private AtomicBoolean closed = new AtomicBoolean(false);
+    private AtomicInteger referenceCount = new AtomicInteger(0);
 
     private static Map<String, JMXClient> cache = Collections.synchronizedMap(new HashMap<String, JMXClient>());
 
@@ -60,7 +61,7 @@ public class JMXClient {
             cache.put(key, jmxClient);
         }
         jmxClient.increaseReferece();
-        log.debug("=============referenceCount:"+jmxClient.referenceCount.get());
+        log.debug("=============referenceCount:" + jmxClient.referenceCount.get());
         return jmxClient;
     }
 
@@ -69,18 +70,18 @@ public class JMXClient {
         this(hostName, port, null, null);
     }
 
-    private int increaseReferece(){
-    	return this.referenceCount.incrementAndGet();
+    private int increaseReferece() {
+        return this.referenceCount.incrementAndGet();
     }
 
-    private int decreaseReferece(){
+    private int decreaseReferece() {
 
-    	int count = this.referenceCount.decrementAndGet();
-    	if(count<0){
-    		this.referenceCount.set(0);
-    	}
-    	log.debug("=============referenceCount:"+this.referenceCount.get());
-    	return this.referenceCount.get();
+        int count = this.referenceCount.decrementAndGet();
+        if (count < 0) {
+            this.referenceCount.set(0);
+        }
+        log.debug("=============referenceCount:" + this.referenceCount.get());
+        return this.referenceCount.get();
     }
 
     private JMXClient(String hostName, int port, String userName, String password) throws JMXClientException {
@@ -91,8 +92,7 @@ public class JMXClient {
         try {
             this.address =
                     new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + this.hostName + ":" + this.port + "/jmxrmi");
-        }
-        catch (MalformedURLException e) {
+        } catch (MalformedURLException e) {
             throw new JMXClientException(e);
         }
         this.connect();
@@ -101,11 +101,10 @@ public class JMXClient {
 
     public Object invoke(ObjectName name, String operationName, Object[] params, String[] signature)
             throws JMXClientException {
-    	tryReconnect();
+        tryReconnect();
         try {
             return this.mbs.invoke(name, operationName, params, signature);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new JMXClientException("error occurred when invoke " + name.getClass() + "#" + operationName, e);
         }
     }
@@ -114,8 +113,7 @@ public class JMXClient {
     public ObjectInstance queryMBeanForOne(String name) {
         try {
             return this.queryMBeanForOne(new ObjectName(name));
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
         return null;
@@ -123,47 +121,43 @@ public class JMXClient {
 
 
     public ObjectInstance queryMBeanForOne(ObjectName name) {
-    	Set<ObjectInstance> mBeans = null;
+        Set<ObjectInstance> beanMap = null;
         try {
-        	tryReconnect();
-            mBeans = this.mbs.queryMBeans(name, null);
-        }
-        catch (Exception e) {
-        	log.error(e.getMessage(), e);
+            tryReconnect();
+            beanMap = this.mbs.queryMBeans(name, null);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
         }
 
-        if (mBeans == null || mBeans.isEmpty()) {
+        if (beanMap == null || beanMap.isEmpty()) {
             return null;
         }
-        return mBeans.iterator().next();
+        return beanMap.iterator().next();
     }
 
 
     public Set<ObjectInstance> queryMBeans(ObjectName name, QueryExp query) throws JMXClientException {
-    	tryReconnect();
-    	try {
+        tryReconnect();
+        try {
             return this.mbs.queryMBeans(name, query);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new JMXClientException(e);
         }
     }
 
 
     public Object getAttribute(ObjectName name, String attribute) throws JMXClientException {
-    	tryReconnect();
-    	try {
+        tryReconnect();
+        try {
             return this.mbs.getAttribute(name, attribute);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             // 当使用通配符ObjectName时,搜索出一个
             if (log.isDebugEnabled()) {
                 log.debug("没有精确的找到ObjectName = " + name + ",开始搜索..");
             }
             try {
                 return this.mbs.getAttribute(this.queryMBeanForOne(name).getObjectName(), attribute);
-            }
-            catch (Exception e1) {
+            } catch (Exception e1) {
                 throw new JMXClientException(e);
             }
         }
@@ -171,24 +165,23 @@ public class JMXClient {
 
 
     public void close() {
-    	if (this.decreaseReferece()!=0) {
-			return;
-		}
+        if (this.decreaseReferece() != 0) {
+            return;
+        }
 
-    	if (closed.compareAndSet(false, true)) {
-    		this.stub = null;
-    		if (this.jmxConnector != null) {
-    			try {
-    				this.jmxConnector.close();
+        if (closed.compareAndSet(false, true)) {
+            this.stub = null;
+            if (this.jmxConnector != null) {
+                try {
+                    this.jmxConnector.close();
 
-    			}
-    			catch (IOException e) {
-    				// ignore
-    			}
-    		}
-    		cache.remove(getKey(this.hostName, this.port, this.userName, this.password));
-    		log.debug("=================jmx closed!");
-		}
+                } catch (IOException e) {
+                    // ignore
+                }
+            }
+            cache.remove(getKey(this.hostName, this.port, this.userName, this.password));
+            log.debug("=================jmx closed!");
+        }
 
     }
 
@@ -197,10 +190,10 @@ public class JMXClient {
         return this.address.toString();
     }
 
-    synchronized private void tryReconnect() throws JMXClientException{
-    	if(this.closed.compareAndSet(true, false)){
-    		connect();
-    	}
+    synchronized private void tryReconnect() throws JMXClientException {
+        if (this.closed.compareAndSet(true, false)) {
+            connect();
+        }
     }
 
     private void connect() throws JMXClientException {
@@ -214,18 +207,16 @@ public class JMXClient {
                 // JMXConnectorFactory.connect(this.address);
                 this.jmxConnector.connect();
 
-            }
-            else {
+            } else {
                 Map<String, String[]> env = new HashMap<String, String[]>();
-                env.put(JMXConnector.CREDENTIALS, new String[] { this.userName, this.password });
+                env.put(JMXConnector.CREDENTIALS, new String[]{this.userName, this.password});
                 // this.jmxConnector = JMXConnectorFactory.connect(this.address,
                 // env);
                 this.jmxConnector.connect(env);
 
             }
             this.mbs = this.jmxConnector.getMBeanServerConnection();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new JMXClientException(e);
         }
 
@@ -241,17 +232,14 @@ public class JMXClient {
             registry = LocateRegistry.getRegistry(this.hostName, this.port, sslRMIClientSocketFactory);
             try {
                 this.stub = (RMIServer) registry.lookup("jmxrmi");
-            }
-            catch (NotBoundException nbe) {
+            } catch (NotBoundException nbe) {
                 throw (IOException) new IOException(nbe.getMessage()).initCause(nbe);
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             registry = LocateRegistry.getRegistry(this.hostName, this.port);
             try {
                 this.stub = (RMIServer) registry.lookup("jmxrmi");
-            }
-            catch (NotBoundException nbe) {
+            } catch (NotBoundException nbe) {
                 throw (IOException) new IOException(nbe.getMessage()).initCause(nbe);
             }
         }
