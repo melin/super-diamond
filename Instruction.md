@@ -90,14 +90,14 @@ public class PropertiesConfigurationTest {
 ```
 
 ###客户端连接服务器端方式：
-1. java 使用方式
+<b>java 使用方式</b>
 ```java
 PropertiesConfiguration config = new PropertiesConfiguration("localhost", 5001, "test", "development");
 config.addConfigurationListener(new ConfigurationListenerTest());
 config.getString("jdbc.url")
 ```
 
-2. spring 使用方式
+<b>spring 使用方式</b>
 ```xml
 <bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
 	<property name="properties" ref="propertiesConfiguration" />
@@ -110,9 +110,10 @@ config.getString("jdbc.url")
 	<constructor-arg index="3" value="development" />
 </bean>
 ```
+<b>客户端链接服务的参数</b>
 
-3. 客户端链接服务的参数
   客户端链接服务的参数projcode、profile、host和port可以通过环境变量和jvm参数两种方式设置，避免固定在工程配置文件中。
+  
 * 环境变量
 ```shell
 export SPUERDIAMOND_HOST=192.168.0.1
