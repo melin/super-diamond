@@ -61,16 +61,16 @@ commit;
   * 添加配置  
   ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/configuration_create.png "添加配置")  
   这里是否为默认配置选项，如果选中则默认在列表中不会显示该配置信息，但可以通过选中高级配置复选框按钮来显示该配置信息。注：  
-      1)对于引用本项目内的相应配置信息则使用${配置名称}即可  
-      2)对于引用公共项目中的相应配置则使用${common:配置名称}  
-      3)对于引用服务本地环境变量则使用${env:变量名称}  
-      4)对于引用服务本地JVM参数变量则使用${env:变量名称}  
+      1) 对于引用本项目内的相应配置信息则使用${配置名称}即可  
+      2) 对于引用公共项目中的相应配置则使用${common:配置名称}  
+      3) 对于引用服务本地环境变量则使用${env:变量名称}  
+      4) 对于引用服务本地JVM参数变量则使用${env:变量名称}  
   * 移动配置  
   ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/configuration_move.png "移动配置")  
   这里可以将项目中的某一配置信息移动到项目的另一个模块中。
   * 导入导出  
   ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/configuration_import_export.png "配置导入导出")  
-  导出功能可以将项目中某些模块的配置信息导出到文件中进行存储（文件的格式可以是Json以及properties）；
+  导出功能可以将项目中某些模块的配置信息导出到文件中进行存储（文件的格式可以是Json以及properties）；  
   导入功能可以导入规定格式的.json以及.propertie文件；  
   1、json文件格式
    ```
@@ -131,117 +131,117 @@ commit;
   (3) #配置注释内容---表示该配置的注释信息；  
   (4) 配置注释信息后则是配置信息的键值对信息；  
 ###super-diamond-client
-客户端参考apache configuration，实现其中的部分功能。例如：
-```java
-public class PropertiesConfigurationTest {
-
-	@Test
-	public void testConfig() throws ConfigurationRuntimeException  {
-		String config = "username = melin \r\n";
-		config += "port=8000 \r\n";
-		config += "reload=true \r\n";
-
-		PropertiesConfiguration configuration = new PropertiesConfiguration();
-		configuration.load(config);
-
-		Assert.assertEquals("melin", configuration.getString("username"));
-		Assert.assertEquals(8000, configuration.getInt("port"));
-		Assert.assertTrue(configuration.getBoolean("reload"));
+   客户端参考apache configuration，实现其中的部分功能。例如：
+	```java
+	public class PropertiesConfigurationTest {
+	
+		@Test
+		public void testConfig() throws ConfigurationRuntimeException  {
+			String config = "username = melin \r\n";
+			config += "port=8000 \r\n";
+			config += "reload=true \r\n";
+	
+			PropertiesConfiguration configuration = new PropertiesConfiguration();
+			configuration.load(config);
+	
+			Assert.assertEquals("melin", configuration.getString("username"));
+			Assert.assertEquals(8000, configuration.getInt("port"));
+			Assert.assertTrue(configuration.getBoolean("reload"));
+		}
+	
+		@Test
+		public void testInterpolator() throws ConfigurationRuntimeException  {
+			String config = "app.home = /tmp/home \r\n";
+			config += "zk.home=${app.home}/zk \r\n";
+			config += "hbase.home=${app.home}/hbase \r\n";
+	
+			PropertiesConfiguration configuration = new PropertiesConfiguration();
+			configuration.load(config);
+	
+			Assert.assertEquals("/tmp/home", configuration.getString("app.home"));
+			Assert.assertEquals("/tmp/home/zk", configuration.getString("zk.home"));
+			Assert.assertEquals("/tmp/home/hbase", configuration.getString("hbase.home"));
+		}
+	
+		@Test
+		public void testSysProperties() throws ConfigurationRuntimeException  {
+			String config = "javaVersion = ${sys:java.version} \r\n";
+	
+			PropertiesConfiguration configuration = new PropertiesConfiguration();
+			configuration.load(config);
+	
+			Assert.assertEquals(System.getProperty("java.version"), configuration.getString("javaVersion"));
+		}
+	
+		@Test
+		public void testSysEvns() throws ConfigurationRuntimeException  {
+			String config = "javaHome = ${env:JAVA_HOME}/lib \r\n";
+	
+			PropertiesConfiguration configuration = new PropertiesConfiguration();
+			configuration.load(config);
+	
+			Assert.assertEquals(System.getenv("JAVA_HOME") + "/lib", configuration.getString("javaHome"));
+		}
 	}
-
-	@Test
-	public void testInterpolator() throws ConfigurationRuntimeException  {
-		String config = "app.home = /tmp/home \r\n";
-		config += "zk.home=${app.home}/zk \r\n";
-		config += "hbase.home=${app.home}/hbase \r\n";
-
-		PropertiesConfiguration configuration = new PropertiesConfiguration();
-		configuration.load(config);
-
-		Assert.assertEquals("/tmp/home", configuration.getString("app.home"));
-		Assert.assertEquals("/tmp/home/zk", configuration.getString("zk.home"));
-		Assert.assertEquals("/tmp/home/hbase", configuration.getString("hbase.home"));
-	}
-
-	@Test
-	public void testSysProperties() throws ConfigurationRuntimeException  {
-		String config = "javaVersion = ${sys:java.version} \r\n";
-
-		PropertiesConfiguration configuration = new PropertiesConfiguration();
-		configuration.load(config);
-
-		Assert.assertEquals(System.getProperty("java.version"), configuration.getString("javaVersion"));
-	}
-
-	@Test
-	public void testSysEvns() throws ConfigurationRuntimeException  {
-		String config = "javaHome = ${env:JAVA_HOME}/lib \r\n";
-
-		PropertiesConfiguration configuration = new PropertiesConfiguration();
-		configuration.load(config);
-
-		Assert.assertEquals(System.getenv("JAVA_HOME") + "/lib", configuration.getString("javaHome"));
-	}
-}
-```
-
-###客户端连接服务器端方式：
-<b>java 使用方式</b>
-```java
-PropertiesConfiguration config = new PropertiesConfiguration("localhost", 5001, "test", "development");
-config.addConfigurationListener(new ConfigurationListenerTest());
-config.getString("jdbc.url")
-```
-
-<b>spring 使用方式</b>
-```xml
-<bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
-	<property name="properties" ref="propertiesConfiguration" />
-</bean>
-
-<bean id="propertiesConfiguration" class="com.github.diamond.client.PropertiesConfigurationFactoryBean">
-	<constructor-arg index="0" value="localhost" />
-	<constructor-arg index="1" value="5001" />
-	<constructor-arg index="2" value="test" />
-	<constructor-arg index="3" value="development" />
-</bean>
-```
-<b>客户端链接服务端的参数</b>
-
-  客户端链接服务端的参数host、port、projcode、profile、modules、encryptPropNames以及loacalFilePath除了可以通过构造函数设置，同时还可以通过环境变量和jvm参数这两种方式设置，避免固定在工程配置文件中。
-  
-* 环境变量
-```shell
-export SPUERDIAMOND_HOST=192.168.0.1
-export SPUERDIAMOND_PORT=8283
-export SUPERDIAMOND_PROJCODE=javademo
-export SUPERDIAMOND_PROFILE=production
-export SUPERDIAMOND_MODULES=jdbc,common #多个模块之间用逗号分隔，可以设置为空，获取所有模块配置。
-export SUPERDIAMOND_ENCRYPTPROPNAMES=jdbc.url,jdbc.password #多个配置名之间用逗号分隔，可以设置为空，获取所有加密配置名。
-export SUPERDIAMOND_LOCALFILEPATH=classpath:/data.properties #自定义客户端本地配置文件备份路径，可以设置为空。
-```
-* jvm参数
-```shell
- -Dsuperdiamond.host=127.0.0.1 -Dsuperdiamond.port=8283  -Dsuperdiamond.projcode=javademo -Dsuperdiamond.profile=production -Dsuperdiamond.modules=jdbc -Dsuperdiamond.encryptPropNames=common:jdbc.password -Dsuperdiamond.localFilePath=classpath:/data.properties
-```
-* 构造函数
-```xml
-<bean id="propertiesConfiguration" class="com.github.diamond.client.PropertiesConfigurationFactoryBean">
-	<constructor-arg index="0" value="localhost" />
-	<constructor-arg index="1" value="8283" />
-	<constructor-arg index="2" value="projeceCode" />
-	<constructor-arg index="3" value="development" />
-	<constructor-arg index="4" value="jdbc" />
-	<constructor-arg index="5" value="common:jdbc.password" />
-	<constructor-arg index="6" value="classpath:/dubbo.properties" />
-</bean>
-```
-* java获取配置信息
-```java
-ApplicationContext applicationContext = new ClassPathXmlApplicationContext("bean.xml");
-PropertiesConfiguration config = PropertiesConfigurationFactoryBean.getPropertiesConfiguration();
-config.getString("jdbc.url")
-```
+	```
+	
+	###客户端连接服务器端方式：
+	<b>java 使用方式</b>
+	```java
+	PropertiesConfiguration config = new PropertiesConfiguration("localhost", 5001, "test", "development");
+	config.addConfigurationListener(new ConfigurationListenerTest());
+	config.getString("jdbc.url")
+	```
+	
+	<b>spring 使用方式</b>
+	```xml
+	<bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+		<property name="properties" ref="propertiesConfiguration" />
+	</bean>
+	
+	<bean id="propertiesConfiguration" class="com.github.diamond.client.PropertiesConfigurationFactoryBean">
+		<constructor-arg index="0" value="localhost" />
+		<constructor-arg index="1" value="5001" />
+		<constructor-arg index="2" value="test" />
+		<constructor-arg index="3" value="development" />
+	</bean>
+	```
+	<b>客户端链接服务端的参数</b>
+	
+	  客户端链接服务端的参数host、port、projcode、profile、modules、encryptPropNames以及loacalFilePath除了可以通过构造函数设置，同时还可以通过环境变量和jvm参数这两种方式设置，避免固定在工程配置文件中。
+	  
+	* 环境变量
+	```shell
+	export SPUERDIAMOND_HOST=192.168.0.1
+	export SPUERDIAMOND_PORT=8283
+	export SUPERDIAMOND_PROJCODE=javademo
+	export SUPERDIAMOND_PROFILE=production
+	export SUPERDIAMOND_MODULES=jdbc,common #多个模块之间用逗号分隔，可以设置为空，获取所有模块配置。
+	export SUPERDIAMOND_ENCRYPTPROPNAMES=jdbc.url,jdbc.password #多个配置名之间用逗号分隔，可以设置为空，获取所有加密配置名。
+	export SUPERDIAMOND_LOCALFILEPATH=classpath:/data.properties #自定义客户端本地配置文件备份路径，可以设置为空。
+	```
+	* jvm参数
+	```shell
+	 -Dsuperdiamond.host=127.0.0.1 -Dsuperdiamond.port=8283  -Dsuperdiamond.projcode=javademo -Dsuperdiamond.profile=production -Dsuperdiamond.modules=jdbc -Dsuperdiamond.encryptPropNames=common:jdbc.password -Dsuperdiamond.localFilePath=classpath:/data.properties
+	```
+	* 构造函数
+	```xml
+	<bean id="propertiesConfiguration" class="com.github.diamond.client.PropertiesConfigurationFactoryBean">
+		<constructor-arg index="0" value="localhost" />
+		<constructor-arg index="1" value="8283" />
+		<constructor-arg index="2" value="projeceCode" />
+		<constructor-arg index="3" value="development" />
+		<constructor-arg index="4" value="jdbc" />
+		<constructor-arg index="5" value="common:jdbc.password" />
+		<constructor-arg index="6" value="classpath:/dubbo.properties" />
+	</bean>
+	```
+	* java获取配置信息
+	```java
+	ApplicationContext applicationContext = new ClassPathXmlApplicationContext("bean.xml");
+	PropertiesConfiguration config = PropertiesConfigurationFactoryBean.getPropertiesConfiguration();
+	config.getString("jdbc.url")
+	```
 
 ###Rest 接口获取配置：
 通过http获取配置信息，http url格式为：
