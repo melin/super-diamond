@@ -44,24 +44,92 @@ commit;
   * 项目列表
   ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/project_manager.png "项目管理列表")
   * 添加项目
-  ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/project_create.png "新增项目")  
-  其中：项目编码为项目的唯一标识码，项目名称为项目的名称， 项目管理者为用户登录账号，复制其他项目配置表示该项目建立时使用其他项目中的配置进行初始化（这里
+  ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/project_create.png "新增项目")    
+  其中，项目编码为项目的唯一标识码，项目名称为项目的名称， 项目管理者为用户登录账号，复制其他项目配置表示该项目建立时使用其他项目中的配置进行初始化（这里
 填写其他项目的项目编码），是否为公共项目表示该项目是否只存储所有项目中所使用的公共配置信息。  
+
   * 项目添加用户  
-  ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/project_user_relation.png "项目添加用户")
+  ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/project_user_relation.png "项目添加用户")  
+  这里可以给这个项目添加相应的用户，并且同时可以给该用户赋予相应的项目权限。  
 3. 配置管理
   * 配置列表   
-  ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/configuration_list.png "配置列表")
+  ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/configuration_list.png "配置列表")  
+  该页面可以显示项目的某个profile环境下的配置信息列表（通过选择显示记录数可以控制列表的行数），通过选中高级配置复选框可以显示列表中所隐藏的相关信息，同时可以通过模块来过滤配置信息。
+  列表中的操作列包括了对于该条记录的查看、删除、修改以及移动功能。
   * 添加模块  
-  ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/module_create.png "添加模块")
+  ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/module_create.png "添加模块")  
   * 添加配置  
-  ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/configuration_create.png "添加配置")
+  ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/configuration_create.png "添加配置")  
+  这里是否为默认配置选项，如果选中则默认在列表中不会显示该配置信息，但可以通过选中高级配置复选框按钮来显示该配置信息。注：  
+      1)对于引用本项目内的相应配置信息则使用${配置名称}即可  
+      2)对于引用公共项目中的相应配置则使用${common:配置名称}  
+      3)对于引用服务本地环境变量则使用${env:变量名称}  
+      4)对于引用服务本地JVM参数变量则使用${env:变量名称}  
   * 移动配置  
-  ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/configuration_move.png "移动配置")
+  ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/configuration_move.png "移动配置")  
+  这里可以将项目中的某一配置信息移动到项目的另一个模块中。
   * 导入导出  
-  ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/configuration_import_export.png "配置导入导出")
-  
+  ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/configuration_import_export.png "配置导入导出")  
+  导出功能可以将项目中某些模块的配置信息导出到文件中进行存储（文件的格式可以是Json以及properties）；
+  导入功能可以导入规定格式的.json以及.propertie文件；  
+  1、json文件格式
+   ```
+   {
+	  "configVer": "60",
+	  "exportTime": 1458110732361,
+	  "exportUser": "admin",
+	  "modules": [
+	    {
+	      "configs": [
+	        {
+	          "description": "aaa",
+	          "isShow": false,
+	          "key": "jdbc.username",
+	          "value": "xxxxx"
+	        },
+	        {
+	          "description": "",
+	          "isShow": true,
+	          "key": "jdbc.password",
+	          "value": "xxxx"
+	        },
+	        {
+	          "description": "192.168.59.45/username:sjpan/password:${aaa.jdbc.password}",
+	          "isShow": true,
+	          "key": "jdbc.url",
+	          "value": "192.168.59.45/username:${jdbc.username}/password:${common:aaa.jdbc.password}"
+	        }
+	      ],
+	      "name": "jdbc"
+	    }
+	  ],
+	  "projectCode": "test",
+	  "projectDesc": "测试",
+	  "serverIp": "192.168.63.132"
+   }
+   ```
 
+  2、properties文件格式
+  ```
+  #ModuleName:jdbc
+  #配置注释内容
+  #IS_NOT_SHOW
+  jdbc.username=xxxxx
+  #配置注释内容
+  jdbc.password=123456
+  #配置注释内容
+  jdbc.url=192.168.59.45/username:${jdbc.username}/password:${jdbc.password}
+
+  #ModuleName:redis
+  redis_host=${common:aaa.redis_host}
+  redis_port=${aaa.redis_port}
+  redis.pool.maxTotal=111
+  ```  
+  注：这里.properties文件中  
+  (1) 必须以#ModuleName:xxx开头表示配置所在的模块名称；  
+  (2) #IS_NOT_SHOW表示该配置是默认配置（即不需要再列表中显示） 如果没有#IS_NOT_SHOW则表示该配置不是默认配置；  
+  (3) #配置注释内容---表示该配置的注释信息；  
+  (4) 配置注释信息后则是配置信息的键值对信息；  
 ###super-diamond-client
 客户端参考apache configuration，实现其中的部分功能。例如：
 ```java
