@@ -17,8 +17,8 @@
 - server 备份配置文件系统系统，如果数据库不用，能够保证对客户端提供数据（待完善）。
 
 系统部分功能截图：
-![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/diamond_1.png "功能截图1")
-![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/diamond_2.png "功能截图2")
+![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/diamond_1.png "功能截图1")
+![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/diamond_2.png "功能截图2")
 
 项目profile请参考：http://melin.iteye.com/blog/1339060
 
