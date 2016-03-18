@@ -36,11 +36,25 @@ commit;
 
 ###super-diamond-server 管理界面使用
 1. 用户管理
-  
+  * 用户列表
+  ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/user_manager.png "用户管理列表")
+  * 添加用户
+  ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/user_new.png "新增用户")
 2. 项目管理
-
-3. 配置管理  
-
+  * 项目列表
+  ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/project_manager.png "项目管理列表")
+  * 添加项目
+  ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/project_new.png "新增项目")
+3. 配置管理 
+  * 添加模块
+  
+  * 添加配置
+  
+  * 移动配置
+  
+  * 显示高级配置
+ 
+  * 导入导出
 
 
 
