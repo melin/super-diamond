@@ -34,6 +34,16 @@ commit;
 6. 访问super-diamond-server，jetty默认端口为8090，可以在：conf/META-INF/res/jetty.properties中修改。
 	http://localhost:8090/superdiamond
 
+###super-diamond-server 管理界面使用
+1. 用户管理
+  
+2. 项目管理
+
+3. 配置管理  
+
+
+
+
 ###super-diamond-client
 客户端参考apache configuration，实现其中的部分功能。例如：
 ```java
