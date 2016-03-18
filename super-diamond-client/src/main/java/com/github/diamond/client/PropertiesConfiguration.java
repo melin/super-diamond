@@ -239,14 +239,13 @@ public class PropertiesConfiguration extends EventSource {
             while (reader.nextProperty()) {
                 String key = reader.getPropertyName();
                 String value = reader.getPropertyValue();
-                String newValue = replaceSystemEnvProps(value);
-                tmpStore.put(key, newValue);
+                tmpStore.put(key, value);
                 if (reload) {
                     String oldValue = store.remove(key);
                     if (oldValue == null) {
-                        fireEvent(EventType.ADD, key, newValue);
-                    } else if (!oldValue.equals(newValue)) {
-                        fireEvent(EventType.UPDATE, key, newValue);
+                        fireEvent(EventType.ADD, key, value);
+                    } else if (!oldValue.equals(value)) {
+                        fireEvent(EventType.UPDATE, key, value);
                     }
                 }
             }

@@ -20,6 +20,7 @@ import java.util.Map;
  */
 public class DatasourceTest implements InitializingBean {
 	private String url;
+	private String redisHost;
 
 	public String getUrl() {
 		return url;
@@ -29,6 +30,14 @@ public class DatasourceTest implements InitializingBean {
 
 	public void setUrl(String url) {
 		this.url = url;
+	}
+
+	public String getRedisHost() {
+		return redisHost;
+	}
+
+	public void setRedisHost(String redisHost) {
+		this.redisHost = redisHost;
 	}
 
 	static final PropertiesConfiguration config = PropertiesConfigurationFactoryBean.getPropertiesConfiguration();

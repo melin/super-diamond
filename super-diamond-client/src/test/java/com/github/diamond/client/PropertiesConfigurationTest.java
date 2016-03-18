@@ -6,6 +6,8 @@ package com.github.diamond.client;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 
 /**
@@ -47,7 +49,9 @@ public class PropertiesConfigurationTest {
 	public void testSysProperties() throws ConfigurationRuntimeException  {
 		String config = "javaVersion = ${sys:java.version} \r\n";
 		
-		PropertiesConfiguration configuration = new PropertiesConfiguration();
+//		PropertiesConfiguration configuration = new PropertiesConfiguration();
+		PropertiesConfiguration configuration = new PropertiesConfiguration("127.0.0.1",8283,"cloud-service-mobile","development");
+
 		configuration.load(config);
 		
 		Assert.assertEquals(System.getProperty("java.version"), configuration.getString("javaVersion"));
@@ -56,8 +60,9 @@ public class PropertiesConfigurationTest {
 	@Test
 	public void testSysEvns() throws ConfigurationRuntimeException  {
 		String config = "javaHome = ${env:JAVA_HOME}/lib \r\n";
-		
-		PropertiesConfiguration configuration = new PropertiesConfiguration();
+//		PropertiesConfiguration configuration = new PropertiesConfiguration();
+		PropertiesConfiguration configuration = new PropertiesConfiguration("127.0.0.1",8283,"cloud-service-mobile","development");
+
 		configuration.load(config);
 		
 		Assert.assertEquals(System.getenv("JAVA_HOME") + "/lib", configuration.getString("javaHome"));
