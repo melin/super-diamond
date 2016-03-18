@@ -46,8 +46,7 @@ commit;
   ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/project_manager.png "项目管理列表")
   * 添加项目
   ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/project_create.png "新增项目")    
-  其中，项目编码为项目的唯一标识码，项目名称为项目的名称， 项目管理者为用户登录账号，复制其他项目配置表示该项目建立时使用其他项目中的配置进行初始化（这里
-填写其他项目的项目编码），是否为公共项目表示该项目是否只存储所有项目中所使用的公共配置信息。  
+  其中，项目编码为项目的唯一标识码，项目名称为项目的名称， 项目管理者为用户登录账号，复制其他项目配置表示该项目建立时使用其他项目中的配置进行初始化（这里填写其他项目的项目编码），是否为公共项目表示该项目是否只存储所有项目中所使用的公共配置信息。  
 
   * 项目添加用户  
   ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/project_user_relation.png "项目添加用户")  
@@ -61,7 +60,8 @@ commit;
   ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/module_create.png "添加模块")  
   * 添加配置  
   ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/configuration_create.png "添加配置")  
-  这里是否为默认配置选项，如果选中则默认在列表中不会显示该配置信息，但可以通过选中高级配置复选框按钮来显示该配置信息。注：  
+  这里是否为默认配置选项，如果选中则默认在列表中不会显示该配置信息，但可以通过选中高级配置复选框按钮来显示该配置信息。  
+注：    
       1) 对于引用本项目内的相应配置信息则使用${配置名称}即可  
       2) 对于引用公共项目中的相应配置则使用${common:配置名称}  
       3) 对于引用服务本地环境变量则使用${env:变量名称}  
@@ -207,9 +207,9 @@ commit;
 		<constructor-arg index="3" value="development" />
 	</bean>
 	```
-	<b>客户端链接服务端的参数</b>
+	<b>客户端连接服务端的参数</b>
 	
-	  客户端链接服务端的参数host、port、projcode、profile、modules、encryptPropNames以及loacalFilePath除了可以通过构造函数设置，同时还可以通过环境变量和jvm参数这两种方式设置，避免固定在工程配置文件中。
+	  客户端连接服务端的参数host、port、projcode、profile、modules、encryptPropNames以及loacalFilePath除了通过构造函数设置之外，同时还可以通过环境变量和jvm参数这两种方式设置，避免固定在工程配置文件中。
 	  
 	* 环境变量
 	```shell
