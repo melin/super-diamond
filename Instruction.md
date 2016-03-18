@@ -18,6 +18,7 @@
 
 系统部分功能截图：
 ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/diamond_1.png "功能截图1")
+
 ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/diamond_2.png "功能截图2")
 
 项目profile请参考：http://melin.iteye.com/blog/1339060
