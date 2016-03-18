@@ -12,8 +12,8 @@
 - server 备份配置文件系统系统，如果数据库不用，能够保证对客户端提供数据（待完善）。
 - server 支持配置跨工程替换（包含对加解密的处理）
 - 支持php项目从superdiamond中获取配置参数。
-- 支持服务端配置的导入导出功能（目前导入导出的格式为Json, properties）。
-- 支持管理页面上配置列表中关键配置的隐藏与显示功能以及控制列表显示的记录数量。
+- 支持服务端配置的导入导出功能（目前导入导出的格式分别为Json, properties）。
+- 支持配置管理页面列表中一些关键配置的隐藏与显示功能以及控制列表显示的记录数量。
 - 支持项目中界面操作配置项更换模块。
 
 系统功能截图：
@@ -110,9 +110,9 @@ config.getString("jdbc.url")
 	<constructor-arg index="3" value="development" />
 </bean>
 ```
-<b>客户端链接服务的参数</b>
+<b>客户端链接服务端的参数</b>
 
-  客户端链接服务的参数projcode、profile、host和port可以通过环境变量和jvm参数两种方式设置，避免固定在工程配置文件中。
+  客户端链接服务端的参数host、port、projcode、profile、modules、encryptPropNames以及loacalFilePath除了可以通过构造函数设置，同时还可以通过环境变量和jvm参数这两种方式设置，避免固定在工程配置文件中。
   
 * 环境变量
 ```shell
