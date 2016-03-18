@@ -46,7 +46,7 @@ commit;
   * 添加项目
   ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/project_create.png "新增项目")  
   其中：项目编码为项目的唯一标识码，项目名称为项目的名称， 项目管理者为用户登录账号，复制其他项目配置表示该项目建立时使用其他项目中的配置进行初始化（这里
-填写其他项目的项目编码）。
+填写其他项目的项目编码），是否为公共项目表示该项目是否只存储所有项目中所使用的公共配置信息。  
   * 项目添加用户  
   ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/project_user_relation.png "项目添加用户")
 3. 配置管理
