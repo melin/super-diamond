@@ -46,15 +46,15 @@ commit;
   * 添加项目
   ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/project_create.png "新增项目")
 3. 配置管理
-  * 配置列表
+  * 配置列表   
   ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/configuration_list.png "配置列表")
-  * 添加模块
+  * 添加模块  
   ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/module_create.png "添加模块")
-  * 添加配置
+  * 添加配置  
   ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/configuration_create.png "添加配置")
-  * 移动配置
+  * 移动配置  
   ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/configuration_move.png "移动配置")
-  * 导入导出
+  * 导入导出  
   ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/configuration_import_export.png "配置导入导出")
   
 
