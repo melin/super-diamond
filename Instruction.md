@@ -7,16 +7,16 @@
   test和production profile只提供修改功能。
 - client备份配置信息到本地文件系统，如果server不可用，可以使用本地备份。client 能够定时重连server，保证client高可用。
 - client支持自定义备份文件的本地路径。
-- client支持本地环境变量解析替换功能。
+- client支持本地环境变量与系统参数的解析替换功能。
 - client 提供ConfigurationListener，当某个属性发生变化（add、update、clear）, ConfigurationListener能够接收到ConfigurationEvent。
-- server 备份配置文件系统系统，如果数据库不用，能够保证对客户端提供数据（待完善）。
-- server 支持配置跨工程替换（包含对加解密的处理）
+- server 支持配置跨工程替换（包含对加解密的处理）。
 - 支持php项目从superdiamond中获取配置参数。
 - 支持服务端配置的导入导出功能（目前导入导出的格式分别为Json, properties）。
 - 支持配置管理页面列表中一些关键配置的隐藏与显示功能以及控制列表显示的记录数量。
 - 支持项目中界面操作配置项更换模块。
+- server 备份配置文件系统系统，如果数据库不用，能够保证对客户端提供数据（待完善）。
 
-系统功能截图：
+系统部分功能截图：
 ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/diamond_1.png "功能截图1")
 ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/diamond_2.png "功能截图2")
 
@@ -33,6 +33,16 @@ insert into conf_user(id,USER_code,USER_NAME,PASSWORD,CREATE_TIME) values(1,'adm
 commit;  
 6. 访问super-diamond-server，jetty默认端口为8090，可以在：conf/META-INF/res/jetty.properties中修改。
 	http://localhost:8090/superdiamond
+
+###super-diamond-server 管理界面使用
+1. 用户管理
+  
+2. 项目管理
+
+3. 配置管理  
+
+
+
 
 ###super-diamond-client
 客户端参考apache configuration，实现其中的部分功能。例如：
@@ -126,7 +136,7 @@ export SUPERDIAMOND_LOCALFILEPATH=classpath:/data.properties #自定义客户端
 ```
 * jvm参数
 ```shell
- -Dsuperdiamond.host=127.0.0.1 -Dsuperdiamond.port=8283  -Dsuperdiamond.projcode=javademo -Dsuperdiamond.profile=production -Dsuperdiamond.modules=jdbc -Dsuperdiamond.encryptPropNames=COMMON.jdbc.password -Dsuperdiamond.localFilePath=classpath:/data.properties
+ -Dsuperdiamond.host=127.0.0.1 -Dsuperdiamond.port=8283  -Dsuperdiamond.projcode=javademo -Dsuperdiamond.profile=production -Dsuperdiamond.modules=jdbc -Dsuperdiamond.encryptPropNames=common:jdbc.password -Dsuperdiamond.localFilePath=classpath:/data.properties
 ```
 * 构造函数
 ```xml
@@ -136,7 +146,7 @@ export SUPERDIAMOND_LOCALFILEPATH=classpath:/data.properties #自定义客户端
 	<constructor-arg index="2" value="projeceCode" />
 	<constructor-arg index="3" value="development" />
 	<constructor-arg index="4" value="jdbc" />
-	<constructor-arg index="5" value="COMMON.jdbc.password" />
+	<constructor-arg index="5" value="common:jdbc.password" />
 	<constructor-arg index="6" value="classpath:/dubbo.properties" />
 </bean>
 ```
