@@ -58,8 +58,6 @@ commit;
   ![](https://raw.githubusercontent.com/xiake2025/super-diamond/master/image/configuration_import_export.png "配置导入导出")
   
 
-
-
 ###super-diamond-client
 客户端参考apache configuration，实现其中的部分功能。例如：
 ```java
