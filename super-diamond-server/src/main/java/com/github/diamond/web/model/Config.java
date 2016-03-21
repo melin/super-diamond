@@ -1,38 +1,38 @@
 package com.github.diamond.web.model;
 
 /**
- * 配置定义
- *
+ * 配置定义.
+ * <p/>
  * Author: yuwang@iflytek.com
  * Date: 2015/10/20 13:46
  */
 public class Config {
 
     /**
-     * 配置key
+     * 配置key.
      */
     private String key;
 
     /**
-     * 配置值
+     * 配置值.
      */
     private String value;
 
     /**
-     * 配置描述
+     * 配置描述.
      */
     private String description;
 
-    public Config()
-    {
+    private boolean isShow;
 
+    public Config() {
+        this.isShow = true;
     }
 
-    public Config(String key,String value,String description)
-    {
-        this.key=key;
-        this.value=value;
-        this.description=description;
+    public Config(String key, String value, String description) {
+        this.key = key;
+        this.value = value;
+        this.description = description;
     }
 
     public String getKey() {
@@ -57,5 +57,13 @@ public class Config {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public boolean getIsShow() {
+        return isShow;
+    }
+
+    public void setIsShow(boolean isShow) {
+        this.isShow = isShow;
     }
 }

@@ -1,22 +1,23 @@
 package com.github.diamond.utils;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 /**
  * @author libinsong1204@gmail.com
  */
 public class MD5 {
     private static final Log log = LogFactory.getLog(MD5.class);
-    private static char[] digits = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+    private static char[] digits = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
     private static Map<Character, Integer> rDigits = new HashMap<Character, Integer>(16);
+
     static {
         for (int i = 0; i < digits.length; ++i) {
             rDigits.put(digits[i], i);
@@ -24,16 +25,15 @@ public class MD5 {
     }
 
     private static MD5 me = new MD5();
-    private MessageDigest mHasher;
+    private MessageDigest messageDigest;
     private ReentrantLock opLock = new ReentrantLock();
 
     public static final String ENCODE = "UTF-8";
 
     private MD5() {
         try {
-            mHasher = MessageDigest.getInstance("md5");
-        }
-        catch (Exception e) {
+            messageDigest = MessageDigest.getInstance("md5");
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
@@ -69,16 +69,14 @@ public class MD5 {
     public byte[] hash(String str) {
         opLock.lock();
         try {
-            byte[] bt = mHasher.digest(str.getBytes(ENCODE));
+            byte[] bt = messageDigest.digest(str.getBytes(ENCODE));
             if (null == bt || bt.length != 16) {
                 throw new IllegalArgumentException("md5 need");
             }
             return bt;
-        }
-        catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
             throw new RuntimeException("unsupported utf-8 encoding", e);
-        }
-        finally {
+        } finally {
             opLock.unlock();
         }
     }
@@ -87,19 +85,18 @@ public class MD5 {
     /**
      * 对二进制数据进行md5
      *
-     * @param str
+     * @param data
      * @return md5 byte[16]
      */
     public byte[] hash(byte[] data) {
         opLock.lock();
         try {
-            byte[] bt = mHasher.digest(data);
+            byte[] bt = messageDigest.digest(data);
             if (null == bt || bt.length != 16) {
                 throw new IllegalArgumentException("md5 need");
             }
             return bt;
-        }
-        finally {
+        } finally {
             opLock.unlock();
         }
     }
@@ -112,11 +109,11 @@ public class MD5 {
      * @return
      */
     public String bytes2string(byte[] bt) {
-        int l = bt.length;
+        int lengthTemp = bt.length;
 
-        char[] out = new char[l << 1];
+        char[] out = new char[lengthTemp << 1];
 
-        for (int i = 0, j = 0; i < l; i++) {
+        for (int i = 0, j = 0; i < lengthTemp; i++) {
             out[j++] = digits[(0xF0 & bt[i]) >>> 4];
             out[j++] = digits[0x0F & bt[i]];
         }
@@ -145,14 +142,14 @@ public class MD5 {
         byte[] data = new byte[16];
         char[] chs = str.toCharArray();
         for (int i = 0; i < 16; ++i) {
-            int h = rDigits.get(chs[i * 2]).intValue();
-            int l = rDigits.get(chs[i * 2 + 1]).intValue();
-            data[i] = (byte) ((h & 0x0F) << 4 | (l & 0x0F));
+            int num1 = rDigits.get(chs[i * 2]).intValue();
+            int num2 = rDigits.get(chs[i * 2 + 1]).intValue();
+            data[i] = (byte) ((num1 & 0x0F) << 4 | (num2 & 0x0F));
         }
         return data;
     }
 
     public static void main(String[] args) {
-		System.out.println(MD5.getInstance().getMD5String("000000"));
-	}
+        System.out.println(MD5.getInstance().getMD5String("000000"));
+    }
 }

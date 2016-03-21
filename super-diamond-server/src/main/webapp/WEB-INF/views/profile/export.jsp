@@ -9,6 +9,7 @@
 <button type="button" id="exportModule" class="btn btn-primary">导出</button>
 
 <input id="projectName" type="text" style="display:none" value="<c:out value="${project.PROJ_NAME}"/>"/>
+
 <div id="importModuleWin" class="modal hide fade" tabindex="-1" role="dialog"
      aria-labelledby="importLabel" aria-hidden="true">
     <div class="modal-header">
@@ -20,7 +21,7 @@
               action="<c:url value="/module/import/${type}/${projectId}/${currentPage}" />"
               method="post" enctype="multipart/form-data">
             <div class="control-group">
-                请选择要上传的文件：<input id="file" type="FILE" name="file" size="30"  accept=".json,.properties">
+                请选择要上传的文件：<input id="file" type="FILE" name="file" size="30" accept=".json,.properties">
             </div>
         </form>
     </div>
@@ -32,7 +33,7 @@
 </div>
 
 
-<div id="exportModuleWin"  class="modal hide fade" tabindex="-1" role="dialog"
+<div id="exportModuleWin" class="modal hide fade" tabindex="-1" role="dialog"
      aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
@@ -42,7 +43,7 @@
         <form id="exportForm" class="form-horizontal" action='<c:url value="/module/export" />' method="post">
             <div class="control-group">
                 <div class="alert alert-info">请选择相应的模块进行导出：</div>
-                <div class="control-group"  id="modules-group">
+                <div class="control-group" id="modules-group">
                     <c:forEach items="${modules}" var="module">
                         <div class="checkbox">
                             <label><input type="checkbox" value='<c:out value="${module.MODULE_ID}"/>'>
@@ -57,7 +58,8 @@
 
     <div class="modal-footer">
         <span id="showConfigTip" style="color: red"></span>
-        <div  class="pull-left">
+
+        <div class="pull-left">
             <button class="btn btn-primary" id="checkSelector" value="全选">全选</button>
         </div>
         <div class="pull-right">
@@ -73,10 +75,10 @@
     $(function () {
 
         var _modules = $("#modules-group").find('input[type=checkbox]');
-        var  _checkSelector = $("#checkSelector");
+        var _checkSelector = $("#checkSelector");
 
-        _modules.change(function(){
-            if(!$(this).is(':checked')) {
+        _modules.change(function () {
+            if (!$(this).is(':checked')) {
                 _checkSelector.text('全选');
             }
         })
@@ -97,13 +99,13 @@
 
             var checkedCount = 0;
 
-            $.each(_modules, function(index, ele){
-                if($(ele).is(':checked')) {
+            $.each(_modules, function (index, ele) {
+                if ($(ele).is(':checked')) {
                     checkedCount++;
                 }
             })
 
-            if(checkedCount < _modules.length ) {
+            if (checkedCount < _modules.length) {
                 _modules.prop('checked', true);
                 $(this).text('反选');
             } else {
@@ -115,7 +117,7 @@
         $("#import").click(function (e) {
             if ($.trim($('#file').val()) == '') {
                 $("#showTip").text("文件不能为空");
-            }  else {
+            } else {
                 ajaxFileUpload();
             }
         });
@@ -196,8 +198,8 @@
 
         function getCheckedModules() {
             var modules = [];
-            $.each(_modules, function(index, ele){
-                if($(ele).is(':checked')) {
+            $.each(_modules, function (index, ele) {
+                if ($(ele).is(':checked')) {
                     modules.push($(ele).val());
                 }
             })
@@ -238,16 +240,15 @@
             var jsonFormat = [jsonF];
             var blob = new Blob(jsonFormat, {type: 'application/json'});
             var name = document.getElementById("projectName").value.toString();
-            saveAs(blob,name+".json");
+            saveAs(blob, name + ".json");
         }
 
-        $("#exportProperties").click(function(e) {
+        $("#exportProperties").click(function (e) {
             var moduleIds = getCheckedModules();
             if (moduleIds.length == 0) {
                 $("#showConfigTip").text("模块不能为空");
             }
-            else
-            {
+            else {
                 var URL = '/superdiamond/module/exportProperties/${type}/${projectId}/${sessionScope.sessionUser.userName}/' + moduleIds;
                 var propertiesData = getProperties(URL);
                 exportProperties(propertiesData);
@@ -256,7 +257,7 @@
         });
 
         function getProperties(URL) {
-            var propertiesString=null;
+            var propertiesString = null;
             $.ajax({
                 type: "get",
                 async: false,
@@ -264,7 +265,7 @@
                 dataType: "text",
                 success: function (data) {
                     document.location.href = '/superdiamond/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>';
-                    propertiesString=data;
+                    propertiesString = data;
                     //document.location.href = 'redirect:/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>';
                 },
             });
@@ -272,7 +273,7 @@
         }
 
         function exportProperties(propertiesString) {
-            var propertiseFormat=[propertiesString]
+            var propertiseFormat = [propertiesString]
             var blob = new Blob(propertiseFormat, {type: 'application/plain'});
             var name = document.getElementById("projectName").value.toString();
             saveAs(blob, name + ".properties");

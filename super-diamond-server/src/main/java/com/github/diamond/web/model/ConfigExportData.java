@@ -1,68 +1,62 @@
 package com.github.diamond.web.model;
 
-import com.alibaba.fastjson.annotation.JSONField;
-import com.alibaba.fastjson.serializer.SerializeConfig;
-import com.alibaba.fastjson.serializer.SimpleDateFormatSerializer;
-
 import java.util.ArrayList;
 import java.util.Date;
 
 /**
  * 项目导出数据定义
- *
+ * <p/>
  * Author: yuwang@iflytek.com
  * Date: 2015/10/20 13:50
  */
 public class ConfigExportData {
 
     /**
-     * 执行导出操作的用户
+     * 执行导出操作的用户.
      */
     private String exportUser;
 
     /**
-     * 导出的时间
+     * 导出的时间.
      */
     private Date exportTime;
 
     /**
-     * 项目编码
+     * 项目编码.
      */
     private String projectCode;
 
     /**
-     * 项目描述
+     * 项目描述.
      */
     private String projectDesc;
 
     /**
-     * 配置版本
+     * 配置版本.
      */
     private String configVer;
 
     /**
-     * 服务器IP
+     * 服务器IP.
      */
-    private String serverIP;
+    private String serverIp;
 
     /**
-     * 配置模块列表
+     * 配置模块列表.
      */
     private ArrayList<Module> modules;
 
-    public ConfigExportData()
-    {
+    public ConfigExportData() {
     }
 
-    public ConfigExportData(String exportUser,Date exportTime,String projectCode,String projectDesc,String configVer,String serverIP)
-    {
-        this.exportUser=exportUser;
-        this.exportTime=exportTime;
-        this.projectCode=projectCode;
-        this.projectDesc=projectDesc;
-        this.configVer=configVer;
-        this.serverIP=serverIP;
-        this.modules=new ArrayList<>();
+    public ConfigExportData(String exportUser, Date exportTime, String projectCode, String projectDesc, String configVer, String serverIp) {
+        this.exportUser = exportUser;
+        this.exportTime = exportTime;
+        this.projectCode = projectCode;
+        this.projectDesc = projectDesc;
+        this.configVer = configVer;
+        this.serverIp = serverIp;
+        this.modules = new ArrayList<>();
     }
 
     public ArrayList<Module> getModules() {
@@ -113,11 +107,11 @@ public class ConfigExportData {
         this.configVer = configVer;
     }
 
-    public String getServerIP() {
-        return serverIP;
+    public String getServerIp() {
+        return serverIp;
     }
 
-    public void setServerIP(String serverIP) {
-        this.serverIP = serverIP;
+    public void setServerIp(String serverIp) {
+        this.serverIp = serverIp;
     }
 }

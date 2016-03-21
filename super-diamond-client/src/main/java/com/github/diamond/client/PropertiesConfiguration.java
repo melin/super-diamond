@@ -1,26 +1,8 @@
 /**
  * Copyright (c) 2013 by 苏州科大国创信息技术有限公司.
  */
+
 package com.github.diamond.client;
-
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Properties;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.text.StrLookup;
-import org.apache.commons.lang.text.StrSubstitutor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.Assert;
 
 import com.github.diamond.client.config.ConfigurationInterpolator;
 import com.github.diamond.client.config.PropertiesReader;
@@ -31,6 +13,27 @@ import com.github.diamond.client.netty.ClientChannelInitializer;
 import com.github.diamond.client.netty.Netty4Client;
 import com.github.diamond.client.util.FileUtils;
 import com.github.diamond.client.util.NamedThreadFactory;
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.text.StrLookup;
+import org.apache.commons.lang.text.StrSubstitutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.Assert;
+
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Create on @2013-8-25 @下午1:17:38
@@ -49,21 +52,21 @@ public class PropertiesConfiguration extends EventSource {
 
     private volatile boolean reloadable = true;
 
-    private static final ExecutorService reloadExecutorService = Executors.newSingleThreadExecutor(new NamedThreadFactory("ReloadConfigExecutorService", true));
+    private static final ExecutorService reloadExecutorService = Executors.newSingleThreadExecutor(
+            new NamedThreadFactory("ReloadConfigExecutorService", true));
 
     private static String _host;
     private static int _port = 0;
     private static String _projCode;
     private static String _profile;
     private static String _modules;
+    private static String _encryptPropNames;
+    private static String _localFilePath;
 
     private static final long FIRST_CONNECT_TIMEOUT = 2;
 
     /**
-     * 从jvm参数中获取 projCode、profile、host和port值
-     *
-     * @param projCode
-     * @param profile
+     * 从jvm参数中获取 projCode、profile、host和port值.
      */
     public PropertiesConfiguration() {
         _host = getHost();
@@ -71,13 +74,15 @@ public class PropertiesConfiguration extends EventSource {
         _projCode = getProjCode();
         _profile = getProfile();
         _modules = getModules();
+        _encryptPropNames = getEncryptPropNames();
+        _localFilePath = getlocalFilePath();
 
-        connectServer(_host, _port, _projCode, _profile, _modules);
+        connectServer(_host, _port, _projCode, _profile, _modules, _encryptPropNames, _localFilePath);
         substitutor = new StrSubstitutor(createInterpolator());
     }
 
     /**
-     * 从jvm参数中获取 host和port值
+     * 从jvm参数中获取 host和port值.
      *
      * @param projCode
      * @param profile
@@ -88,25 +93,28 @@ public class PropertiesConfiguration extends EventSource {
         _projCode = projCode;
         _profile = profile;
         _modules = "";
+        _encryptPropNames = "";
+        _localFilePath = "";
 
-        connectServer(_host, _port, _projCode, _profile, _modules);
+        connectServer(_host, _port, _projCode, _profile, _modules, _encryptPropNames, _localFilePath);
         substitutor = new StrSubstitutor(createInterpolator());
     }
 
     /**
-     * 从jvm参数中获取 host和port值
+     * 从jvm参数中获取 host和port值.
      *
      * @param projCode
      * @param profile
      */
-    public PropertiesConfiguration(final String projCode, final String profile, String modules) {
+    public PropertiesConfiguration(final String projCode, final String profile, String modules, String encryptPropNames, String localFilePath) {
         _host = getHost();
         _port = getPort();
         _projCode = projCode;
         _profile = profile;
         _modules = modules;
-
-        connectServer(_host, _port, _projCode, _profile, _modules);
+        _encryptPropNames = encryptPropNames;
+        _localFilePath = localFilePath;
+        connectServer(_host, _port, _projCode, _profile, _modules, _encryptPropNames, _localFilePath);
         substitutor = new StrSubstitutor(createInterpolator());
     }
 
@@ -116,27 +124,35 @@ public class PropertiesConfiguration extends EventSource {
         _projCode = projCode;
         _profile = profile;
         _modules = "";
+        _encryptPropNames = "";
+        _localFilePath = "";
 
-        connectServer(_host, _port, _projCode, _profile, _modules);
+        connectServer(_host, _port, _projCode, _profile, _modules, _encryptPropNames, _localFilePath);
         substitutor = new StrSubstitutor(createInterpolator());
     }
 
-    public PropertiesConfiguration(String host, int port, final String projCode, final String profile, String modules) {
+    public PropertiesConfiguration(String host, int port, final String projCode,
+                                   final String profile, String modules,
+                                   String encryptPropNames, String localFilePath) {
         _host = host;
         _port = port;
         _projCode = projCode;
         _profile = profile;
         _modules = modules;
+        _encryptPropNames = encryptPropNames;
+        _localFilePath = localFilePath;
 
-        connectServer(_host, _port, _projCode, _profile, _modules);
+        connectServer(_host, _port, _projCode, _profile, _modules, _encryptPropNames, _localFilePath);
         substitutor = new StrSubstitutor(createInterpolator());
     }
 
-    protected void connectServer(String host, int port, final String projCode, final String profile, final String modules) {
+    protected void connectServer(final String host, final int port, final String projCode,
+                                 final String profile, final String modules, final String encryptPropNames,
+                                 final String localFilePath) {
         Assert.notNull(projCode, "连接superdiamond， projCode不能为空");
 
         final String clientMsg = "superdiamond={\"projCode\": \"" + projCode + "\", \"profile\": \"" + profile + "\", "
-                + "\"modules\": \"" + modules + "\", \"version\": \"1.1.0\"}";
+                + "\"modules\": \"" + modules + "\", \"version\": \"1.1.0\", \"encryptPropNames\":\"" + encryptPropNames + "\"}";
         try {
             client = new Netty4Client(host, port, new ClientChannelInitializer(clientMsg));
 
@@ -147,20 +163,21 @@ public class PropertiesConfiguration extends EventSource {
                     String versionStr = message.substring(0, message.indexOf("\r\n"));
                     LOGGER.info("加载配置信息，项目编码：{}，Profile：{}, Version：{}", projCode, profile, versionStr.split(" = ")[1]);
 
-                    FileUtils.saveData(projCode, profile, message);
+                    FileUtils.saveData(projCode, profile, message, localFilePath);
                     load(new StringReader(message), false);
                 } else {
                     throw new ConfigurationRuntimeException("从服务器端获取配置信息为空，Client 请求信息为：" + clientMsg);
                 }
             } else {
-                String message = FileUtils.readConfigFromLocal(projCode, profile);
+                String message = FileUtils.readConfigFromLocal(projCode, profile, localFilePath);
                 if (message != null) {
                     String versionStr = message.substring(0, message.indexOf("\r\n"));
                     LOGGER.info("加载本地备份配置信息，项目编码：{}，Profile：{}, Version：{}", projCode, profile, versionStr.split(" = ")[1]);
 
                     load(new StringReader(message), false);
-                } else
+                } else {
                     throw new ConfigurationRuntimeException("本地没有备份配置数据，PropertiesConfiguration 初始化失败。");
+                }
             }
 
             reloadExecutorService.submit(new Runnable() {
@@ -175,14 +192,14 @@ public class PropertiesConfiguration extends EventSource {
                                 if (message != null) {
                                     String versionStr = message.substring(0, message.indexOf("\r\n"));
                                     LOGGER.info("重新加载配置信息，项目编码：{}，Profile：{}, Version：{}", projCode, profile, versionStr.split(" = ")[1]);
-                                    FileUtils.saveData(projCode, profile, message);
+                                    FileUtils.saveData(projCode, profile, message, localFilePath);
                                     load(new StringReader(message), true);
                                 }
                             } else {
                                 TimeUnit.SECONDS.sleep(1);
                             }
                         } catch (Exception e) {
-
+                            e.printStackTrace();
                         }
                     }
                 }
@@ -198,8 +215,9 @@ public class PropertiesConfiguration extends EventSource {
     public void close() {
         reloadable = false;
 
-        if (client != null && client.isConnected())
+        if (client != null && client.isConnected()) {
             client.close();
+        }
     }
 
     public void load(String config) throws ConfigurationRuntimeException {
@@ -207,7 +225,7 @@ public class PropertiesConfiguration extends EventSource {
     }
 
     /**
-     * 加载配置文件
+     * 加载配置文件.
      *
      * @param in
      * @param reload 初次初始化加载为false，服务端推送加载为true。
@@ -224,10 +242,11 @@ public class PropertiesConfiguration extends EventSource {
                 tmpStore.put(key, value);
                 if (reload) {
                     String oldValue = store.remove(key);
-                    if (oldValue == null)
+                    if (oldValue == null) {
                         fireEvent(EventType.ADD, key, value);
-                    else if (!oldValue.equals(value))
+                    } else if (!oldValue.equals(value)) {
                         fireEvent(EventType.UPDATE, key, value);
+                    }
                 }
             }
 
@@ -246,15 +265,17 @@ public class PropertiesConfiguration extends EventSource {
             }
         }
 
-        if (store != null)
+        if (store != null) {
             store.clear();
+        }
 
         store = tmpStore;
     }
 
     public static String getProjCode() {
-        if (StringUtils.isNotBlank(_projCode))
+        if (StringUtils.isNotBlank(_projCode)) {
             return _projCode;
+        }
 
         _projCode = System.getenv("SUPERDIAMOND_PROJCODE");
         if (StringUtils.isBlank(_projCode)) {
@@ -265,8 +286,9 @@ public class PropertiesConfiguration extends EventSource {
     }
 
     public static String getProfile() {
-        if (StringUtils.isNotBlank(_profile))
+        if (StringUtils.isNotBlank(_profile)) {
             return _profile;
+        }
 
         _profile = System.getenv("SUPERDIAMOND_PROFILE");
         if (StringUtils.isBlank(_profile)) {
@@ -277,20 +299,48 @@ public class PropertiesConfiguration extends EventSource {
     }
 
     public static String getModules() {
-        if (StringUtils.isNotBlank(_modules))
-            return _modules;
-
         _modules = System.getenv("SUPERDIAMOND_MODULES");
-        if (StringUtils.isBlank(_modules)) {
-            return System.getProperty("superdiamond.modules");
-        } else {
+        if (_modules != null) {
             return _modules;
+        }
+        _modules = System.getProperty("superdiamond.modules");
+        if (_modules != null) {
+            return _modules;
+        } else {
+            return "";
+        }
+    }
+
+    public static String getEncryptPropNames() {
+        _encryptPropNames = System.getenv("SUPERDIAMOND_ENCRYPTPROPNAMES");
+        if (_encryptPropNames != null) {
+            return _encryptPropNames;
+        }
+        _encryptPropNames = System.getProperty("superdiamond.encryptPropNames");
+        if (_encryptPropNames != null) {
+            return _encryptPropNames;
+        } else {
+            return "";
+        }
+    }
+
+    public static String getlocalFilePath() {
+        _encryptPropNames = System.getenv("SUPERDIAMOND_LOCALFILEPATH");
+        if (_encryptPropNames != null) {
+            return _encryptPropNames;
+        }
+        _encryptPropNames = System.getProperty("superdiamond.localFilePath");
+        if (_encryptPropNames != null) {
+            return _encryptPropNames;
+        } else {
+            return "";
         }
     }
 
     public static String getHost() {
-        if (StringUtils.isNotBlank(_host))
+        if (StringUtils.isNotBlank(_host)) {
             return _host;
+        }
 
         _host = System.getenv("SUPERDIAMOND_HOST");
         if (StringUtils.isBlank(_host)) {
@@ -301,8 +351,9 @@ public class PropertiesConfiguration extends EventSource {
     }
 
     public static int getPort() {
-        if (_port > 1)
+        if (_port > 1) {
             return _port;
+        }
 
         if (StringUtils.isBlank(System.getenv("SUPERDIAMOND_PORT"))) {
             return Integer.valueOf(System.getProperty("superdiamond.port", "8283"));
@@ -310,8 +361,6 @@ public class PropertiesConfiguration extends EventSource {
             return Integer.valueOf(System.getenv("SUPERDIAMOND_PORT"));
         }
     }
-
-    // --------------------------------------------------------------------
 
     private String getProperty(String key) {
         return store.get(key);
@@ -327,9 +376,9 @@ public class PropertiesConfiguration extends EventSource {
     }
 
     public boolean getBoolean(String key) {
-        Boolean b = getBoolean(key, null);
-        if (b != null) {
-            return b.booleanValue();
+        Boolean var = getBoolean(key, null);
+        if (var != null) {
+            return var.booleanValue();
         } else {
             throw new NoSuchElementException('\'' + key + "' doesn't map to an existing object");
         }
@@ -355,9 +404,9 @@ public class PropertiesConfiguration extends EventSource {
     }
 
     public byte getByte(String key) {
-        Byte b = getByte(key, null);
-        if (b != null) {
-            return b.byteValue();
+        Byte var = getByte(key, null);
+        if (var != null) {
+            return var.byteValue();
         } else {
             throw new NoSuchElementException('\'' + key + " doesn't map to an existing object");
         }
@@ -382,9 +431,9 @@ public class PropertiesConfiguration extends EventSource {
     }
 
     public double getDouble(String key) {
-        Double d = getDouble(key, null);
-        if (d != null) {
-            return d.doubleValue();
+        Double var = getDouble(key, null);
+        if (var != null) {
+            return var.doubleValue();
         } else {
             throw new NoSuchElementException('\'' + key
                     + "' doesn't map to an existing object");
@@ -410,9 +459,9 @@ public class PropertiesConfiguration extends EventSource {
     }
 
     public float getFloat(String key) {
-        Float f = getFloat(key, null);
-        if (f != null) {
-            return f.floatValue();
+        Float var = getFloat(key, null);
+        if (var != null) {
+            return var.floatValue();
         } else {
             throw new NoSuchElementException('\'' + key + "' doesn't map to an existing object");
         }
@@ -437,22 +486,22 @@ public class PropertiesConfiguration extends EventSource {
     }
 
     public int getInt(String key) {
-        Integer i = getInteger(key, null);
-        if (i != null) {
-            return i.intValue();
+        Integer var = getInteger(key, null);
+        if (var != null) {
+            return var.intValue();
         } else {
             throw new NoSuchElementException('\'' + key + "' doesn't map to an existing object");
         }
     }
 
     public int getInt(String key, int defaultValue) {
-        Integer i = getInteger(key, null);
+        Integer var = getInteger(key, null);
 
-        if (i == null) {
+        if (var == null) {
             return defaultValue;
         }
 
-        return i.intValue();
+        return var.intValue();
     }
 
     public Integer getInteger(String key, Integer defaultValue) {
@@ -470,9 +519,9 @@ public class PropertiesConfiguration extends EventSource {
     }
 
     public long getLong(String key) {
-        Long l = getLong(key, null);
-        if (l != null) {
-            return l.longValue();
+        Long var = getLong(key, null);
+        if (var != null) {
+            return var.longValue();
         } else {
             throw new NoSuchElementException('\'' + key + "' doesn't map to an existing object");
         }
@@ -497,9 +546,9 @@ public class PropertiesConfiguration extends EventSource {
     }
 
     public short getShort(String key) {
-        Short s = getShort(key, null);
-        if (s != null) {
-            return s.shortValue();
+        Short var = getShort(key, null);
+        if (var != null) {
+            return var.shortValue();
         } else {
             throw new NoSuchElementException('\'' + key + "' doesn't map to an existing object");
         }
@@ -524,9 +573,9 @@ public class PropertiesConfiguration extends EventSource {
     }
 
     public String getString(String key) {
-        String s = getString(key, null);
-        if (s != null) {
-            return s;
+        String var = getString(key, null);
+        if (var != null) {
+            return var;
         } else {
             return null;
         }
@@ -558,4 +607,36 @@ public class PropertiesConfiguration extends EventSource {
         });
         return interpol;
     }
+
+    public List<Map<String, Object>> findSystemEnvProps(String value) {
+        List<Map<String, Object>> list = new ArrayList<>();
+        while (value.length() > 3) {
+            Map<String, Object> map = new HashMap<>();
+            int start = org.apache.commons.lang.StringUtils.indexOf(value, "$<");
+            if (start != -1 && start < value.length() - 1) {
+                int end = org.apache.commons.lang.StringUtils.indexOf(value, '>');
+                String var = value.substring(start + 2, end);
+                map.put("systemEnvProp", var);
+                list.add(map);
+                if (end != -1 && end < value.length() - 2) {
+                    value = value.substring(end + 1);
+                } else {
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
+        return list;
+    }
+
+    public String replaceSystemEnvProps(String value) {
+        List<Map<String, Object>> systemEnvPropList = findSystemEnvProps(value);
+        for (int i = 0; i < systemEnvPropList.size(); i++) {
+            value = StringUtils.replace(value, "$<" + systemEnvPropList.get(i).get("systemEnvProp") + ">",
+                    System.getenv(String.valueOf(systemEnvPropList.get(i).get("systemEnvProp"))));
+        }
+        return value;
+    }
 }
+

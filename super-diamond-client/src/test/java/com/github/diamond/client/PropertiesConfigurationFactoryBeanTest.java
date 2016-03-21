@@ -20,7 +20,8 @@ public class PropertiesConfigurationFactoryBeanTest {
 	
 	public static void main(String[] args) throws IOException {
 		ApplicationContext applicationContext = new ClassPathXmlApplicationContext("bean.xml");
-		
+		DatasourceTest datasourceTest = (DatasourceTest)applicationContext.getBean("datasourceTest");
+		datasourceTest.getUrl();
 		PropertiesConfiguration configuration = PropertiesConfigurationFactoryBean.getPropertiesConfiguration();
 		configuration.addConfigurationListener(new ConfigurationListener() {
 	        @Override
@@ -29,8 +30,6 @@ public class PropertiesConfigurationFactoryBeanTest {
 	            System.out.println(event.getType().name() + " " + event.getPropertyName() + " " + event.getPropertyValue());
 	        }
 	    });
-		
-		System.in.read();
 	}
 
 }

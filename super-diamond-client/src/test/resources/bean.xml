@@ -1,43 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<!--<bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">-->
-		<!--<property name="properties" ref="propertiesConfiguration" />-->
+	<!--<property name="properties" ref="propertiesConfiguration" />-->
 	<!--</bean>-->
 	<!-- -->
 	<!--<bean id="propertiesConfiguration" class="com.github.diamond.client.PropertiesConfigurationFactoryBean">-->
-		<!--<constructor-arg index="0" value="localhost" />-->
-		<!--<constructor-arg index="1" value="8283" />-->
-		<!--<constructor-arg index="2" value="test" />-->
-		<!--<constructor-arg index="3" value="development" />-->
-	<!--</bean>-->
-
-	<bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
-		<property name="properties" ref="propertiesConfiguration" />
-	</bean>
-
-	<!--<bean id="propertiesConfiguration" class="com.github.diamond.client.PropertiesConfigurationFactoryBean">-->
-		<!--<constructor-arg index="0" value="172.16.79.21" />-->
-		<!--<constructor-arg index="1" value="8283" />-->
-		<!--<constructor-arg index="2" value="changyan.yun.cyservice" />-->
-		<!--<constructor-arg index="3" value="development" />-->
-	<!--</bean>-->
-
-	<!--<bean id="propertiesConfiguration" class="com.github.diamond.client.PropertiesConfigurationFactoryBean">-->
-	<!--<constructor-arg index="0" value="123.57.204.61" />-->
-	<!--<constructor-arg index="1" value="18080" />-->
-	<!--<constructor-arg index="2" value="cloud-service" />-->
+	<!--<constructor-arg index="0" value="localhost" />-->
+	<!--<constructor-arg index="1" value="8283" />-->
+	<!--<constructor-arg index="2" value="test" />-->
 	<!--<constructor-arg index="3" value="development" />-->
-		<!--<constructor-arg index="4" value="" />-->
 	<!--</bean>-->
+
+	<!--<bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+		<property name="properties" ref="propertiesConfiguration" />
+	</bean>-->
+
+	<bean id="propertyConfigurer" class="com.github.diamond.client.EncryptPropertyPlaceholderConfigurer">
+		<property name="enableEncrypt" value="true"/>
+		<!-- 这里的encrypt.privatekey是从pom文件中读取 -->
+		<property name="privateKeyPath" value="E:\superdiamond\super-diamond\super-diamond-client\ewp-open-service-private.key"/>
+		<property name="properties" ref="propertiesConfiguration"/>
+	</bean>
 
 	<bean id="propertiesConfiguration" class="com.github.diamond.client.PropertiesConfigurationFactoryBean">
+		<constructor-arg index="0" value="localhost" />
+		<constructor-arg index="1" value="8283" />
+		<constructor-arg index="2" value="cloud-service-mobile" />
+		<constructor-arg index="3" value="development" />
+		<constructor-arg index="4" value="" />
+		<constructor-arg index="5" value="common:aaa.jdbc.password" />
+		<constructor-arg index="6" value="classpath:/dubbo.properties" />
 	</bean>
 
+	<!--<bean id="propertiesConfiguration2" class="com.github.diamond.client.PropertiesConfigurationFactoryBean">
+		<constructor-arg index="0" value="localhost" />
+		<constructor-arg index="1" value="8283" />
+		<constructor-arg index="2" value="bbb" />
+		<constructor-arg index="3" value="test" />
+		<constructor-arg index="4" value="" />
+		<constructor-arg index="5" value="" />
+		<constructor-arg index="6" value="classpath:/aaa.properties" />
+	</bean>-->
 
-	<bean class="com.github.diamond.client.DatasourceTest">
+
+	<!--<bean id="propertiesConfiguration" class="com.github.diamond.client.PropertiesConfigurationFactoryBean">
+		<constructor-arg index="0" value="123.57.204.61" />
+		<constructor-arg index="1" value="18080" />
+		<constructor-arg index="2" value="iflytek.service" />
+		<constructor-arg index="3" value="development" />
+		<constructor-arg index="4" value="" />
+	</bean>-->
+
+	<!--<bean id="propertiesConfiguration" class="com.github.diamond.client.PropertiesConfigurationFactoryBean">
+	</bean>-->
+
+
+	<bean id="datasourceTest" class="com.github.diamond.client.DatasourceTest">
 		<property name="url" value="${jdbc.url}" />
+		<property name="redisHost" value="${redis_host}" />
 	</bean>
 </beans>

@@ -1,6 +1,7 @@
 /**        
  * Copyright (c) 2013 by 苏州科大国创信息技术有限公司.    
  */
+
 package com.github.diamond.client.util;
 
 import java.util.concurrent.ThreadFactory;
@@ -12,6 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author bsli@ustcinfo.com
  */
 public class NamedThreadFactory implements ThreadFactory {
+
 	private static final AtomicInteger POOL_SEQ = new AtomicInteger(1);
 
 	private final AtomicInteger mThreadNum = new AtomicInteger(1);

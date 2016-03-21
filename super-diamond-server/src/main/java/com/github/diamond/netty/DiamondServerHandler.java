@@ -1,13 +1,20 @@
 /**
  * Copyright (c) 2013 by 苏州科大国创信息技术有限公司.
  */
+
 package com.github.diamond.netty;
 
+import com.alibaba.druid.support.json.JSONUtils;
+import com.github.diamond.web.service.impl.ConfigServiceImpl;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -17,24 +24,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import com.alibaba.druid.support.json.JSONUtils;
-import com.github.diamond.web.service.ConfigService;
-
 /**
- * Create on @2013-8-24 @上午10:05:25
+ * Create on @2013-8-24 @上午10:05:25.
  *
  * @author bsli@ustcinfo.com
  */
 @Sharable
 public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
 
-    public static ConcurrentHashMap<ClientKey /*projcode+profile*/, List<ClientInfo> /*client address*/> clients =
+    public static ConcurrentHashMap<ClientKey /*projcode+profile*/, List<ClientInfo>/*client address*/> clients =
             new ConcurrentHashMap<ClientKey, List<ClientInfo>>();
 
     private ConcurrentHashMap<String /*client address*/, ChannelHandlerContext> channels =
@@ -45,7 +43,7 @@ public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
     private final Charset charset = Charset.forName("UTF-8");
 
     @Autowired
-    private ConfigService configService;
+    private ConfigServiceImpl configServiceImpl;
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -61,30 +59,35 @@ public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
             String projCode;
             String profile;
             String modules;
+            String encryptPropNames;
 
             String clientAddr = ctx.channel().remoteAddress().toString();
-
+            logger.info("连接的clientAddr为：" + clientAddr);
             if (request.startsWith("superdiamond=")) {
                 request = request.substring("superdiamond=".length());
                 Map<String, String> params = (Map<String, String>) JSONUtils.parse(request);
                 projCode = params.get("projCode");
                 modules = params.get("modules");
                 profile = params.get("profile");
+                encryptPropNames = params.get("encryptPropNames");
             } else {
                 // 兼容老版本客户端
                 String[] projInfo = StringUtils.split(request, ",");
                 projCode = projInfo[1];
                 modules = "";
                 profile = projInfo[2];
+                encryptPropNames = "";
                 logger.warn("Old version client found, clientAddr: {}, projCode: {}, profile: {}", clientAddr, projCode, profile);
             }
 
             String[] moduleArr = StringUtils.split(modules, ",");
+            String[] encryptPropNameArr = StringUtils.split(encryptPropNames, ",");
 
             ClientKey key = new ClientKey();
             key.setProjCode(projCode);
             key.setProfile(profile);
             key.setModuleArr(moduleArr);
+            key.setEncryptPropNameArr(encryptPropNameArr);
             //String version = params.get("version");
 
             List<ClientInfo> addrs = clients.get(key);
@@ -98,10 +101,14 @@ public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
             clients.put(key, addrs);
             channels.put(clientAddr, ctx);
 
-            if (StringUtils.isNotBlank(modules)) {
-                config = configService.queryConfigs(projCode, moduleArr, profile, "");
+            if (StringUtils.isNotBlank(modules) && StringUtils.isNotBlank(encryptPropNames)) {
+                config = configServiceImpl.queryConfigs(projCode, moduleArr, encryptPropNameArr, profile, "");
+            } else if (StringUtils.isNotBlank(modules) && !StringUtils.isNotBlank(encryptPropNames)) {
+                config = configServiceImpl.queryConfigs(projCode, moduleArr, profile, "");
+            } else if (!StringUtils.isNotBlank(modules) && StringUtils.isNotBlank(encryptPropNames)) {
+                config = configServiceImpl.queryConfigs(projCode, profile, encryptPropNameArr, "");
             } else {
-                config = configService.queryConfigs(projCode, profile, "");
+                config = configServiceImpl.queryConfigs(projCode, profile, "");
             }
         } else {
             config = "";
@@ -140,26 +147,67 @@ public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
     }
 
     /**
-     * 向服务端推送配置数据。
+     * 向客户端推送配置数据.
      *
-     * @param projCode
-     * @param profile
-     * @param module
+     * @param projCode 项目编码
+     * @param profile  项目环境
      */
-    public void pushConfig(String projCode, String profile, final String module) {
+    public void pushConfig(String projCode, String profile) {
         for (ClientKey key : clients.keySet()) {
-            if (key.getProjCode().equals(projCode) && key.getProfile().equals(profile)) {
-                List<ClientInfo> addrs = clients.get(key);
-                if (addrs != null) {
-                    for (ClientInfo client : addrs) {
-                        ChannelHandlerContext ctx = channels.get(client.getAddress());
-                        if (ctx != null) {
-                            if (key.moduleArr.length == 0) {
-                                String config = configService.queryConfigs(projCode, profile, "");
-                                sendMessage(ctx, config);
-                            } else if (ArrayUtils.contains(key.getModuleArr(), module)) {
-                                String config = configService.queryConfigs(projCode, key.getModuleArr(), profile, "");
-                                sendMessage(ctx, config);
+            if (!"".equals(projCode)) {
+                if (key.getProjCode().equals(projCode) && key.getProfile().equals(profile)) {
+                    List<ClientInfo> addrs = clients.get(key);
+                    if (addrs != null) {
+                        for (ClientInfo client : addrs) {
+                            ChannelHandlerContext ctx = channels.get(client.getAddress());
+                            if (ctx != null) {
+                                if (key.moduleArr.length == 0) {
+                                    if (key.getEncryptPropNameArr().length == 0) {
+                                        String config = configServiceImpl.queryConfigs(projCode, profile, "");
+                                        sendMessage(ctx, config);
+                                    } else {
+                                        String config = configServiceImpl.queryConfigs(projCode, profile, key.getEncryptPropNameArr(), "");
+                                        sendMessage(ctx, config);
+                                    }
+                                } else {
+                                    if (key.getEncryptPropNameArr().length == 0) {
+                                        String config = configServiceImpl.queryConfigs(projCode, key.getModuleArr(), profile, "");
+                                        sendMessage(ctx, config);
+                                    } else {
+                                        String config = configServiceImpl.queryConfigs(projCode, key.getModuleArr(),
+                                                key.getEncryptPropNameArr(), profile, "");
+                                        sendMessage(ctx, config);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                if (key.getProfile().equals(profile)) {
+                    List<ClientInfo> addrs = clients.get(key);
+                    if (addrs != null) {
+                        for (ClientInfo client : addrs) {
+                            ChannelHandlerContext ctx = channels.get(client.getAddress());
+                            if (ctx != null) {
+                                if (key.moduleArr.length == 0) {
+                                    if (key.getEncryptPropNameArr().length == 0) {
+                                        String config = configServiceImpl.queryConfigs(key.getProjCode(), profile, "");
+                                        sendMessage(ctx, config);
+                                    } else {
+                                        String config = configServiceImpl.queryConfigs(key.getProjCode(), profile, key.getEncryptPropNameArr(), "");
+                                        sendMessage(ctx, config);
+                                    }
+                                } else {
+                                    if (key.getEncryptPropNameArr().length == 0) {
+                                        String config = configServiceImpl.queryConfigs(key.getProjCode(), key.getModuleArr(), profile, "");
+                                        sendMessage(ctx, config);
+                                    } else {
+                                        String config = configServiceImpl.queryConfigs(key.getProjCode(), key.getModuleArr(),
+                                                key.getEncryptPropNameArr(), profile, "");
+                                        sendMessage(ctx, config);
+                                    }
+                                }
                             }
                         }
                     }
@@ -179,6 +227,7 @@ public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
     public static class ClientKey {
         String projCode;
         String[] moduleArr;
+        String[] encryptPropNameArr;
         String profile;
 
         public String getProjCode() {
@@ -195,6 +244,14 @@ public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
 
         public void setModuleArr(String[] moduleArr) {
             this.moduleArr = moduleArr;
+        }
+
+        public String[] getEncryptPropNameArr() {
+            return encryptPropNameArr;
+        }
+
+        public void setEncryptPropNameArr(String[] encryptPropNameArr) {
+            this.encryptPropNameArr = encryptPropNameArr;
         }
 
         public String getProfile() {
@@ -219,25 +276,33 @@ public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj)
+            if (this == obj) {
                 return true;
-            if (obj == null)
+            }
+            if (obj == null) {
                 return false;
-            if (getClass() != obj.getClass())
+            }
+            if (getClass() != obj.getClass()) {
                 return false;
+            }
             ClientKey other = (ClientKey) obj;
-            if (!Arrays.equals(moduleArr, other.moduleArr))
+            if (!Arrays.equals(moduleArr, other.moduleArr)) {
                 return false;
+            }
             if (profile == null) {
-                if (other.profile != null)
+                if (other.profile != null) {
                     return false;
-            } else if (!profile.equals(other.profile))
+                }
+            } else if (!profile.equals(other.profile)) {
                 return false;
+            }
             if (projCode == null) {
-                if (other.projCode != null)
+                if (other.projCode != null) {
                     return false;
-            } else if (!projCode.equals(other.projCode))
+                }
+            } else if (!projCode.equals(other.projCode)) {
                 return false;
+            }
             return true;
         }
     }
@@ -278,18 +343,23 @@ public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj)
+            if (this == obj) {
                 return true;
-            if (obj == null)
+            }
+            if (obj == null) {
                 return false;
-            if (getClass() != obj.getClass())
+            }
+            if (getClass() != obj.getClass()) {
                 return false;
+            }
             ClientInfo other = (ClientInfo) obj;
             if (address == null) {
-                if (other.address != null)
+                if (other.address != null) {
                     return false;
-            } else if (!address.equals(other.address))
+                }
+            } else if (!address.equals(other.address)) {
                 return false;
+            }
             return true;
         }
     }
