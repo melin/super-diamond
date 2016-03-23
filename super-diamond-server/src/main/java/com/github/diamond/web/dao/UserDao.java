@@ -19,4 +19,6 @@ public interface UserDao {
     void deleteUser(int id);
 
     void updatePassword(int id, String password);
+
+    boolean checkUserCodeExist(String userCode);
 }

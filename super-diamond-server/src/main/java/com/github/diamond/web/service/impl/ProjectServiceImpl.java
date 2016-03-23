@@ -162,4 +162,8 @@ public class ProjectServiceImpl implements ProjectService {
     public int getProjectIdByProjectCode(String code) {
         return projectDao.getProjectIdByProjectCode(code);
     }
+
+    public boolean findProjCode(String projCode){
+        return projectDao.findProjCode(projCode);
+    }
 }

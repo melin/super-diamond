@@ -28,11 +28,9 @@ public class ModuleDaoImpl implements ModuleDao {
 
     public int save(int projectId, String name) {
         String sql = "SELECT MAX(MODULE_ID)+1 FROM CONF_PROJECT_MODULE";
-        int id = -1;
-        try {
-            id = jdbcTemplate.queryForObject(sql, Integer.class);
-        } catch (NullPointerException e) {
-            ;
+        Integer id = jdbcTemplate.queryForObject(sql, Integer.class);
+        if(id == null){
+            id = 1;
         }
         sql = "INSERT INTO CONF_PROJECT_MODULE(MODULE_ID, PROJ_ID, MODULE_NAME) values(?, ?, ?)";
         jdbcTemplate.update(sql, id, projectId, name);
@@ -61,8 +59,8 @@ public class ModuleDaoImpl implements ModuleDao {
     public ModuleConfigId moduleConfigIdIsExist(String configName, String moduleName, int projectId) {
         List<Integer> moduleIds = null;
         boolean isExist = false;
-        int configId = -1;
-        int moduleId = -1;
+        Integer configId = -1;
+        Integer moduleId = -1;
         String sql = "select MODULE_ID from CONF_PROJECT_MODULE where MODULE_NAME=? and PROJ_ID=?";
         try {
             moduleIds = jdbcTemplate.queryForList(sql, Integer.class, moduleName, projectId);
@@ -71,15 +69,14 @@ public class ModuleDaoImpl implements ModuleDao {
         }
         if (moduleIds.size() != 0) {
             moduleId = moduleIds.get(0);
-            String enquerySql = "select CONFIG_ID from CONF_PROJECT_CONFIG where MODULE_ID=? and CONFIG_KEY=? and DELETE_FLAG=0";
+            String querySql = "select CONFIG_ID from CONF_PROJECT_CONFIG where MODULE_ID=? and CONFIG_KEY=? and DELETE_FLAG=0";
             List<Integer> configs = null;
             try {
-                configs = jdbcTemplate.queryForList(enquerySql, Integer.class, moduleId, configName);
+                configs = jdbcTemplate.queryForList(querySql, Integer.class, moduleId, configName);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
-
-            if (configs.size() != 0) {
+            if (configs.size() != 0 && configs.get(0) != null) {
                 isExist = true;
                 configId = configs.get(0);
             }
@@ -135,5 +132,11 @@ public class ModuleDaoImpl implements ModuleDao {
         List<Map<String, Object>> moduleConfigListData = new ArrayList<Map<String, Object>>();
         moduleConfigListData = namedParameterJdbcTemplate.queryForList(sql, paramMap);
         return moduleConfigListData;
+    }
+
+    public boolean isExistModuleName(int projectId, String name){
+        String sql = "SELECT count(*) FROM CONF_PROJECT_MODULE WHERE PROJ_ID = ? AND MODULE_NAME = ?";
+        int num = jdbcTemplate.queryForObject(sql, Integer.class, projectId,name);
+        return num > 0;
     }
 }

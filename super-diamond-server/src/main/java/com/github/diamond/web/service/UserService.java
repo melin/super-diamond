@@ -21,5 +21,6 @@ public interface UserService {
 
     void updatePassword(int id, String password);
 
+    boolean checkUserCodeExist(String userCode);
 
 }

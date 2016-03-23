@@ -192,7 +192,7 @@ public class ProjectDaoImpl implements ProjectDao {
      * @return
      */
     public boolean checkProjectExist(String code) {
-        String sql = "SELECT COUNT(*) FROM CONF_PROJECT WHERE PROJ_CODE=?";
+        String sql = "SELECT COUNT(*) FROM CONF_PROJECT WHERE PROJ_CODE=? AND DELETE_FLAG = 0";
         int count = jdbcTemplate.queryForObject(sql, Integer.class, code);
         if (count == 1) {
             return true;
@@ -240,14 +240,11 @@ public class ProjectDaoImpl implements ProjectDao {
     @Transactional
     public void saveProject(Project project, String copyCode, User user, boolean isCommon) {
         String sql = "SELECT MAX(id)+1 FROM CONF_PROJECT";
-        int projId = -1;
-        try {
-            projId = jdbcTemplate.queryForObject(sql, Integer.class);
-        } catch (NullPointerException e) {
-            ;
+        Integer projId = jdbcTemplate.queryForObject(sql, Integer.class);
+        if(projId == null){
+            projId = 1;
         }
         sql = "insert into CONF_PROJECT (ID, PROJ_CODE, PROJ_NAME, OWNER_ID, CREATE_TIME,IS_COMMON) values (?, ?, ?, ?, ?,?)";
-
         jdbcTemplate.update(sql, projId, project.getCode(), project.getName(), project.getOwnerId(), new Date(), isCommon ? 1 : 0);
         this.saveUser(projId, project.getOwnerId(), "development", "test", "build", "production", "admin");
 
@@ -319,8 +316,12 @@ public class ProjectDaoImpl implements ProjectDao {
     public int findUserId(String userCode) {
         try {
             String sql = "SELECT ID FROM CONF_USER WHERE USER_CODE = ?";
-            int userid = jdbcTemplate.queryForObject(sql, new Object[]{userCode}, Integer.class);
-            return userid;
+            Integer userId = jdbcTemplate.queryForObject(sql, new Object[]{userCode}, Integer.class);
+            if(userId != null){
+                return userId;
+            }else {
+                return 0;
+            }
         } catch (DataAccessException e) {
             return 0;
         }
@@ -350,6 +351,12 @@ public class ProjectDaoImpl implements ProjectDao {
             user.setUserName(rs.getString(3));
             return user;
         }
+    }
+
+    public boolean findProjCode(String projCode){
+        String sql = "SELECT count(*) FROM CONF_PROJECT WHERE PROJ_CODE = ? AND DELETE_FLAG = 0";
+        int num = jdbcTemplate.queryForObject(sql,Integer.class,projCode);
+        return num > 0;
     }
 }
 

@@ -13,7 +13,6 @@ import com.github.diamond.web.service.ConfigService;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -647,60 +646,61 @@ public class ConfigServiceImpl implements ConfigService {
     }
 
     private String viewConfig(List<Map<String, Object>> configs, String type) {
-        String message = "";
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("");
 
         boolean versionFlag = true;
         for (Map<String, Object> map : configs) {
             if (versionFlag) {
                 if ("development".equals(type)) {
-                    message += "#version = " + map.get("DEVELOPMENT_VERSION") + "\r\n";
+                    stringBuilder.append("#version = " + map.get("DEVELOPMENT_VERSION") + "\r\n");
                 } else if ("production".equals(type)) {
-                    message += "#version = " + map.get("PRODUCTION_VERSION") + "\r\n";
+                    stringBuilder.append("#version = " + map.get("PRODUCTION_VERSION") + "\r\n");
                 } else if ("test".equals(type)) {
-                    message += "#version = " + map.get("TEST_VERSION") + "\r\n";
+                    stringBuilder.append("#version = " + map.get("TEST_VERSION") + "\r\n");
                 } else if ("build".equals(type)) {
-                    message += "#version = " + map.get("BUILD_VERSION") + "\r\n";
+                    stringBuilder.append("#version = " + map.get("BUILD_VERSION") + "\r\n");
                 }
-
                 versionFlag = false;
             }
 
             String desc = (String) map.get("CONFIG_DESC");
             desc = desc.replaceAll("\r\n", " ");
             if (StringUtils.isNotBlank(desc)) {
-                message += "#" + desc + "\r\n";
+                stringBuilder.append("#" + desc + "\r\n");
             }
 
             if ("development".equals(type)) {
-                message += map.get("CONFIG_KEY") + " = " + map.get("CONFIG_VALUE") + "\r\n";
+                stringBuilder.append(map.get("CONFIG_KEY") + " = " + map.get("CONFIG_VALUE") + "\r\n");
             } else if ("production".equals(type)) {
-                message += map.get("CONFIG_KEY") + " = " + map.get("PRODUCTION_VALUE") + "\r\n";
+                stringBuilder.append(map.get("CONFIG_KEY") + " = " + map.get("PRODUCTION_VALUE") + "\r\n");
             } else if ("test".equals(type)) {
-                message += map.get("CONFIG_KEY") + " = " + map.get("TEST_VALUE") + "\r\n";
+                stringBuilder.append(map.get("CONFIG_KEY") + " = " + map.get("TEST_VALUE") + "\r\n");
             } else if ("build".equals(type)) {
-                message += map.get("CONFIG_KEY") + " = " + map.get("BUILD_VALUE") + "\r\n";
+                stringBuilder.append(map.get("CONFIG_KEY") + " = " + map.get("BUILD_VALUE") + "\r\n");
             }
         }
 
-        return message;
+        return stringBuilder.toString();
     }
 
     private String viewConfigPhp(List<Map<String, Object>> configs, String type) {
-        String message = "<?php\r\n"
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("<?php\r\n"
                 + "return array(\r\n"
-                + "\t//profile = " + type + "\r\n";
+                + "\t//profile = " + type + "\r\n");
 
         boolean versionFlag = true;
         for (Map<String, Object> map : configs) {
             if (versionFlag) {
                 if ("development".equals(type)) {
-                    message += "\t//version = " + map.get("DEVELOPMENT_VERSION") + "\r\n";
+                    stringBuilder.append("\t//version = " + map.get("DEVELOPMENT_VERSION") + "\r\n");
                 } else if ("production".equals(type)) {
-                    message += "\t//version = " + map.get("PRODUCTION_VERSION") + "\r\n";
+                    stringBuilder.append("\t//version = " + map.get("PRODUCTION_VERSION") + "\r\n");
                 } else if ("test".equals(type)) {
-                    message += "\t//version = " + map.get("TEST_VERSION") + "\r\n";
+                    stringBuilder.append("\t//version = " + map.get("TEST_VERSION") + "\r\n");
                 } else if ("build".equals(type)) {
-                    message += "\t//version = " + map.get("BUILD_VALUE") + "\r\n";
+                    stringBuilder.append("\t//version = " + map.get("BUILD_VALUE") + "\r\n");
                 }
 
                 versionFlag = false;
@@ -708,22 +708,20 @@ public class ConfigServiceImpl implements ConfigService {
 
             String desc = (String) map.get("CONFIG_DESC");
             if (StringUtils.isNotBlank(desc)) {
-                message += "\t//" + desc + "\r\n";
+                stringBuilder.append("\t//" + desc + "\r\n");
             }
-
             if ("development".equals(type)) {
-                message += "\t'" + map.get("CONFIG_KEY") + "' => " + convertType(map.get("CONFIG_VALUE"));
+                stringBuilder.append("\t'" + map.get("CONFIG_KEY") + "' => " + convertType(map.get("CONFIG_VALUE")));
             } else if ("production".equals(type)) {
-                message += "\t'" + map.get("CONFIG_KEY") + "' => " + convertType(map.get("PRODUCTION_VALUE"));
+                stringBuilder.append("\t'" + map.get("CONFIG_KEY") + "' => " + convertType(map.get("PRODUCTION_VALUE")));
             } else if ("test".equals(type)) {
-                message += "\t'" + map.get("CONFIG_KEY") + "' => " + convertType(map.get("TEST_VALUE"));
+                stringBuilder.append("\t'" + map.get("CONFIG_KEY") + "' => " + convertType(map.get("TEST_VALUE")));
             } else if ("build".equals(type)) {
-                message += "\t'" + map.get("CONFIG_KEY") + "' => " + convertType(map.get("BUILD_VALUE"));
+                stringBuilder.append("\t'" + map.get("CONFIG_KEY") + "' => " + convertType(map.get("BUILD_VALUE")));
             }
         }
-        message += ");\r\n";
-
-        return message;
+        stringBuilder.append(");\r\n");
+        return stringBuilder.toString();
     }
 
     private String viewConfigJson(List<Map<String, Object>> configs, String type) {
@@ -928,5 +926,9 @@ public class ConfigServiceImpl implements ConfigService {
             }
         }
         return store;
+    }
+
+    public boolean checkConfigKeyExist(String configKey, int projectId){
+        return configDao.checkConfigKeyExist(configKey, projectId);
     }
 }

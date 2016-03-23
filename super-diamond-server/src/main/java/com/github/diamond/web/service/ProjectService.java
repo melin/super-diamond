@@ -52,4 +52,6 @@ public interface ProjectService {
     int queryCommonProjectId();
 
     int getProjectIdByProjectCode(String code);
+
+    boolean findProjCode(String projCode);
 }

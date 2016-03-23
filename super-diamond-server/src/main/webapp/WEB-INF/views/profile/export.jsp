@@ -229,7 +229,6 @@
                 success: function (data) {
                     jsonString = data;
                     document.location.href = '/superdiamond/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>';
-                    //document.location.href = 'redirect:/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>';
                 },
             });
             return jsonString;
@@ -249,7 +248,7 @@
                 $("#showConfigTip").text("模块不能为空");
             }
             else {
-                var URL = '/superdiamond/module/exportProperties/${type}/${projectId}/${sessionScope.sessionUser.userName}/' + moduleIds;
+                var URL = '/superdiamond/module/exportProperties/${type}/${projectId}/' + moduleIds;
                 var propertiesData = getProperties(URL);
                 exportProperties(propertiesData);
                 window.location.href = '/superdiamond/profile/${type}/${projectId}';

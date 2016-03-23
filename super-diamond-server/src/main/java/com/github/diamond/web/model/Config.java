@@ -35,6 +35,13 @@ public class Config {
         this.description = description;
     }
 
+    public Config(String key, String value, String description, boolean isShow) {
+        this.key = key;
+        this.value = value;
+        this.description = description;
+        this.isShow = isShow;
+    }
+
     public String getKey() {
         return key;
     }

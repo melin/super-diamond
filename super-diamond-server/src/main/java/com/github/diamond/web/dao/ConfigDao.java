@@ -36,4 +36,6 @@ public interface ConfigDao {
     List<Map<String, Object>> getExportConfig(int projectId, int moduleId, int configId, String type, String valueField);
 
     List<Map<String, Object>> queryCommonConfigs(int projectId, String type);
+
+    boolean checkConfigKeyExist(String configKey, int projectId);
 }
