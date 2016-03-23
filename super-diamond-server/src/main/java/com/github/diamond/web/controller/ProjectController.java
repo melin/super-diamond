@@ -66,17 +66,22 @@ public class ProjectController extends BaseController {
             session.setAttribute("project", project);
             session.setAttribute("message", "复制项目编码不正确");
         } else {
-            int userid = projectService.findUserId(project.getUserCode());
-            if (userid == 0) {
-                session.setAttribute("project", project);
-                session.setAttribute("message", "项目管理者不存在，请检查拼写是否正确");
-            } else {
-                project.setOwnerId(userid);
-                User user = (User) SessionHolder.getSession().getAttribute("sessionUser");
-                projectService.saveProject(project, copyCode, user, isCommon);
+            if(!projectService.findProjCode(project.getCode())) {
+                int userId = projectService.findUserId(project.getUserCode());
+                if (userId == 0) {
+                    session.setAttribute("project", project);
+                    session.setAttribute("message", "项目管理者不存在，请检查拼写是否正确");
+                } else {
+                    project.setOwnerId(userId);
+                    User user = (User) SessionHolder.getSession().getAttribute("sessionUser");
+                    projectService.saveProject(project, copyCode, user, isCommon);
 
-                session.setAttribute("message", "项目添加成功");
-                return "redirect:/project/index";
+                    session.setAttribute("message", "项目添加成功");
+                    return "redirect:/project/index";
+                }
+            }else {
+                session.setAttribute("project", project);
+                session.setAttribute("message", "项目编码已存在，请修改项目编码");
             }
         }
         return "redirect:/project/new";

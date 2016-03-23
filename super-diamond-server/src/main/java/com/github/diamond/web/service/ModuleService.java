@@ -1,8 +1,14 @@
 package com.github.diamond.web.service;
 
+import com.github.diamond.web.model.ConfigCheckResult;
+import com.github.diamond.web.model.ConfigExportData;
 import com.github.diamond.web.model.ModuleConfigId;
 import com.github.diamond.web.model.ModuleIdExist;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,5 +26,17 @@ public interface ModuleService {
 
     ModuleIdExist moduleIdIsExist(String moduleName, int projectId);
 
-    List<Map<String, Object>> getModuleConfigData(int projectId, int[] moduleIds, String type);
+    void fillConfigExportJsonData(int projectId, int[] moduleIds, String type, ConfigExportData configExportData);
+
+    String getConfigExportPropertiesInfo(int projectId, int[] moduleIds, String type);
+
+    ConfigExportData getExportData(MultipartFile file) throws IOException;
+
+    void getConfigCheckResult(MultipartFile file, int projectId, ConfigCheckResult checkResult) throws IOException;
+
+    String getHandlerResult(String checkId,int operation,int projectId,String type,
+                            HttpSession session,ConfigExportData exportData,
+                            HashMap<String, ConfigExportData> IMPORT_CONFIG_MAP);
+
+    boolean isExistModuleName(int projectId, String name);
 }

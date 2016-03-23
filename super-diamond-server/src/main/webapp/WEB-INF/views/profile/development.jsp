@@ -37,8 +37,8 @@
                     <input type="hidden" name="projectId" value='<c:out value="${projectId}"/>'/>
                     <input type="hidden" name="type" value='<c:out value="${type}"/>'/>
                     <input type="hidden" name="page" value='<c:out value="${currentPage}"/>'/>
-                    <input type="text" id="addModuleName" name="name" class="input-large"> <span id="addTip"
-                                                                                                 style="color: red"></span>
+                    <input type="text" id="addModuleName" name="name" class="input-large"><br/>
+                    <span id="addTip" style="color: red"></span>
                 </div>
             </div>
         </form>
@@ -557,6 +557,33 @@
         if (flag == "con") {
             $("#addConfig").click();
         }
+
+        var keyFlag = "<%= request.getParameter("keyExistFlag")%>";
+        var isShow = "<c:out value="${sessionScope.configObj.isShow}"/>";
+        if (keyFlag == "true") {
+            $("#config-moduleId").val("<c:out value="${sessionScope.moduleId}"/>")
+            $("#config-configKey").val("<c:out value="${sessionScope.configObj.key}"/>");
+            $("#config-configValue").val("<c:out value="${sessionScope.configObj.value}"/>");
+            $("#config-configDesc").val("<c:out value="${sessionScope.configObj.description}"/>");
+            if("<c:out value="${sessionScope.configObj.isShow}"/>" == "true") {
+                $("#config-isConceal").attr('checked', true);
+            }else{
+                $("#config-isConceal").attr('checked', false);
+            }
+            $("#configTip").text("Config Key在项目中已存在，请更改Config Key！");
+            $('#addConfigWin').modal({
+                backdrop: false
+            })
+        }
+
+        var moduleFlag = "<%= request.getParameter("moduleNameExistFlag")%>";
+        var moduleName = "<%= session.getAttribute("moduleName")%>";
+        if (moduleFlag == "true") {
+            $("#addModuleName").val(moduleName);
+            $("#addTip").text("添加模块名称在该项目中已存在，请修改模块名称！");
+            $("#addModule").click();
+        }
+
 
         $('#isDefaultConfig').change(function (e) {
             if ($('#isDefaultConfig').is(':checked')) {

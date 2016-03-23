@@ -41,5 +41,5 @@ public interface ConfigService {
 
     Map<String, String> replaceCommonConfigs(int projectId, String type, Map<String, String> commonCofigStore, String[] encryptPropNameArr);
 
-
+    boolean checkConfigKeyExist(String configKey, int projectId);
 }

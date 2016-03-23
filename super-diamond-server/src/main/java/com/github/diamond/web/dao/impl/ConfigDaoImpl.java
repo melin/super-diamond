@@ -200,13 +200,10 @@ public class ConfigDaoImpl implements ConfigDao {
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void insertConfig(String configKey, String configValue, String configDesc, boolean isShow, int projectId, int moduleId, String user) {
         String sql = "SELECT MAX(CONFIG_ID)+1 FROM CONF_PROJECT_CONFIG";
-        int id = -1;
-        try {
-            id = jdbcTemplate.queryForObject(sql, Integer.class);
-        } catch (NullPointerException e) {
-            ;
+        Integer id = jdbcTemplate.queryForObject(sql, Integer.class);
+        if(id == null){
+            id = 1;
         }
-
         sql = "INSERT INTO CONF_PROJECT_CONFIG(CONFIG_ID,CONFIG_KEY,CONFIG_VALUE,"
                 + "CONFIG_DESC,IS_SHOW,PROJECT_ID,MODULE_ID,DELETE_FLAG,OPT_USER,OPT_TIME,"
                 + "PRODUCTION_VALUE,PRODUCTION_USER,PRODUCTION_TIME,TEST_VALUE,TEST_USER,"
@@ -296,5 +293,9 @@ public class ConfigDaoImpl implements ConfigDao {
         return allConfigList;
     }
 
-
+    public boolean checkConfigKeyExist(String configKey, int projectId){
+        String sql = "SELECT count(*) FROM CONF_PROJECT_CONFIG WHERE PROJECT_ID = ? AND CONFIG_KEY =?";
+        int num = jdbcTemplate.queryForObject(sql,Integer.class,projectId,configKey);
+        return num > 0;
+    }
 }

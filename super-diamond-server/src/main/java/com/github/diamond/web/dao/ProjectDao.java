@@ -52,4 +52,6 @@ public interface ProjectDao {
 
     int findUserId(String userCode);
 
+    boolean findProjCode(String projCode);
+
 }

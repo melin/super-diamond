@@ -96,4 +96,8 @@ public class UserServiceImpl implements UserService {
             return user;
         }
     }
+
+    public boolean checkUserCodeExist(String userCode){
+        return userDao.checkUserCodeExist(userCode);
+    }
 }

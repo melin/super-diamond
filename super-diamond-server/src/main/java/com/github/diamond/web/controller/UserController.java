@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 
@@ -41,9 +42,15 @@ public class UserController extends BaseController {
     }
 
     @RequestMapping(value = "/user/save", method = {RequestMethod.POST})
-    public String saveUser(User user, String repassword, HttpSession session) {
-        user.setPassword(MD5.getInstance().getMD5String(user.getPassword()));
-        userService.saveUser(user);
+    public String saveUser(User user, String repassword, HttpServletRequest httpServletRequest) {
+        boolean ret = userService.checkUserCodeExist(user.getUserCode());
+        if(ret) {
+            httpServletRequest.getSession().setAttribute("user", user);
+            return "redirect:/user/new" + "?userExistFlag=" +ret;
+        }else {
+            user.setPassword(MD5.getInstance().getMD5String(user.getPassword()));
+            userService.saveUser(user);
+        }
         return "redirect:/user/index";
     }
 

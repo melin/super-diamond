@@ -6,6 +6,7 @@ package com.github.diamond.web.controller;
 
 import com.github.diamond.netty.DiamondServerHandler;
 import com.github.diamond.utils.SessionHolder;
+import com.github.diamond.web.model.Config;
 import com.github.diamond.web.model.User;
 import com.github.diamond.web.service.ConfigService;
 import com.github.diamond.web.service.ModuleService;
@@ -27,6 +28,7 @@ import java.io.PrintWriter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 
 /**
@@ -63,10 +65,22 @@ public class ConfigController extends BaseController {
                              String configKey, String configValue,
                              String configDesc, boolean isConceal, int projectId, int moduleId,
                              @RequestParam(defaultValue = "-1") int selModuleId, int page,
-                             @RequestParam(defaultValue = "") String flag) {
+                             @RequestParam(defaultValue = "") String flag,
+                             HttpServletRequest request) throws IOException {
         User user = (User) SessionHolder.getSession().getAttribute("sessionUser");
         if (configId == -1) {
-            configService.insertConfig(configKey, configValue, configDesc, !isConceal, projectId, moduleId, user.getUserCode());
+            boolean ret = configService.checkConfigKeyExist(configKey, projectId);
+            if(!ret) {
+                configService.insertConfig(configKey, configValue, configDesc, !isConceal, projectId, moduleId, user.getUserCode());
+            }else {
+                request.getSession().setAttribute("moduleId",moduleId);
+                request.getSession().setAttribute("configObj", new Config(configKey, configValue, configDesc,isConceal));
+                if (selModuleId != -1) {
+                    return "redirect:/profile/" + type + "/" + projectId + "?moduleId=" + selModuleId + "&flag=" + flag + "&keyExistFlag=" + ret;
+                } else {
+                    return "redirect:/profile/" + type + "/" + projectId + "?page=" + page + "&flag=" + flag + "&keyExistFlag=" + ret;
+                }
+            }
         } else {
             configService.updateConfig(type, configId, configKey, configValue, configDesc, !isConceal, projectId, moduleId, user.getUserCode());
         }

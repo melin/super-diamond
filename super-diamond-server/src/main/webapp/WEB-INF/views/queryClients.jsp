@@ -15,20 +15,20 @@
     </thead>
     <tbody>
     <c:forEach items="${clients}" var="client">
-        <tr>
-            <td>
-                <c:out value="${client.projcode}"/>
-            </td>
-            <td>
-                <c:out value="${client.profile}"/>
-            </td>
-            <td>
-                <c:out value="${client.address}"/>
-            </td>
-            <td>
-                <c:out value="${client.connectTime}"/>
-            </td>
-        </tr>
+        <tr  style="background: red">
+        <td>
+            <c:out value="${client.projcode}"/>
+        </td>
+        <td>
+            <c:out value="${client.profile}"/>
+        </td>
+        <td>
+            <c:out value="${client.address}"/>
+        </td>
+        <td>
+            <c:out value="${client.connectTime}"/>
+        </td>
+    </tr>
     </c:forEach>
     </tbody>
 </table>

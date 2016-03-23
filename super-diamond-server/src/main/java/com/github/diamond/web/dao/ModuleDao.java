@@ -22,4 +22,6 @@ public interface ModuleDao {
     List<Integer> getModuleIdList(String moduleName, int projectId);
 
     List<Map<String, Object>> getModuleConfigData(int projectId, int[] moduleIds, String type);
+
+    boolean isExistModuleName(int projectId, String name);
 }

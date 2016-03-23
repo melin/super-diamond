@@ -45,7 +45,10 @@ public class UserDaoImpl implements UserDao {
     @Transactional
     public void saveUser(User user) {
         String sql = "SELECT MAX(id)+1 FROM CONF_USER";
-        int id = jdbcTemplate.queryForObject(sql, Integer.class);
+        Integer id = jdbcTemplate.queryForObject(sql, Integer.class);
+        if(id == null){
+            id = 1;
+        }
         sql = "insert into CONF_USER (ID, USER_CODE, USER_NAME, PASSWORD, CREATE_TIME) "
                 + "values (?, ?, ?, ?, ?)";
 
@@ -90,5 +93,11 @@ public class UserDaoImpl implements UserDao {
             user.setUserName(rs.getString(3));
             return user;
         }
+    }
+
+    public boolean checkUserCodeExist(String userCode){
+        String sql = "SELECT count(*) FROM CONF_USER WHERE USER_CODE = ?";
+        int num = jdbcTemplate.queryForObject(sql,Integer.class,userCode);
+        return num > 0;
     }
 }

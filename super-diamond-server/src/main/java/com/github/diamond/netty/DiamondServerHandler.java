@@ -35,7 +35,7 @@ public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
     public static ConcurrentHashMap<ClientKey /*projcode+profile*/, List<ClientInfo>/*client address*/> clients =
             new ConcurrentHashMap<ClientKey, List<ClientInfo>>();
 
-    private ConcurrentHashMap<String /*client address*/, ChannelHandlerContext> channels =
+    public static ConcurrentHashMap<String /*client address*/, ChannelHandlerContext> channels =
             new ConcurrentHashMap<String, ChannelHandlerContext>();
 
     private static final Logger logger = LoggerFactory.getLogger(DiamondServerHandler.class);
