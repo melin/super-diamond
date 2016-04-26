@@ -33,7 +33,7 @@ public class ProjectService {
 	private ConfigService configService;
 	
 	public List<Project> queryProjects(User user, int offset, int limit) {
-		String sql = "SELECT b.ID, b.PROJ_CODE, b.PROJ_NAME, a.USER_NAME, b.OWNER_ID FROM CONF_USER a, CONF_PROJECT b " +
+		String sql = "SELECT b.ID, b.PROJ_CODE, b.PROJ_NAME, a.USER_NAME, b.OWNER_ID FROM conf_user a, conf_project b " +
 				"WHERE a.ID=b.OWNER_ID AND b.DELETE_FLAG = 0 ";
 		
 		if(!"admin".equals(user.getUserCode())) {
@@ -45,7 +45,7 @@ public class ProjectService {
 	}
 	
 	public Long queryProjectCount(User user) {
-		String sql = "SELECT count(*) FROM CONF_USER a, CONF_PROJECT b " +
+		String sql = "SELECT count(*) FROM conf_user a, conf_project b " +
 				"WHERE a.ID=b.OWNER_ID AND b.DELETE_FLAG = 0 ";
 		
 		if(!"admin".equals(user.getUserCode())) {
@@ -57,7 +57,7 @@ public class ProjectService {
 	
 	public long findUserId(String userCode) {
 		try {
-			String sql = "SELECT ID FROM CONF_USER WHERE USER_CODE = ?";
+			String sql = "SELECT ID FROM conf_user WHERE USER_CODE = ?";
 			long userid = jdbcTemplate.queryForObject(sql, new Object[]{userCode}, Long.class);
 			return userid;
 		} catch(DataAccessException e) {
@@ -89,7 +89,7 @@ public class ProjectService {
 		} catch(NullPointerException e) {
 			;
 		}
-		sql = "insert into CONF_PROJECT (ID, PROJ_CODE, PROJ_NAME, OWNER_ID, CREATE_TIME) values (?, ?, ?, ?, ?)";
+		sql = "insert into conf_project (ID, PROJ_CODE, PROJ_NAME, OWNER_ID, CREATE_TIME) values (?, ?, ?, ?, ?)";
 		
 		jdbcTemplate.update(sql, projId, project.getCode(), project.getName(), project.getOwnerId(), new Date());
 		this.saveUser(projId, project.getOwnerId(), "development", "test", "build", "production", "admin");
@@ -101,7 +101,7 @@ public class ProjectService {
 	
 	@Transactional
 	public void deleteProject(long id) {
-		String sql = "update CONF_PROJECT set DELETE_FLAG = 1 where id = ?";
+		String sql = "update conf_project set DELETE_FLAG = 1 where id = ?";
 		jdbcTemplate.update(sql, id);
 	}
 	
@@ -141,10 +141,10 @@ public class ProjectService {
 	
 	@Transactional
 	public void saveUser(long projectId, long userId, String development, String test, String build, String production, String admin) {
-		String sql = "insert into CONF_PROJECT_USER (PROJ_ID, USER_ID) values (?, ?)";
+		String sql = "insert into conf_project_user (PROJ_ID, USER_ID) values (?, ?)";
 		jdbcTemplate.update(sql, projectId, userId);
 		
-		sql = "insert into CONF_PROJECT_USER_ROLE (PROJ_ID, USER_ID, ROLE_CODE) values (?, ?, ?)";
+		sql = "insert into conf_project_user_role (PROJ_ID, USER_ID, ROLE_CODE) values (?, ?, ?)";
 		if(StringUtils.isNotBlank(admin)) {
 			jdbcTemplate.update(sql, projectId, userId, "admin");
 			//如果拥有admin权限，自动添加development、test、build、production
@@ -169,9 +169,9 @@ public class ProjectService {
 	
 	@Transactional
 	public void deleteUser(long projectId, long userId) {
-		String sql = "delete from CONF_PROJECT_USER_ROLE where PROJ_ID = ? and USER_ID = ?";
+		String sql = "delete from conf_project_user_role where PROJ_ID = ? and USER_ID = ?";
 		jdbcTemplate.update(sql, projectId, userId);
-		sql = "delete from CONF_PROJECT_USER where PROJ_ID = ? and USER_ID = ?";
+		sql = "delete from conf_project_user where PROJ_ID = ? and USER_ID = ?";
 		jdbcTemplate.update(sql, projectId, userId);
 	}
 	
@@ -182,7 +182,7 @@ public class ProjectService {
 	 */
 	public List<Project> queryProjectForUser(User user, int offset, int limit) {
 		if("admin".equals(user.getUserCode())) {
-			String sql = "SELECT distinct b.ID, b.PROJ_CODE, b.PROJ_NAME FROM CONF_PROJECT_USER a, CONF_PROJECT b " +
+			String sql = "SELECT distinct b.ID, b.PROJ_CODE, b.PROJ_NAME FROM conf_project_user a, conf_project b " +
 					"WHERE a.PROJ_ID = b.ID AND b.DELETE_FLAG = 0 order by b.ID desc limit ?, ?";
 			List<Project> projects = jdbcTemplate.query(sql, new RowMapper<Project>() {
 	
@@ -197,7 +197,7 @@ public class ProjectService {
 			}, offset, limit);
 			return projects;
 		} else {
-			String sql = "SELECT distinct b.ID, b.PROJ_CODE, b.PROJ_NAME FROM CONF_PROJECT_USER a, CONF_PROJECT b " +
+			String sql = "SELECT distinct b.ID, b.PROJ_CODE, b.PROJ_NAME FROM conf_project_user a, conf_project b " +
 					"WHERE a.PROJ_ID = b.ID and a.USER_ID=? AND b.DELETE_FLAG = 0 order by b.ID desc limit ?, ?";
 			List<Project> projects = jdbcTemplate.query(sql, new RowMapper<Project>() {
 	
@@ -221,11 +221,11 @@ public class ProjectService {
 	 */
 	public long queryProjectCountForUser(User user) {
 		if("admin".equals(user.getUserCode())) {
-			String sql = "select count(*) from (SELECT distinct b.ID FROM CONF_PROJECT_USER a, CONF_PROJECT b " +
+			String sql = "select count(*) from (SELECT distinct b.ID FROM conf_project_user a, conf_project b " +
 					"WHERE a.PROJ_ID = b.ID AND b.DELETE_FLAG = 0) as proj";
 			return jdbcTemplate.queryForObject(sql, Long.class);
 		} else {
-			String sql = "select count(*) from (SELECT distinct b.ID FROM CONF_PROJECT_USER a, CONF_PROJECT b " +
+			String sql = "select count(*) from (SELECT distinct b.ID FROM conf_project_user a, conf_project b " +
 					"WHERE a.PROJ_ID = b.ID and a.USER_ID=? AND b.DELETE_FLAG = 0) as proj";
 			return jdbcTemplate.queryForObject(sql, Long.class, user.getId());
 		}
@@ -237,7 +237,7 @@ public class ProjectService {
 	 */
 	@Transactional
 	public void updateVersion(Long projectId) {
-		String sql = "update CONF_PROJECT set DEVELOPMENT_VERSION=DEVELOPMENT_VERSION+1,PRODUCTION_VERSION=PRODUCTION_VERSION+1," +
+		String sql = "update conf_project set DEVELOPMENT_VERSION=DEVELOPMENT_VERSION+1,PRODUCTION_VERSION=PRODUCTION_VERSION+1," +
 				"TEST_VERSION=TEST_VERSION+1 where ID=?";
 		jdbcTemplate.update(sql, projectId);
 	}
@@ -249,19 +249,19 @@ public class ProjectService {
 	@Transactional
 	public void updateVersion(Long projectId, String type) {
 		if("development".equals(type)) {
-			String sql = "update CONF_PROJECT set DEVELOPMENT_VERSION=DEVELOPMENT_VERSION+1 where ID=?";
+			String sql = "update conf_project set DEVELOPMENT_VERSION=DEVELOPMENT_VERSION+1 where ID=?";
 			jdbcTemplate.update(sql, projectId);
 		} else if("production".equals(type)) {
-			String sql = "update CONF_PROJECT set PRODUCTION_VERSION=PRODUCTION_VERSION+1 where ID=?";
+			String sql = "update conf_project set PRODUCTION_VERSION=PRODUCTION_VERSION+1 where ID=?";
 			jdbcTemplate.update(sql, projectId);
 		} else if("test".equals(type)) {
-			String sql = "update CONF_PROJECT set TEST_VERSION=TEST_VERSION+1 where ID=?";
+			String sql = "update conf_project set TEST_VERSION=TEST_VERSION+1 where ID=?";
 			jdbcTemplate.update(sql, projectId);
 		}
 	}
 	
 	public 	Map<String, Object> queryProject(Long projectId) {
-		String sql = "select * from CONF_PROJECT where ID=?";
+		String sql = "select * from conf_project where ID=?";
 		return jdbcTemplate.queryForMap(sql, projectId);
 	}
 	
