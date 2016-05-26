@@ -5,6 +5,7 @@ package com.github.diamond.client;
 
 import java.io.IOException;
 
+import com.iflytek.cycore.usercenter.common.AppConfig;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -22,6 +23,7 @@ public class PropertiesConfigurationFactoryBeanTest {
 		ApplicationContext applicationContext = new ClassPathXmlApplicationContext("bean.xml");
 		DatasourceTest datasourceTest = (DatasourceTest)applicationContext.getBean("datasourceTest");
 		datasourceTest.getUrl();
+		AppConfig appConfig = (AppConfig)applicationContext.getBean("AppConfig");
 		PropertiesConfiguration configuration = PropertiesConfigurationFactoryBean.getPropertiesConfiguration();
 		configuration.addConfigurationListener(new ConfigurationListener() {
 	        @Override
@@ -30,6 +32,7 @@ public class PropertiesConfigurationFactoryBeanTest {
 	            System.out.println(event.getType().name() + " " + event.getPropertyName() + " " + event.getPropertyValue());
 	        }
 	    });
+		System.in.read();
 	}
 
 }

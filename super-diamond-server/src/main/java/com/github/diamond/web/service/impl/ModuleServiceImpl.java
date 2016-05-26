@@ -66,8 +66,8 @@ public class ModuleServiceImpl implements ModuleService {
         return moduleDao.delete(moduleId, projectId);
     }
 
-    public ModuleConfigId moduleConfigIdIsExist(String configName, String moduleName, int projectId) {
-        return moduleDao.moduleConfigIdIsExist(configName, moduleName, projectId);
+    public ModuleConfigId configIdIsExist(String configName, String moduleName, int projectId) {
+        return moduleDao.configIdIsExist(configName, moduleName, projectId);
     }
 
 
@@ -112,7 +112,7 @@ public class ModuleServiceImpl implements ModuleService {
         }
     }
 
-    public String getConfigExportPropertiesInfo(int projectId, int[] moduleIds, String type){
+    public String getConfigExportPropertiesInfo(int projectId, int[] moduleIds, String type) {
         StringBuilder stringBuilder = new StringBuilder();
         List<Map<String, Object>> getModuleData = moduleDao.getModuleConfigData(projectId, moduleIds, type);
         for (int i = 0; i < moduleIds.length; i++) {
@@ -122,7 +122,7 @@ public class ModuleServiceImpl implements ModuleService {
                     if (!(getModuleData.get(j).get("MODULE_NAME").toString().equals(moduleName))) {
                         stringBuilder.append("\n");
                         moduleName = getModuleData.get(j).get("MODULE_NAME").toString();
-                        stringBuilder.append("\n" + "#ModuleName : " + moduleName);
+                        stringBuilder.append("\n" + "#ModuleName:" + moduleName);
                     }
                     if ("development".equals(type)) {
                         if (StringUtils.isNotBlank(String.valueOf(getModuleData.get(j).get("CONFIG_DESC")))) {
@@ -260,70 +260,74 @@ public class ModuleServiceImpl implements ModuleService {
         return exportData;
     }
 
-    public void getConfigCheckResult(MultipartFile file, int projectId, ConfigCheckResult checkResult) throws IOException {
-        if (file.isEmpty()) {
-            checkResult.setCheckSuccess(0);
-            checkResult.setMessage("导入的文件为空");
-        }else {
-            ConfigExportData exportData = getExportData(file);
-            List<Map<String, String>> saveRepeatData = new ArrayList<>();
-            ArrayList<Module> modules = exportData.getModules();
-            User user = (User) SessionHolder.getSession().getAttribute("sessionUser");
-
+    public void getConfigCheckResult(ConfigExportData exportData, MultipartFile file, String type, int projectId, ConfigCheckResult checkResult) throws IOException {
+        List<Map<String, String>> saveRepeatData = new ArrayList<>();
+        ArrayList<Module> modules = exportData.getModules();
+        User user = (User) SessionHolder.getSession().getAttribute("sessionUser");
+        ArrayList<Module> moduleTmpList = new ArrayList<>();
+        //如果该配置已经存在,将重复的数据添加到saveRepeatData变量中
+        for (Module moduleTmp : modules) {
+            ArrayList<Config> configs = moduleTmp.getConfigs();
+            String moduleName = moduleTmp.getName();          //得到模型name
+            for (Config configTmp : configs) {
+                String configKey = configTmp.getKey();
+                ModuleConfigId moduleConfigId = configIdIsExist(configKey, moduleName, projectId);
+                if (moduleConfigId.isExist()) {
+                    ModuleIdExist moduleIdExist = moduleIdIsExist(moduleName, projectId);
+                    if (moduleIdExist.isExist() && moduleIdExist.getModuleId() == moduleConfigId.getModuleId()) {
+                        Map<String, String> singleRepeatData = new HashMap<>();
+                        singleRepeatData.put(moduleName, configKey);
+                        saveRepeatData.add(singleRepeatData);
+                    } else {
+                        String moduleNameTemp = findName(moduleConfigId.getModuleId());
+                        Map<String, String> singleRepeatData = new HashMap<>();
+                        singleRepeatData.put(moduleNameTemp, configKey);
+                        saveRepeatData.add(singleRepeatData);
+                        Module repeatModule = new Module(moduleNameTemp);
+                        ArrayList<Config> configListTemp = new ArrayList<>();
+                        configListTemp.add(configTmp);
+                        repeatModule.setConfigs(configListTemp);
+                        moduleTmpList.add(repeatModule);
+                    }
+                }
+            }
+        }
+        exportData.getModules().addAll(moduleTmpList);
+        if (saveRepeatData.size() != 0) {
+            String message = "重复的配置信息如下：" + "\n";
+            for (Map<String, String> m : saveRepeatData) {
+                for (String key : m.keySet()) {
+                    message += ("模块名：" + key + "\t" + "配置名：" + m.get(key) + "\t" + "\n");
+                }
+            }
+            checkResult.setCheckSuccess(1);
+            checkResult.setMessage(message);
+        } else {
             for (Module moduleTmp : modules) {
                 ArrayList<Config> configs = moduleTmp.getConfigs();
                 String moduleName = moduleTmp.getName();          //得到模型name
                 for (Config configTmp : configs) {
                     String configKey = configTmp.getKey();
-                    ModuleConfigId moduleConfigId = moduleConfigIdIsExist(configKey, moduleName, projectId);
-                    if (moduleConfigId.isExist()) { //该模型与配置已经存在,将重复的数据添加到saveRepeatData变量中
-                        Map<String, String> singleRepeatData = new HashMap<>();
-
-                        singleRepeatData.put(moduleName, configKey);
-                        saveRepeatData.add(singleRepeatData);
-                        //configService.updateConfig(type, moduleConfigId.getProjectId(), configKey, configValue, configDesc,
-                        // projectId, moduleConfigId.getModuleId(), user.getUserCode());
-                    }  //该模型与配置还不存在
-                    //configService.insertConfig(configKey, configValue, configDesc, projectId,
-                    // moduleConfigId.getModuleId(), user.getUserCode());
-                }
-            }
-            if (saveRepeatData.size() != 0) {
-                String message = "重复的配置信息如下：" + "\n";
-                for (Map<String, String> m : saveRepeatData) {
-                    for (String key : m.keySet()) {
-                        message += ("模块名：" + key + "\t" + "配置名：" + m.get(key) + "\t" + "\n");
+                    String configValue = configTmp.getValue();
+                    String configDesc = configTmp.getDescription();
+                    ModuleIdExist moduleIdExist = moduleIdIsExist(moduleName, projectId);
+                    if (moduleIdExist.isExist()) {
+                        configDao.insertConfig(configKey, configValue, configDesc, configTmp.getIsShow(),
+                                projectId, moduleIdExist.getModuleId(), user.getUserCode());
+                    } else {
+                        int moduleId = moduleDao.save(projectId, moduleName);
+                        configDao.insertConfig(configKey, configValue, configDesc, configTmp.getIsShow(),
+                                projectId, moduleId, user.getUserCode());
                     }
                 }
-                checkResult.setCheckSuccess(1);
-                checkResult.setMessage(message);
-            } else {
-                for (Module moduleTmp : modules) {
-                    ArrayList<Config> configs = moduleTmp.getConfigs();
-                    String moduleName = moduleTmp.getName();          //得到模型name
-                    for (Config configTmp : configs) {
-                        String configKey = configTmp.getKey();
-                        String configValue = configTmp.getValue();
-                        String configDesc = configTmp.getDescription();
-                        ModuleIdExist moduleIdExist = moduleIdIsExist(moduleName, projectId);
-                        if (moduleIdExist.isExist()) {
-                            configDao.insertConfig(configKey, configValue, configDesc, configTmp.getIsShow(),
-                                    projectId, moduleIdExist.getModuleId(), user.getUserCode());
-                        } else {
-                            int moduleId = moduleDao.save(projectId, moduleName);
-                            configDao.insertConfig(configKey, configValue, configDesc, configTmp.getIsShow(),
-                                    projectId, moduleId, user.getUserCode());
-                        }
-                    }
-                }
-                checkResult.setCheckSuccess(2);
             }
+            checkResult.setCheckSuccess(2);
         }
     }
 
-    public String getHandlerResult(String checkId ,int operation,int projectId,String type,
-                            HttpSession session,ConfigExportData exportData,
-                            HashMap<String, ConfigExportData> IMPORT_CONFIG_MAP){
+    public String getHandlerResult(String checkId, int operation, int projectId, String type,
+                                   HttpSession session, ConfigExportData exportData,
+                                   HashMap<String, ConfigExportData> IMPORT_CONFIG_MAP) {
         User user = (User) SessionHolder.getSession().getAttribute("sessionUser");
         if (exportData == null) {
             return "error: import data is null";
@@ -337,9 +341,10 @@ public class ModuleServiceImpl implements ModuleService {
                         String configKey = config.getKey();
                         String configValue = config.getValue();
                         String configDesc = config.getDescription();
-                        ModuleConfigId moduleConfigId = moduleConfigIdIsExist(configKey, moduleName, projectId);
+                        ModuleConfigId moduleConfigId = configIdIsExist(configKey, moduleName, projectId);
                         ModuleIdExist moduleIdExist = moduleIdIsExist(moduleName, projectId);
-                        if (!moduleConfigId.isExist()) { //找出不存在的配置，执行插入操作
+                        //找出不存在的配置，执行插入操作
+                        if (!moduleConfigId.isExist()) {
                             if (moduleIdExist.isExist()) {
                                 configDao.insertConfig(configKey, configValue, configDesc, config.getIsShow(),
                                         projectId, moduleIdExist.getModuleId(), user.getUserCode());
@@ -363,7 +368,7 @@ public class ModuleServiceImpl implements ModuleService {
                         String configKey = config.getKey();
                         String configValue = config.getValue();
                         String configDesc = config.getDescription();
-                        ModuleConfigId moduleConfigId = moduleConfigIdIsExist(configKey, moduleName, projectId);
+                        ModuleConfigId moduleConfigId = configIdIsExist(configKey, moduleName, projectId);
                         ModuleIdExist moduleIdExist = moduleIdIsExist(moduleName, projectId);
                         if (moduleConfigId.isExist()) {
                             configDao.updateConfig(type, moduleConfigId.getConfigId(), configKey, configValue,
@@ -391,8 +396,7 @@ public class ModuleServiceImpl implements ModuleService {
         }
     }
 
-    public boolean isExistModuleName(int projectId, String name){
-       return moduleDao.isExistModuleName(projectId, name);
+    public boolean isExistModuleName(int projectId, String name) {
+        return moduleDao.isExistModuleName(projectId, name);
     }
-
 }

@@ -48,7 +48,13 @@ public class ProjectController extends BaseController {
     }
 
     @RequestMapping("/project/new")
-    public void newProject() {
+    public void newProject(ModelMap modelMap) {
+        int id = projectService.queryCommonProjectId();
+        if(id != -1){
+            modelMap.addAttribute("commonProjectExistFlag",false);
+        }else {
+            modelMap.addAttribute("commonProjectExistFlag",true);
+        }
     }
 
     @RequestMapping(value = "/project/save", method = {RequestMethod.POST})
@@ -118,7 +124,7 @@ public class ProjectController extends BaseController {
                            String build, String production, String admin, HttpSession session) {
         if (StringUtils.isBlank(development) && StringUtils.isBlank(test) && StringUtils.isBlank(build)
                 && StringUtils.isBlank(production) && StringUtils.isBlank(admin)) {
-            session.setAttribute("message", "请选择用户角色");
+            session.setAttribute("message", "请选择用户权限");
         } else {
             projectService.saveUser(projectId, userId, development, test, build, production, admin);
         }

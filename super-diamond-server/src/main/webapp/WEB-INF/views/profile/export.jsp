@@ -142,8 +142,7 @@
                             $('#multi-choose').modal({
                                 backdrop: true
                             })
-                        }
-                        else if (data['checkSuccess'] == 2) {
+                        } else if (data['checkSuccess'] == 2) {
                             window.location.href = '/superdiamond/profile/${type}/${projectId}';
                         }
                         else {
@@ -220,14 +219,15 @@
         });
 
         function getJson(URL) {
+            debugger
             var jsonString = null;
             $.ajax({
                 type: "get",
                 async: false,
                 url: URL,
-                dataType: "json",
+                dataType: "text",
                 success: function (data) {
-                    jsonString = data;
+                    jsonString = decodeURIComponent(data);;
                     document.location.href = '/superdiamond/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>';
                 },
             });
@@ -235,7 +235,8 @@
         }
 
         function exportJson(jsonString) {
-            var jsonF = JSON.stringify(jsonString, null, 2);
+            var jsonStr = JSON.parse(jsonString);
+            var jsonF = JSON.stringify(jsonStr, null, 2);
             var jsonFormat = [jsonF];
             var blob = new Blob(jsonFormat, {type: 'application/json'});
             var name = document.getElementById("projectName").value.toString();
@@ -256,6 +257,7 @@
         });
 
         function getProperties(URL) {
+            debugger
             var propertiesString = null;
             $.ajax({
                 type: "get",
@@ -264,7 +266,7 @@
                 dataType: "text",
                 success: function (data) {
                     document.location.href = '/superdiamond/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>';
-                    propertiesString = data;
+                    propertiesString =decodeURIComponent(data);
                     //document.location.href = 'redirect:/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>';
                 },
             });

@@ -40,17 +40,17 @@
 <script type="text/javascript">
     $(document).ready(function () {
         $("#save").click(function (e) {
-            $("#userCodeTip, #userNameTips, #passwordTip, #repasswordTip").text("");
+            $("#userCodeTip, #userNameTip, #passwordTip, #repasswordTip").text("");
 
-            if (!$("#userCode").val()) {
+            if (!$("#userCode").val().trim()) {
                 $("#userCodeTip").text("登录账号不能为空");
-            } else if (!$("#userName").val()) {
+            } else if (!$("#userName").val().trim()) {
                 $("#userNameTip").text("用户名不能为空");
-            } else if (!$("#password").val()) {
+            } else if (!$("#password").val().trim()) {
                 $("#passwordTip").text("密码不能为空");
             } else if ($("#password").val().length < 6) {
                 $("#passwordTip").text("密码长度不能小于6");
-            } else if (!$("#repassword").val()) {
+            } else if (!$("#repassword").val().trim()) {
                 $("#repasswordTip").text("密码确认不能为空");
             } else if ($("#repassword").val() != $("#password").val()) {
                 $("#repasswordTip").text("两次输入密码不一致");

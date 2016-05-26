@@ -11,7 +11,7 @@ import java.util.Map;
 public interface ConfigService {
     List<Map<String, Object>> queryConfigs(int projectId, String type, int moduleId, int offset, int limit, boolean isShow);
 
-    int queryConfigCount(int projectId, int moduleId);
+    int queryConfigCount(int projectId, int moduleId, boolean isShow);
 
     String queryConfigs(String projectCode, String type, String format);
 
@@ -37,9 +37,13 @@ public interface ConfigService {
 
     Map<String, String> getCommonConfigMap(int projectId, String type);
 
-    Map<String, String> replaceCommonConfigs(int projectId, String type, Map<String, String> commonCofigStore);
+    Map<String, String> getCommonConfigMap(int projectId, String type, String[] encryptPropNameArr);
 
-    Map<String, String> replaceCommonConfigs(int projectId, String type, Map<String, String> commonCofigStore, String[] encryptPropNameArr);
+    Map<String, String> replaceByCommonConfigs(int projectId, String type, Map<String, String> commonCofigStore);
+
+    Map<String, String> replaceByCommonConfigs(int projectId, String type, Map<String, String> commonCofigStore, String[] encryptPropNameArr);
 
     boolean checkConfigKeyExist(String configKey, int projectId);
+
+    Map<String,Object> queryConfigByConfigId(int configId);
 }

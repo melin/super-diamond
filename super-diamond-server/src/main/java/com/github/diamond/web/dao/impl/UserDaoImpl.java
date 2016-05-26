@@ -96,7 +96,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     public boolean checkUserCodeExist(String userCode){
-        String sql = "SELECT count(*) FROM CONF_USER WHERE USER_CODE = ?";
+        String sql = "SELECT count(*) FROM CONF_USER WHERE USER_CODE = ? AND DELETE_FLAG = 0";
         int num = jdbcTemplate.queryForObject(sql,Integer.class,userCode);
         return num > 0;
     }

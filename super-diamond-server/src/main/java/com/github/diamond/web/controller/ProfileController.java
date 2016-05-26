@@ -45,7 +45,7 @@ public class ProfileController extends BaseController {
         modelMap.addAttribute("moduleId", moduleId);
         modelMap.addAttribute("project", projectService.queryProject(projectId));
 
-        long recordCount = configService.queryConfigCount(projectId, moduleId);
+        long recordCount = configService.queryConfigCount(projectId, moduleId, isShow);
         modelMap.addAttribute("totalPages", PageUtil.pageCount(recordCount, recordLimit));
         modelMap.addAttribute("currentPage", page);
         modelMap.addAttribute("isShow", isShow);

@@ -55,7 +55,7 @@ public class ModuleDaoImpl implements ModuleDao {
         }
     }
 
-    @Transactional
+   /* @Transactional
     public ModuleConfigId moduleConfigIdIsExist(String configName, String moduleName, int projectId) {
         List<Integer> moduleIds = null;
         boolean isExist = false;
@@ -81,6 +81,21 @@ public class ModuleDaoImpl implements ModuleDao {
                 configId = configs.get(0);
             }
             return new ModuleConfigId(isExist, configId, moduleId);
+        } else {
+            return new ModuleConfigId(isExist, configId, moduleId);
+        }
+    }*/
+
+    @Transactional
+    public ModuleConfigId configIdIsExist(String configName, String moduleName, int projectId) {
+        boolean isExist = false;
+        Integer configId = -1;
+        Integer moduleId = -1;
+        String querySql = "select CONFIG_ID, MODULE_ID from CONF_PROJECT_CONFIG where PROJECT_ID=? and CONFIG_KEY=? and DELETE_FLAG=0";
+        List<Map<String,Object>> configList = jdbcTemplate.queryForList(querySql, projectId, configName);
+        if(configList.size() != 0){
+            isExist = true;
+            return new ModuleConfigId(isExist, (int)configList.get(0).get("CONFIG_ID"), (int)configList.get(0).get("MODULE_ID"));
         } else {
             return new ModuleConfigId(isExist, configId, moduleId);
         }

@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -82,7 +83,24 @@ public class ConfigController extends BaseController {
                 }
             }
         } else {
-            configService.updateConfig(type, configId, configKey, configValue, configDesc, !isConceal, projectId, moduleId, user.getUserCode());
+            Map<String,Object> config = configService.queryConfigByConfigId(configId);
+            if(configKey.equals(config.get("CONFIG_KEY"))){
+                configService.updateConfig(type, configId, configKey, configValue, configDesc, !isConceal, projectId, moduleId, user.getUserCode());
+            }else {
+                boolean ret = configService.checkConfigKeyExist(configKey, projectId);
+                if(!ret) {
+                    configService.updateConfig(type, configId, configKey, configValue, configDesc, !isConceal, projectId, moduleId, user.getUserCode());
+                }else {
+                    request.getSession().setAttribute("moduleId",moduleId);
+                    request.getSession().setAttribute("configObj", new Config(configKey, configValue, configDesc,isConceal));
+                    if (selModuleId != -1) {
+                        return "redirect:/profile/" + type + "/" + projectId + "?moduleId=" + selModuleId + "&flag=" + flag + "&keyExistFlag=" + ret;
+                    } else {
+                        return "redirect:/profile/" + type + "/" + projectId + "?page=" + page + "&flag=" + flag + "&keyExistFlag=" + ret;
+                    }
+                }
+            }
+
         }
 
         String projCode = (String) projectService.queryProject(projectId).get("PROJ_CODE");

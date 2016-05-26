@@ -48,19 +48,22 @@ public class PropertiesConfiguration extends EventSource {
 
     private Map<String, String> store = null;
 
-    private Netty4Client client;
+    private Netty4Client client = null;
+
+    private Netty4Client clientBak = null;
 
     private volatile boolean reloadable = true;
 
     private static final ExecutorService reloadExecutorService = Executors.newSingleThreadExecutor(
-            new NamedThreadFactory("ReloadConfigExecutorService", true));
+                                                                                                          new NamedThreadFactory("ReloadConfigExecutorService", true));
+    private static final ExecutorService reloadExecutorServiceBak = Executors.newSingleThreadExecutor(
+                                                                                                             new NamedThreadFactory("ReloadConfigExecutorServiceBak", true));
 
     private static String _host;
     private static int _port = 0;
     private static String _projCode;
     private static String _profile;
     private static String _modules;
-    private static String _encryptPropNames;
     private static String _localFilePath;
 
     private static final long FIRST_CONNECT_TIMEOUT = 2;
@@ -74,15 +77,31 @@ public class PropertiesConfiguration extends EventSource {
         _projCode = getProjCode();
         _profile = getProfile();
         _modules = getModules();
-        _encryptPropNames = getEncryptPropNames();
         _localFilePath = getlocalFilePath();
 
-        connectServer(_host, _port, _projCode, _profile, _modules, _encryptPropNames, _localFilePath);
+        connectServer(_host, _port, _projCode, _profile, _modules, _localFilePath);
         substitutor = new StrSubstitutor(createInterpolator());
     }
 
     /**
-     * 从jvm参数中获取 host和port值.
+     * 从jvm参数中获取 projCode.
+     *
+     * @param projCode
+     */
+    public PropertiesConfiguration(final String projCode) {
+        _host = getHost();
+        _port = getPort();
+        _projCode = projCode;
+        _profile = getProfile();
+        _modules = StringUtils.isBlank(getModules()) ? "" : getModules();
+        _localFilePath = StringUtils.isBlank(getlocalFilePath()) ? "" : getlocalFilePath();
+
+        connectServer(_host, _port, _projCode, _profile, _modules, _localFilePath);
+        substitutor = new StrSubstitutor(createInterpolator());
+    }
+
+    /**
+     * 从jvm参数中获取 projCode, profile.
      *
      * @param projCode
      * @param profile
@@ -92,11 +111,29 @@ public class PropertiesConfiguration extends EventSource {
         _port = getPort();
         _projCode = projCode;
         _profile = profile;
-        _modules = "";
-        _encryptPropNames = "";
-        _localFilePath = "";
+        _modules = StringUtils.isBlank(getModules()) ? "" : getModules();
+        _localFilePath = StringUtils.isBlank(getlocalFilePath()) ? "" : getlocalFilePath();
 
-        connectServer(_host, _port, _projCode, _profile, _modules, _encryptPropNames, _localFilePath);
+        connectServer(_host, _port, _projCode, _profile, _modules, _localFilePath);
+        substitutor = new StrSubstitutor(createInterpolator());
+    }
+
+    /**
+     * 从jvm参数中获取 projCode, profile, modules.
+     *
+     * @param projCode
+     * @param profile
+     * @param modules
+     */
+    public PropertiesConfiguration(final String projCode, final String profile, final String modules) {
+        _host = getHost();
+        _port = getPort();
+        _projCode = projCode;
+        _profile = profile;
+        _modules = modules;
+        _localFilePath = StringUtils.isBlank(getlocalFilePath()) ? "" : getlocalFilePath();
+
+        connectServer(_host, _port, _projCode, _profile, _modules, _localFilePath);
         substitutor = new StrSubstitutor(createInterpolator());
     }
 
@@ -106,15 +143,14 @@ public class PropertiesConfiguration extends EventSource {
      * @param projCode
      * @param profile
      */
-    public PropertiesConfiguration(final String projCode, final String profile, String modules, String encryptPropNames, String localFilePath) {
+    public PropertiesConfiguration(final String projCode, final String profile, String modules, String localFilePath) {
         _host = getHost();
         _port = getPort();
         _projCode = projCode;
         _profile = profile;
         _modules = modules;
-        _encryptPropNames = encryptPropNames;
         _localFilePath = localFilePath;
-        connectServer(_host, _port, _projCode, _profile, _modules, _encryptPropNames, _localFilePath);
+        connectServer(_host, _port, _projCode, _profile, _modules, _localFilePath);
         substitutor = new StrSubstitutor(createInterpolator());
     }
 
@@ -123,42 +159,68 @@ public class PropertiesConfiguration extends EventSource {
         _port = port;
         _projCode = projCode;
         _profile = profile;
-        _modules = "";
-        _encryptPropNames = "";
-        _localFilePath = "";
+        _modules = StringUtils.isBlank(getModules()) ? "" : getModules();
+        _localFilePath = StringUtils.isBlank(getlocalFilePath()) ? "" : getlocalFilePath();
 
-        connectServer(_host, _port, _projCode, _profile, _modules, _encryptPropNames, _localFilePath);
+        connectServer(_host, _port, _projCode, _profile, _modules, _localFilePath);
         substitutor = new StrSubstitutor(createInterpolator());
     }
 
-    public PropertiesConfiguration(String host, int port, final String projCode,
-                                   final String profile, String modules,
-                                   String encryptPropNames, String localFilePath) {
+
+    public PropertiesConfiguration(String host, int port, final String projCode, final String profile, final String modules) {
         _host = host;
         _port = port;
         _projCode = projCode;
         _profile = profile;
         _modules = modules;
-        _encryptPropNames = encryptPropNames;
+        _localFilePath = StringUtils.isBlank(getlocalFilePath()) ? "" : getlocalFilePath();
+
+        connectServer(_host, _port, _projCode, _profile, _modules, _localFilePath);
+        substitutor = new StrSubstitutor(createInterpolator());
+    }
+
+    public PropertiesConfiguration(String host, int port, final String projCode,
+                                   final String profile, String modules,
+                                   String localFilePath) {
+        _host = host;
+        _port = port;
+        _projCode = projCode;
+        _profile = profile;
+        _modules = modules;
         _localFilePath = localFilePath;
 
-        connectServer(_host, _port, _projCode, _profile, _modules, _encryptPropNames, _localFilePath);
+        connectServer(_host, _port, _projCode, _profile, _modules, _localFilePath);
         substitutor = new StrSubstitutor(createInterpolator());
     }
 
     protected void connectServer(final String host, final int port, final String projCode,
-                                 final String profile, final String modules, final String encryptPropNames,
+                                 final String profile, final String modules,
                                  final String localFilePath) {
         Assert.notNull(projCode, "连接superdiamond， projCode不能为空");
 
         final String clientMsg = "superdiamond={\"projCode\": \"" + projCode + "\", \"profile\": \"" + profile + "\", "
-                + "\"modules\": \"" + modules + "\", \"version\": \"1.1.0\", \"encryptPropNames\":\"" + encryptPropNames + "\"}";
+                                         + "\"modules\": \"" + modules + "\", \"version\": \"1.1.0\"}";
+        String[] hostArr = StringUtils.split(host, ",");
         try {
-            client = new Netty4Client(host, port, new ClientChannelInitializer(clientMsg));
-
-            if (client.isConnected()) {
+            if (hostArr.length >= 2) {
+                client = new Netty4Client(hostArr[0], port, new ClientChannelInitializer(clientMsg));
+                clientBak = new Netty4Client(hostArr[1], port, new ClientChannelInitializer(clientMsg));
+            } else if (hostArr.length == 1) {
+                client = new Netty4Client(hostArr[0], port, new ClientChannelInitializer(clientMsg));
+            }
+            if (client != null && client.isConnected()) {
                 String message = client.receiveMessage(FIRST_CONNECT_TIMEOUT);
+                if (StringUtils.isNotBlank(message)) {
+                    String versionStr = message.substring(0, message.indexOf("\r\n"));
+                    LOGGER.info("加载配置信息，项目编码：{}，Profile：{}, Version：{}", projCode, profile, versionStr.split(" = ")[1]);
 
+                    FileUtils.saveData(projCode, profile, message, localFilePath);
+                    load(new StringReader(message), false);
+                } else {
+                    throw new ConfigurationRuntimeException("从服务器端获取配置信息为空，Client 请求信息为：" + clientMsg);
+                }
+            } else if (clientBak != null && clientBak.isConnected()) {
+                String message = clientBak.receiveMessage(FIRST_CONNECT_TIMEOUT);
                 if (StringUtils.isNotBlank(message)) {
                     String versionStr = message.substring(0, message.indexOf("\r\n"));
                     LOGGER.info("加载配置信息，项目编码：{}，Profile：{}, Version：{}", projCode, profile, versionStr.split(" = ")[1]);
@@ -177,8 +239,10 @@ public class PropertiesConfiguration extends EventSource {
                     load(new StringReader(message), false);
                 } else {
                     throw new ConfigurationRuntimeException("本地没有备份配置数据，PropertiesConfiguration 初始化失败。");
+//                    createClientBak(_hostBak, port, projCode, profile, clientMsg, localFilePath);
                 }
             }
+
 
             reloadExecutorService.submit(new Runnable() {
 
@@ -204,6 +268,33 @@ public class PropertiesConfiguration extends EventSource {
                     }
                 }
             });
+            if (hostArr.length >= 2) {
+                reloadExecutorServiceBak.submit(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        while (reloadable) {
+                            try {
+                                if (clientBak.isConnected()) {
+                                    String message = clientBak.receiveMessage();
+
+                                    if (message != null) {
+                                        String versionStr = message.substring(0, message.indexOf("\r\n"));
+                                        LOGGER.info("重新加载配置信息，项目编码：{}，Profile：{}, Version：{}", projCode, profile, versionStr.split(" = ")[1]);
+                                        FileUtils.saveData(projCode, profile, message, localFilePath);
+                                        load(new StringReader(message), true);
+                                    }
+                                } else {
+                                    TimeUnit.SECONDS.sleep(1);
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                });
+            }
+
         } catch (Exception e) {
             if (client != null) {
                 client.close();
@@ -311,27 +402,14 @@ public class PropertiesConfiguration extends EventSource {
         }
     }
 
-    public static String getEncryptPropNames() {
-        _encryptPropNames = System.getenv("SUPERDIAMOND_ENCRYPTPROPNAMES");
-        if (_encryptPropNames != null) {
-            return _encryptPropNames;
-        }
-        _encryptPropNames = System.getProperty("superdiamond.encryptPropNames");
-        if (_encryptPropNames != null) {
-            return _encryptPropNames;
-        } else {
-            return "";
-        }
-    }
-
     public static String getlocalFilePath() {
-        _encryptPropNames = System.getenv("SUPERDIAMOND_LOCALFILEPATH");
-        if (_encryptPropNames != null) {
-            return _encryptPropNames;
+        _localFilePath = System.getenv("SUPERDIAMOND_LOCALFILEPATH");
+        if (_localFilePath != null) {
+            return _localFilePath;
         }
-        _encryptPropNames = System.getProperty("superdiamond.localFilePath");
-        if (_encryptPropNames != null) {
-            return _encryptPropNames;
+        _localFilePath = System.getProperty("superdiamond.localFilePath");
+        if (_localFilePath != null) {
+            return _localFilePath;
         } else {
             return "";
         }
@@ -386,7 +464,7 @@ public class PropertiesConfiguration extends EventSource {
 
     public boolean getBoolean(String key, boolean defaultValue) {
         return getBoolean(key, BooleanUtils.toBooleanObject(defaultValue))
-                .booleanValue();
+                       .booleanValue();
     }
 
     public Boolean getBoolean(String key, Boolean defaultValue) {
@@ -436,7 +514,7 @@ public class PropertiesConfiguration extends EventSource {
             return var.doubleValue();
         } else {
             throw new NoSuchElementException('\'' + key
-                    + "' doesn't map to an existing object");
+                                                     + "' doesn't map to an existing object");
         }
     }
 
@@ -634,9 +712,71 @@ public class PropertiesConfiguration extends EventSource {
         List<Map<String, Object>> systemEnvPropList = findSystemEnvProps(value);
         for (int i = 0; i < systemEnvPropList.size(); i++) {
             value = StringUtils.replace(value, "$<" + systemEnvPropList.get(i).get("systemEnvProp") + ">",
-                    System.getenv(String.valueOf(systemEnvPropList.get(i).get("systemEnvProp"))));
+                                               System.getenv(String.valueOf(systemEnvPropList.get(i).get("systemEnvProp"))));
         }
         return value;
+    }
+
+    void createClientBak(final String host, final int port, final String projCode,
+                         final String profile, final String clientMsg,
+                         final String localFilePath) {
+        try {
+            clientBak = new Netty4Client(host, port, new ClientChannelInitializer(clientMsg));
+
+            if (clientBak.isConnected()) {
+                String message = clientBak.receiveMessage(FIRST_CONNECT_TIMEOUT);
+
+                if (StringUtils.isNotBlank(message)) {
+                    String versionStr = message.substring(0, message.indexOf("\r\n"));
+                    LOGGER.info("加载配置信息，项目编码：{}，Profile：{}, Version：{}", projCode, profile, versionStr.split(" = ")[1]);
+
+                    FileUtils.saveData(projCode, profile, message, localFilePath);
+                    load(new StringReader(message), false);
+                } else {
+                    throw new ConfigurationRuntimeException("从服务器端获取配置信息为空，Client 请求信息为：" + clientMsg);
+                }
+            } else {
+                String message = FileUtils.readConfigFromLocal(projCode, profile, localFilePath);
+                if (message != null) {
+                    String versionStr = message.substring(0, message.indexOf("\r\n"));
+                    LOGGER.info("加载本地备份配置信息，项目编码：{}，Profile：{}, Version：{}", projCode, profile, versionStr.split(" = ")[1]);
+
+                    load(new StringReader(message), false);
+                } else {
+                    throw new ConfigurationRuntimeException("本地没有备份配置数据，PropertiesConfiguration 初始化失败。");
+                }
+            }
+
+            reloadExecutorServiceBak.submit(new Runnable() {
+
+                @Override
+                public void run() {
+                    while (reloadable) {
+                        try {
+                            if (clientBak.isConnected()) {
+                                String message = clientBak.receiveMessage();
+
+                                if (message != null) {
+                                    String versionStr = message.substring(0, message.indexOf("\r\n"));
+                                    LOGGER.info("重新加载配置信息，项目编码：{}，Profile：{}, Version：{}", projCode, profile, versionStr.split(" = ")[1]);
+                                    FileUtils.saveData(projCode, profile, message, localFilePath);
+                                    load(new StringReader(message), true);
+                                }
+                            } else {
+                                TimeUnit.SECONDS.sleep(1);
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            });
+        } catch (Exception e) {
+            if (clientBak != null) {
+                clientBak.close();
+            }
+            throw new ConfigurationRuntimeException(e.getMessage(), e);
+        }
     }
 }
 

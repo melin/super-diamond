@@ -45,7 +45,7 @@
             } else if (!$("#newpassword").val()) {
                 $("#newpasswordTip").text("新密码不能为空");
             } else if ($("#newpassword").val().length < 6) {
-                $("#newpasswordTip").text("原密码长度不能小于6");
+                $("#newpasswordTip").text("新密码长度不能小于6");
             } else if ($("#newpassword").val() == $("#password").val()) {
                 $("#newpasswordTip").text("新密码不能与原密码相同");
             } else if (!$("#renewpassword").val()) {

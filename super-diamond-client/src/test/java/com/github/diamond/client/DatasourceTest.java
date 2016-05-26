@@ -20,7 +20,7 @@ import java.util.Map;
  */
 public class DatasourceTest implements InitializingBean {
 	private String url;
-	private String redisHost;
+	private int redisHost;
 
 	public String getUrl() {
 		return url;
@@ -32,11 +32,11 @@ public class DatasourceTest implements InitializingBean {
 		this.url = url;
 	}
 
-	public String getRedisHost() {
+	public int getRedisHost() {
 		return redisHost;
 	}
 
-	public void setRedisHost(String redisHost) {
+	public void setRedisHost(int redisHost) {
 		this.redisHost = redisHost;
 	}
 

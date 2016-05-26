@@ -22,7 +22,7 @@ public interface ModuleService {
 
     boolean delete(int moduleId, int projectId);
 
-    ModuleConfigId moduleConfigIdIsExist(String configName, String moduleName, int projectId);
+    ModuleConfigId configIdIsExist(String configName, String moduleName, int projectId);
 
     ModuleIdExist moduleIdIsExist(String moduleName, int projectId);
 
@@ -32,7 +32,7 @@ public interface ModuleService {
 
     ConfigExportData getExportData(MultipartFile file) throws IOException;
 
-    void getConfigCheckResult(MultipartFile file, int projectId, ConfigCheckResult checkResult) throws IOException;
+    void getConfigCheckResult(ConfigExportData exportData, MultipartFile file, String type, int projectId, ConfigCheckResult checkResult) throws IOException;
 
     String getHandlerResult(String checkId,int operation,int projectId,String type,
                             HttpSession session,ConfigExportData exportData,

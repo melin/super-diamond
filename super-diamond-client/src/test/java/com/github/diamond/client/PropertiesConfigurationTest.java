@@ -48,12 +48,12 @@ public class PropertiesConfigurationTest {
 	@Test
 	public void testSysProperties() throws ConfigurationRuntimeException  {
 		String config = "javaVersion = ${sys:java.version} \r\n";
-		
+
 //		PropertiesConfiguration configuration = new PropertiesConfiguration();
 		PropertiesConfiguration configuration = new PropertiesConfiguration("127.0.0.1",8283,"cloud-service-mobile","development");
 
 		configuration.load(config);
-		
+
 		Assert.assertEquals(System.getProperty("java.version"), configuration.getString("javaVersion"));
 	}
 	
@@ -67,4 +67,20 @@ public class PropertiesConfigurationTest {
 		
 		Assert.assertEquals(System.getenv("JAVA_HOME") + "/lib", configuration.getString("javaHome"));
 	}
+
+
+    @Test
+    public void testSysProperties1() throws ConfigurationRuntimeException  {
+
+	  String str = System.getProperty("java.version1");
+	  System.out.print(str);
+    }
+
+    @Test
+    public void testSysEvns1() throws ConfigurationRuntimeException  {
+
+	  String str = System.getenv("testbb");
+	  System.out.print(str);
+    }
+
 }

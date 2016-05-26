@@ -71,7 +71,7 @@
                     <c:out value="${user.userName}"/>
                 </td>
                 <td>
-                    <input type="checkbox" name="admin" value="admin"> admin &nbsp;
+                    <%--<input type="checkbox" name="admin" value="admin"> admin &nbsp;--%>
                     <input type="checkbox" name="development" value="development"> development &nbsp;
                     <input type="checkbox" name="test" value="test"> test &nbsp;
                     <input type="checkbox" name="build" value="build"> build &nbsp;
@@ -91,7 +91,7 @@
      aria-hidden="true">
     <div class="modal-heupdateAuthder">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-        <h3 id="myModalLabel">更新角色</h3>
+        <h3 id="myModalLabel">更新权限</h3>
     </div>
     <div class="modal-body">
         <form id="moduleForm" class="form-horizontal" action='<c:url value="/project/updateUser" />' method="post">
@@ -99,7 +99,7 @@
                 <input type="hidden" name="userId" id="auth-userId">
                 <input type="hidden" name="projectId" value='<c:out value="${project.ID}" />'>
 
-                <input type="checkbox" name="admin" value="admin" id="adminId"> admin &nbsp;
+                <%--<input type="checkbox" name="admin" value="admin" id="adminId"> admin &nbsp;--%>
                 <input type="checkbox" name="development" value="development" id="developmentId"> development &nbsp;
                 <input type="checkbox" name="test" value="test" id="testId"> test &nbsp;
                 <input type="checkbox" name="build" value="build" id="buildId"> build &nbsp;
@@ -131,16 +131,31 @@
 
     function updateAuth(id) {
         var context = $("#" + id).children("td:eq(2)").text();
-        if (context.indexOf("admin") != -1)
-            $("#adminId").attr("checked", true);
-        if (context.indexOf("development") != -1)
-            $("#developmentId").attr("checked", true);
-        if (context.indexOf("test") != -1)
-            $("#testId").attr("checked", true);
-        if (context.indexOf("build") != -1)
-            $("#buildId").attr("checked", true);
-        if (context.indexOf("production") != -1)
-            $("#productionId").attr("checked", true);
+        if (context.indexOf("admin") != -1){
+            $("#adminId").prop("checked", true);
+        }else{
+            $("#adminId").removeAttr("checked");
+        }
+        if (context.indexOf("development") != -1) {
+            $("#developmentId").prop("checked", true);
+        }else{
+            $("#developmentId").removeAttr("checked");
+        }
+        if (context.indexOf("test") != -1) {
+            $("#testId").prop("checked", true);
+        }else{
+            $("#testId").removeAttr("checked");
+        }
+        if (context.indexOf("build") != -1) {
+            $("#buildId").prop("checked", true);
+        }else{
+            $("#buildId").removeAttr("checked");
+        }
+        if (context.indexOf("production") != -1) {
+            $("#productionId").prop("checked", true);
+        }else{
+            $("#productionId").removeAttr("checked");
+        }
 
         $("#auth-userId").val(id.split("-")[1])
 

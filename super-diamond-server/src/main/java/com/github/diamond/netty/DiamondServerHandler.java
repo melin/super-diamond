@@ -69,7 +69,8 @@ public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
                 projCode = params.get("projCode");
                 modules = params.get("modules");
                 profile = params.get("profile");
-                encryptPropNames = params.get("encryptPropNames");
+//                encryptPropNames = params.get("encryptPropNames");
+                encryptPropNames = "";
             } else {
                 // 兼容老版本客户端
                 String[] projInfo = StringUtils.split(request, ",");
