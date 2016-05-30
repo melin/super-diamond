@@ -59,12 +59,12 @@ public class ConfigExportData {
         this.modules = new ArrayList<>();
     }
 
-    public ArrayList<Module> getModules() {
-        return modules;
-    }
-
     public void setModules(ArrayList<Module> modules) {
         this.modules = modules;
+    }
+
+    public ArrayList<Module> getModules() {
+        return modules;
     }
 
     public String getExportUser() {

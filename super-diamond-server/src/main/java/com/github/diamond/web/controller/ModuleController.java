@@ -60,7 +60,7 @@ public class ModuleController extends BaseController {
     @ResponseBody
     public String importModuleCheck(@RequestParam("file") MultipartFile file,
                                     @PathVariable int projectId,
-                                    MultipartHttpServletRequest request) throws UnsupportedEncodingException {
+                                    @PathVariable String type) throws UnsupportedEncodingException {
 
 
         ConfigExportData exportData = new ConfigExportData();
@@ -70,8 +70,13 @@ public class ModuleController extends BaseController {
             }
         };
         try {
+            if (file.isEmpty()) {
+                checkResult.setCheckSuccess(0);
+                checkResult.setMessage("导入的文件为空");
+                return URLEncoder.encode(JSON.toJSONString(checkResult), "utf-8").replace("+", "%20");
+            }
             exportData = moduleService.getExportData(file);
-            moduleService.getConfigCheckResult(file, projectId, checkResult);
+            moduleService.getConfigCheckResult(exportData, file, type, projectId, checkResult);
         } catch (Exception ex) {
             checkResult.setCheckSuccess(0);
             checkResult.setMessage(ex.getMessage());
@@ -80,7 +85,7 @@ public class ModuleController extends BaseController {
         if (checkResult.getCheckSuccess() == 1) {
             IMPORT_CONFIG_MAP.put(checkResult.getCheckId(), exportData);
         }
-        return URLEncoder.encode(JSON.toJSONString(checkResult), "utf-8");
+        return URLEncoder.encode(JSON.toJSONString(checkResult), "utf-8").replace("+", "%20");
     }
 
     /**
@@ -140,20 +145,19 @@ public class ModuleController extends BaseController {
 
     @RequestMapping("/module/exportJson/{type}/{projectId}/{userName}/{moduleIds}")
     @ResponseBody
-    public String exportJson(@PathVariable String type, @PathVariable int projectId, @PathVariable String userName, @PathVariable int[] moduleIds) {
+    public String exportJson(@PathVariable String type, @PathVariable int projectId, @PathVariable String userName, @PathVariable int[] moduleIds) throws UnsupportedEncodingException {
         ConfigExportData configExportData = projectService.getConfigExportData(projectId, userName);
         moduleService.fillConfigExportJsonData(projectId, moduleIds, type, configExportData);
         String json = JSON.toJSONString(configExportData, true);
-        return json;
+        return URLEncoder.encode(json,"utf-8").replace("+", "%20");
     }
 
     @RequestMapping("/module/exportProperties/{type}/{projectId}/{moduleIds}")
     @ResponseBody
     public String exportProperties(@PathVariable String type,
                                    @PathVariable int projectId,
-                                   @PathVariable int[] moduleIds) {
-
-
-        return moduleService.getConfigExportPropertiesInfo(projectId, moduleIds, type);
+                                   @PathVariable int[] moduleIds) throws UnsupportedEncodingException {
+        String str = URLEncoder.encode(moduleService.getConfigExportPropertiesInfo(projectId, moduleIds, type), "utf-8").replace("+", "%20");
+        return  str;
     }
 }

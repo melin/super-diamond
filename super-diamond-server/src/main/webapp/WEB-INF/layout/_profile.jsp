@@ -93,6 +93,7 @@
 
     var moduleId = '<c:out value="${moduleId}" />';
     var recordLimit = '<c:out value="${recordLimit}" />';
+    var isShow ='<c:out value="${isShow}"/>';
 
     var options = {
         size: "small",
@@ -100,7 +101,7 @@
         totalPages: <c:out value="${totalPages}"/>,
         currentPage: <c:out value="${currentPage}"/>,
         pageUrl: function (type, page) {
-            return "/superdiamond/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>?page=" + page + (moduleId ? '&moduleId=' + moduleId : '') + "&recordLimit=" + recordLimit;
+            return "/superdiamond/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>?page=" + page + (moduleId ? '&moduleId=' + moduleId : '') + "&recordLimit=" + recordLimit + "&isShow=" + isShow;
         }
     }
     $('#paginator').bootstrapPaginator(options);

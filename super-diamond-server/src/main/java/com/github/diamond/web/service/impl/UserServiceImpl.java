@@ -31,18 +31,18 @@ public class UserServiceImpl implements UserService {
     public Object login(String userCode, String password) {
         String md5Passwd = MD5.getInstance().getMD5String(password);
 
-        try {
+        try{
             User user = userDao.getUser(userCode);
 
             if (md5Passwd.equals(user.getPassword())) {
                 user.setUserCode(userCode);
                 return user;
             } else if (user.getDeleteFlag() == 1) {
-                return "用户已经被注销";
+                return "用户已经被删除";
             } else {
                 return "登录失败，用户密码不正确";
             }
-        } catch (TransientDataAccessResourceException e) {
+        } catch(TransientDataAccessResourceException e) {
             return "登录失败，用户不存在";
         }
     }

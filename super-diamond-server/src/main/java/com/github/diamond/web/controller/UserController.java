@@ -43,6 +43,9 @@ public class UserController extends BaseController {
 
     @RequestMapping(value = "/user/save", method = {RequestMethod.POST})
     public String saveUser(User user, String repassword, HttpServletRequest httpServletRequest) {
+        user.setUserCode(user.getUserCode().trim());
+        user.setUserName(user.getUserName().trim());
+        user.setPassword(user.getPassword().trim());
         boolean ret = userService.checkUserCodeExist(user.getUserCode());
         if(ret) {
             httpServletRequest.getSession().setAttribute("user", user);

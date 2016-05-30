@@ -6,7 +6,7 @@
 
 <b>模块：</b>
 <select id="sel-queryModule">
-    <option value="">全部</option>
+    <option value="-1">全部</option>
     <c:forEach items="${modules}" var="module">
         <option value='<c:out value="${module.MODULE_ID}"/>'><c:out value="${module.MODULE_NAME}"/></option>
     </c:forEach>
@@ -137,7 +137,7 @@
 </table>
 <div style="float: left">
     <b>显示记录数:</b>
-    <select id="sel-recordLimit" style="width: 50px">
+    <select id="sel-recordLimit" style="width: 60px">
         <option value="10">10</option>
         <option value="15">15</option>
         <option value="20">20</option>
@@ -152,7 +152,7 @@
         $("#config-moduleId-ext").val($(tds.get(0)).attr("value"));
         $("#config-configKey-ext").val($(tds.get(1)).attr("value"));
         $("#config-configValue").val($(tds.get(2)).attr("title"));
-        $("#config-configDesc").val($(tds.get(3)).attr("title"));
+        $("#config-configDesc").val($(tds.get(4)).attr("title"));
         $("#config-configId").val(id);
 
         $('#addConfigWin').modal({
@@ -206,14 +206,14 @@
         $('#isDefaultConfig').change(function (e) {
             if ($('#isDefaultConfig').is(':checked')) {
                 var moduleId = $("#sel-queryModule").val();
-                var url = '/superdiamond/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/> ?isShow=true';
+                var url = '/superdiamond/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>?isShow=true'+"&page=<c:out value="${currentPage}"/>&moduleId=<c:out value="${moduleId}"/>&recordLimit=<c:out value="${recordLimit}" />";
                 if (moduleId) {
                     url = url + "&moduleId=" + moduleId;
                 }
                 window.location.href = url;
             } else {
                 var moduleId = $("#sel-queryModule").val();
-                var url = '/superdiamond/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>?isShow=false';
+                var url = '/superdiamond/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>?isShow=false'+"&page=<c:out value="${currentPage}"/>&moduleId=<c:out value="${moduleId}"/>&recordLimit=<c:out value="${recordLimit}" />";
                 if (moduleId) {
                     url = url + "&moduleId=" + moduleId;
                 }

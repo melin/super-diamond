@@ -2,6 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html lang="en">
+<script type="text/javascript" src='<c:url value="/resources/js/jquery.min.js" />'></script>
 <head>
     <meta charset="utf-8">
     <title>SuperDiamond 配置管理服务器</title>
@@ -54,7 +55,7 @@
             <div class="login-form">
                 <h2>Login</h2>
 
-                <form action='<c:url value="/login" />' method="post" autocomplete="off">
+                <form action='<c:url value="/login" />' method="post" autocomplete="off" id="loginForm">
                     <fieldset>
                         <c:if test="${sessionScope.message != null}">
                             <div class="alert alert-error clearfix"
@@ -63,12 +64,14 @@
                             </div>
                         </c:if>
                         <div class="clearfix">
-                            <input type="text" placeholder="用户名" name="userCode" value="${sessionScope.userCode}">
+                            <span id="userCodeTip" style="color: red"></span>
+                            <input type="text" placeholder="用户名" name="userCode" value="${sessionScope.userCode}" id="userCode">
                         </div>
                         <div class="clearfix">
-                            <input type="password" placeholder="密码" name="password">
+                            <span id="passwordTip" style="color: red"></span>
+                            <input type="password" placeholder="密码" name="password" id = "password">
                         </div>
-                        <button class="btn btn-primary" type="submit">登 录</button>
+                        <button class="btn btn-primary" type="button" id="login">登 录</button>
                         <button class="btn" type="reset">重 置</button>
                     </fieldset>
                 </form>
@@ -77,5 +80,21 @@
     </div>
 </div>
 <!-- /container -->
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#login").click(function (e) {
+            $("#userCodeTip, #passwordTip").text("");
+
+            if (!$("#userCode").val().trim()) {
+                $("#userCodeTip").text("用户名不能为空");
+            } else if (!$("#password").val().trim()) {
+                $("#passwordTip").text("密码不能为空");
+            } else {
+                $("#loginForm")[0].submit();
+            }
+        });
+    });
+</script>
 </body>
 </html>

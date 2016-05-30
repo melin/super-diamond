@@ -12,7 +12,8 @@ import io.netty.handler.codec.string.StringDecoder;
 import io.netty.util.CharsetUtil;
 
 /**
- * Create on @2013-8-24 @上午10:21:08 
+ * Create on @2013-8-24 @上午10:21:08
+ *
  * @author bsli@ustcinfo.com
  */
 public class DiamondServerInitializer extends ChannelInitializer<SocketChannel> {

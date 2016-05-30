@@ -2,6 +2,7 @@ package com.github.diamond.web.dao.impl;
 
 import com.github.diamond.web.dao.ConfigDao;
 import com.github.diamond.web.dao.ProjectDao;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -145,38 +146,113 @@ public class ConfigDaoImpl implements ConfigDao {
     }
 
     @Override
-    public int queryConfigCount(int projectId, int moduleId) {
-        String sql = "SELECT count(*) FROM CONF_PROJECT_CONFIG a, CONF_PROJECT_MODULE b "
-                + "WHERE a.MODULE_ID = b.MODULE_ID AND a.DELETE_FLAG =0 AND a.PROJECT_ID=? ";
+    public int queryConfigCount(int projectId, int moduleId, boolean isShow) {
+        if(isShow) {
+            String sql = "SELECT count(*) FROM CONF_PROJECT_CONFIG a, CONF_PROJECT_MODULE b "
+                    + "WHERE a.MODULE_ID = b.MODULE_ID AND a.DELETE_FLAG =0 AND a.PROJECT_ID=? ";
 
-        if (moduleId != -1) {
-            sql = sql + " AND a.MODULE_ID = ? order by a.MODULE_ID";
-            return jdbcTemplate.queryForObject(sql, Integer.class, projectId, moduleId);
-        } else {
-            sql = sql + " order by a.MODULE_ID";
-            return jdbcTemplate.queryForObject(sql, Integer.class, projectId);
+            if (moduleId != -1) {
+                sql = sql + " AND a.MODULE_ID = ? order by a.MODULE_ID";
+                return jdbcTemplate.queryForObject(sql, Integer.class, projectId, moduleId);
+            } else {
+                sql = sql + " order by a.MODULE_ID";
+                return jdbcTemplate.queryForObject(sql, Integer.class, projectId);
+            }
+        }else {
+            String sql = "SELECT count(*) FROM CONF_PROJECT_CONFIG a, CONF_PROJECT_MODULE b "
+                    + "WHERE a.MODULE_ID = b.MODULE_ID AND a.DELETE_FLAG =0 AND a.PROJECT_ID=? AND a.IS_SHOW = 1 ";
+
+            if (moduleId != -1) {
+                sql = sql + " AND a.MODULE_ID = ? order by a.MODULE_ID";
+                return jdbcTemplate.queryForObject(sql, Integer.class, projectId, moduleId);
+            } else {
+                sql = sql + " order by a.MODULE_ID";
+                return jdbcTemplate.queryForObject(sql, Integer.class, projectId);
+            }
         }
+    }
+
+    @Override
+     public List<Map<String, Object>> queryConfigs(String projectCode, String type, String[] modules) {
+        List<Map<String, Object>> configs;
+        if ("development".equals(type)) {
+            String sql = "SELECT DEVELOPMENT_VERSION,CONFIG_DESC,CONFIG_KEY,CONFIG_VALUE "
+                    + "FROM CONF_PROJECT_CONFIG a, CONF_PROJECT_MODULE b, CONF_PROJECT c "
+                    + "WHERE a.MODULE_ID = b.MODULE_ID AND a.PROJECT_ID=c.id AND a.DELETE_FLAG =0 AND c.PROJ_CODE=?";
+            if(modules.length != 0){
+                String str ="";
+                for(int i=0; i<modules.length; i++){
+                    str += "\'" + modules[i]+"\'";
+                    if(i+1 < modules.length){
+                        str += ",";
+                    }
+                }
+                sql += " AND b.MODULE_NAME in (" + str + ")";
+            }
+            configs = jdbcTemplate.queryForList(sql, projectCode);
+        } else if ("test".equals(type)) {
+            String sql = "SELECT TEST_VERSION,CONFIG_DESC,CONFIG_KEY,TEST_VALUE FROM CONF_PROJECT_CONFIG a, CONF_PROJECT_MODULE b, CONF_PROJECT c "
+                    + "WHERE a.MODULE_ID = b.MODULE_ID AND a.PROJECT_ID=c.id AND a.DELETE_FLAG =0 AND c.PROJ_CODE=?";
+            if(modules.length != 0){
+                String str ="";
+                for(int i=0; i<modules.length; i++){
+                    str += "\'" + modules[i]+"\'";
+                    if(i+1 < modules.length){
+                        str += ",";
+                    }
+                }
+                sql += " AND b.MODULE_NAME in (" + str + ")";
+            }
+            configs = jdbcTemplate.queryForList(sql, projectCode);
+        } else if ("production".equals(type)) {
+            String sql = "SELECT PRODUCTION_VERSION,CONFIG_DESC,CONFIG_KEY,PRODUCTION_VALUE "
+                    + "FROM CONF_PROJECT_CONFIG a, CONF_PROJECT_MODULE b, CONF_PROJECT c "
+                    + "WHERE a.MODULE_ID = b.MODULE_ID AND a.PROJECT_ID=c.id AND a.DELETE_FLAG =0 AND c.PROJ_CODE=?";
+            if(modules.length != 0){
+                String str ="";
+                for(int i=0; i<modules.length; i++){
+                    str += "\'" + modules[i]+"\'";
+                    if(i+1 < modules.length){
+                        str += ",";
+                    }
+                }
+                sql += " AND b.MODULE_NAME in (" + str + ")";
+            }
+            configs = jdbcTemplate.queryForList(sql, projectCode);
+        } else {
+            String sql = "SELECT CONFIG_DESC,CONFIG_KEY,BUILD_VALUE FROM CONF_PROJECT_CONFIG a, CONF_PROJECT_MODULE b, CONF_PROJECT c "
+                    + "WHERE a.MODULE_ID = b.MODULE_ID AND a.PROJECT_ID=c.id AND a.DELETE_FLAG =0 AND c.PROJ_CODE=?";
+            if(modules.length != 0){
+                String str ="";
+                for(int i=0; i<modules.length; i++){
+                    str += "\'" + modules[i]+"\'";
+                    if(i+1 < modules.length){
+                        str += ",";
+                    }
+                }
+                sql += " AND b.MODULE_NAME in (" + str + ")";
+            }
+            configs = jdbcTemplate.queryForList(sql, projectCode);
+        }
+        return configs;
     }
 
     @Override
     public List<Map<String, Object>> queryConfigs(String projectCode, String type) {
         List<Map<String, Object>> configs;
         if ("development".equals(type)) {
-            String sql = "SELECT DEVELOPMENT_VERSION,CONFIG_DESC,CONFIG_KEY,PRODUCTION_VALUE "
+            String sql = "SELECT DEVELOPMENT_VERSION,CONFIG_DESC,CONFIG_KEY,CONFIG_VALUE "
                     + "FROM CONF_PROJECT_CONFIG a, CONF_PROJECT_MODULE b, CONF_PROJECT c "
                     + "WHERE a.MODULE_ID = b.MODULE_ID AND a.PROJECT_ID=c.id AND a.DELETE_FLAG =0 AND c.PROJ_CODE=?";
-
             configs = jdbcTemplate.queryForList(sql, projectCode);
         } else if ("test".equals(type)) {
             String sql = "SELECT TEST_VERSION,CONFIG_DESC,CONFIG_KEY,TEST_VALUE FROM CONF_PROJECT_CONFIG a, CONF_PROJECT_MODULE b, CONF_PROJECT c "
                     + "WHERE a.MODULE_ID = b.MODULE_ID AND a.PROJECT_ID=c.id AND a.DELETE_FLAG =0 AND c.PROJ_CODE=?";
-
             configs = jdbcTemplate.queryForList(sql, projectCode);
         } else if ("production".equals(type)) {
             String sql = "SELECT PRODUCTION_VERSION,CONFIG_DESC,CONFIG_KEY,PRODUCTION_VALUE "
                     + "FROM CONF_PROJECT_CONFIG a, CONF_PROJECT_MODULE b, CONF_PROJECT c "
                     + "WHERE a.MODULE_ID = b.MODULE_ID AND a.PROJECT_ID=c.id AND a.DELETE_FLAG =0 AND c.PROJ_CODE=?";
-
             configs = jdbcTemplate.queryForList(sql, projectCode);
         } else {
             String sql = "SELECT CONFIG_DESC,CONFIG_KEY,BUILD_VALUE FROM CONF_PROJECT_CONFIG a, CONF_PROJECT_MODULE b, CONF_PROJECT c "
@@ -185,7 +261,6 @@ public class ConfigDaoImpl implements ConfigDao {
         }
         return configs;
     }
-
 
     @Override
     public Map<String, Object> queryValue(String projectCode, String module, String key) {
@@ -270,7 +345,7 @@ public class ConfigDaoImpl implements ConfigDao {
     }
 
     @Override
-    public List<Map<String, Object>> queryCommonConfigs(int projectId, String type) {
+    public List<Map<String, Object>> queryConfigs(int projectId, String type) {
         List<Map<String, Object>> allConfigList = null;
         if ("development".equals(type)) {
             String allSql = "SELECT CONFIG_KEY,CONFIG_VALUE FROM CONF_PROJECT_CONFIG a, CONF_PROJECT_MODULE b "
@@ -294,8 +369,13 @@ public class ConfigDaoImpl implements ConfigDao {
     }
 
     public boolean checkConfigKeyExist(String configKey, int projectId){
-        String sql = "SELECT count(*) FROM CONF_PROJECT_CONFIG WHERE PROJECT_ID = ? AND CONFIG_KEY =?";
+        String sql = "SELECT count(*) FROM CONF_PROJECT_CONFIG WHERE PROJECT_ID = ? AND CONFIG_KEY =? AND DELETE_FLAG = 0";
         int num = jdbcTemplate.queryForObject(sql,Integer.class,projectId,configKey);
         return num > 0;
+    }
+
+    public Map<String,Object> queryConfigByConfigId(int configId){
+        String sql = "select * from CONF_PROJECT_CONFIG where CONFIG_ID = ?";
+        return jdbcTemplate.queryForMap(sql, configId);
     }
 }

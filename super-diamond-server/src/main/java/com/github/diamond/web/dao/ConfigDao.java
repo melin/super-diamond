@@ -17,7 +17,9 @@ public interface ConfigDao {
 
     List<Map<String, Object>> queryBuildConfigs(int projectId, String type, int moduleId, int offset, int limit, boolean isShow);
 
-    int queryConfigCount(int projectId, int moduleId);
+    int queryConfigCount(int projectId, int moduleId ,boolean isShow);
+
+    List<Map<String, Object>> queryConfigs(String projectCode, String type, String[] modules);
 
     List<Map<String, Object>> queryConfigs(String projectCode, String type);
 
@@ -35,7 +37,9 @@ public interface ConfigDao {
 
     List<Map<String, Object>> getExportConfig(int projectId, int moduleId, int configId, String type, String valueField);
 
-    List<Map<String, Object>> queryCommonConfigs(int projectId, String type);
+    List<Map<String, Object>> queryConfigs(int projectId, String type);
 
     boolean checkConfigKeyExist(String configKey, int projectId);
+
+    Map<String,Object> queryConfigByConfigId(int configId);
 }

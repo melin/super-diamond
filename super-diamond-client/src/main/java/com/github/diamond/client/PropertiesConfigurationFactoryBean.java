@@ -21,7 +21,8 @@ public class PropertiesConfigurationFactoryBean implements FactoryBean<Propertie
     private static boolean init = false;
 
     public PropertiesConfigurationFactoryBean() {
-        this(null);
+        init = true;
+        __configuration = new PropertiesConfiguration();
     }
 
     public PropertiesConfigurationFactoryBean(List<ConfigurationListener> listeners) {
@@ -35,14 +36,30 @@ public class PropertiesConfigurationFactoryBean implements FactoryBean<Propertie
         }
     }
 
+    public PropertiesConfigurationFactoryBean(final String projCode) {
+        init = true;
+        __configuration = new PropertiesConfiguration(projCode);
+    }
+
+    public PropertiesConfigurationFactoryBean(final String projCode, final String profile) {
+        init = true;
+        __configuration = new PropertiesConfiguration(projCode, profile);
+    }
+
     public PropertiesConfigurationFactoryBean(final String projCode, final String profile, final String modules) {
-        this(projCode, profile, modules, null);
+        init = true;
+        __configuration = new PropertiesConfiguration(projCode, profile, modules);
+    }
+
+    public PropertiesConfigurationFactoryBean(final String projCode, final String profile, final String modules,final String localFilePath) {
+        init = true;
+        __configuration = new PropertiesConfiguration(projCode, profile, modules,localFilePath);
     }
 
     public PropertiesConfigurationFactoryBean(final String projCode, final String profile, final String modules,
                                               List<ConfigurationListener> listeners) {
         init = true;
-        __configuration = new PropertiesConfiguration(projCode, profile);
+        __configuration = new PropertiesConfiguration(projCode, profile, modules);
 
         if (listeners != null) {
             for (ConfigurationListener listener : listeners) {
@@ -52,25 +69,27 @@ public class PropertiesConfigurationFactoryBean implements FactoryBean<Propertie
     }
 
     public PropertiesConfigurationFactoryBean(String host, int port, final String projCode, final String profile) {
-        this(host, port, projCode, profile, "", "", "", null);
+        init = true;
+        __configuration = new PropertiesConfiguration(host,port,projCode, profile);
     }
 
     public PropertiesConfigurationFactoryBean(String host, int port, final String projCode, final String profile, final String modules) {
-        this(host, port, projCode, profile, modules, "", "", null);
+        init = true;
+        __configuration = new PropertiesConfiguration(host,port,projCode, profile,modules);
     }
 
     public PropertiesConfigurationFactoryBean(String host, int port, final String projCode,
                                               final String profile, final String modules,
-                                              final String encryptPropNames, final String localFilePath) {
-        this(host, port, projCode, profile, modules, encryptPropNames, localFilePath, null);
+                                              final String localFilePath) {
+        this(host, port, projCode, profile, modules, localFilePath, null);
     }
 
     public PropertiesConfigurationFactoryBean(String host, int port, final String projCode,
                                               final String profile, final String modules,
-                                              final String encryptPropNames, final String localFilePath,
+                                              final String localFilePath,
                                               List<ConfigurationListener> listeners) {
         init = true;
-        __configuration = new PropertiesConfiguration(host, port, projCode, profile, modules, encryptPropNames, localFilePath);
+        __configuration = new PropertiesConfiguration(host, port, projCode, profile, modules, localFilePath);
 
         if (listeners != null) {
             for (ConfigurationListener listener : listeners) {

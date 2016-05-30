@@ -6,7 +6,7 @@
 
 <b>&nbsp;项目模块：</b>
 <select id="sel-queryModule">
-    <option value="">全部</option>
+    <option value="-1">全部</option>
     <c:forEach items="${modules}" var="module">
         <option value='<c:out value="${module.MODULE_ID}"/>'><c:out value="${module.MODULE_NAME}"/></option>
     </c:forEach>
@@ -165,7 +165,6 @@
         <span id="updateConfigTip" style="color: red"></span>
         <button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
         <button class="btn btn-primary" id="updateConfig">保存</button>
-        <button class="btn btn-primary" id="updateConfigExt">保存继续添加</button>
     </div>
 </div>
 
@@ -370,7 +369,7 @@
 
 <div style="float: left">
     <b>显示记录数:</b>
-    <select id="sel-recordLimit" style="width: 50px">
+    <select id="sel-recordLimit" style="width: 60px">
         <option value="10">10</option>
         <option value="15">15</option>
         <option value="20">20</option>
@@ -403,7 +402,7 @@
 
     function viewConfig(id, isShow) {
         var tds = $("#row-" + id + " > td");
-        $("#configModuleName").val($(tds.get(0)).attr("value"));
+        $("#configModuleName").val($(tds.get(0)).text().trim());
         $("#configConfigKey").val($(tds.get(1)).attr("value"));
         $("#configConfigValue").val($(tds.get(2)).attr("title"));
         $("#realConfigConfigValue").val($(tds.get(3)).attr("title"));
@@ -482,8 +481,8 @@
         });
 
         $("#saveModule").click(function (e) {
-            if (!$("#addModuleName").val()) {
-                $("#addTip").text("不能为空");
+            if (!$("#addModuleName").val().trim()) {
+                $("#addTip").text("模块名称不能为空");
             } else {
                 $("#moduleForm")[0].submit();
             }
@@ -491,6 +490,12 @@
 
 
         $("#addConfig").click(function (e) {
+            $("#config-moduleId").val("");
+            $("#config-configKey").val("");
+            $("#config-configValue").val("");
+            $("#config-configDesc").val("");
+            $("#config-isConceal").attr('checked', false);
+            $("#configTip").text("");
             $('#addConfigWin').modal({
                 backdrop: true
             })
@@ -499,7 +504,7 @@
         $("#saveConfig").click(function (e) {
             if (!$("#config-moduleId").val()) {
                 $("#configTip").text("模块不能为空");
-            } else if (!$("#config-configKey").val()) {
+            } else if (!$("#config-configKey").val().trim()) {
                 $("#configTip").text("configKey不能为空");
             } else if (!$("#config-configValue").val()) {
                 $("#configTip").text("configValue不能为空");
@@ -512,7 +517,7 @@
             $("#config-flag").val("con");
             if (!$("#config-moduleId").val()) {
                 $("#configTip").text("模块不能为空");
-            } else if (!$("#config-configKey").val()) {
+            } else if (!$("#config-configKey").val().trim()) {
                 $("#configTip").text("configKey不能为空");
             } else if (!$("#config-configValue").val()) {
                 $("#configTip").text("configValue不能为空");
@@ -524,7 +529,7 @@
         $("#updateConfig").click(function (e) {
             if (!$("#update-config-moduleId").val()) {
                 $("#updateConfigTip").text("模块不能为空");
-            } else if (!$("#update-config-configKey").val()) {
+            } else if (!$("#update-config-configKey").val().trim()) {
                 $("#updateConfigTip").text("configKey不能为空");
             } else if (!$("#update-config-configValue").val()) {
                 $("#updateConfigTip").text("configValue不能为空");
@@ -536,7 +541,7 @@
         $("#updateConfigExt").click(function (e) {
             if (!$("#update-config-moduleId").val()) {
                 $("#updateConfigTip").text("模块不能为空");
-            } else if (!$("#update-config-configKey").val()) {
+            } else if (!$("#update-config-configKey").val().trim()) {
                 $("#updateConfigTip").text("configKey不能为空");
             } else if (!$("#update-config-configValue").val()) {
                 $("#updateConfigTip").text("configValue不能为空");
@@ -588,14 +593,14 @@
         $('#isDefaultConfig').change(function (e) {
             if ($('#isDefaultConfig').is(':checked')) {
                 var moduleId = $("#sel-queryModule").val();
-                var url = '/superdiamond/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/> ?isShow=true';
+                var url = '/superdiamond/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>?isShow=true'+"&page=<c:out value="${currentPage}"/>&moduleId=<c:out value="${moduleId}"/>&recordLimit=<c:out value="${recordLimit}" />";
                 if (moduleId) {
                     url = url + "&moduleId=" + moduleId;
                 }
                 window.location.href = url;
             } else {
                 var moduleId = $("#sel-queryModule").val();
-                var url = '/superdiamond/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>?isShow=false';
+                var url = '/superdiamond/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>?isShow=false'+"&page=<c:out value="${currentPage}"/>&moduleId=<c:out value="${moduleId}"/>&recordLimit=<c:out value="${recordLimit}" />";
                 if (moduleId) {
                     url = url + "&moduleId=" + moduleId;
                 }
@@ -606,7 +611,7 @@
         $("#sel-recordLimit").change(function (e) {
             var recordLimit = $("#sel-recordLimit").val();
             var moduleId = $("#sel-queryModule").val();
-            var url = '/superdiamond/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>/?page=<c:out value="${currentPage}"/>&recordLimit=' + recordLimit;
+            var url = '/superdiamond/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>?page=<c:out value="${currentPage}"/>&isShow=<c:out value="${isShow}"/>&recordLimit=' + recordLimit;
             if (moduleId) {
                 url = url + "&moduleId=" + moduleId;
             }

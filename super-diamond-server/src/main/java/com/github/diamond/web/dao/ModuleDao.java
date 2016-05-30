@@ -17,7 +17,7 @@ public interface ModuleDao {
 
     boolean delete(int moduleId, int projectId);
 
-    ModuleConfigId moduleConfigIdIsExist(String configName, String moduleName, int projectId);
+    ModuleConfigId configIdIsExist(String configName, String moduleName, int projectId);
 
     List<Integer> getModuleIdList(String moduleName, int projectId);
 

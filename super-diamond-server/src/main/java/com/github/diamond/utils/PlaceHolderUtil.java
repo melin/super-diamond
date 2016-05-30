@@ -20,7 +20,7 @@ public class PlaceHolderUtil {
         while (value.length() > 3) {
             int start = StringUtils.indexOf(value, "${");
             if (start != -1 && start < value.length() - 1) {
-                int end = StringUtils.indexOf(value, '}');
+                int end = StringUtils.indexOf(value, '}',start);
                 String var = value.substring(start + 2, end);
                 list.add(var);
                 if (end != -1 && end < value.length() - 2) {
@@ -45,9 +45,11 @@ public class PlaceHolderUtil {
         while (value.length() > 3) {
             int start = StringUtils.indexOf(value, "${");
             if (start != -1 && start < value.length() - 1) {
-                int end = StringUtils.indexOf(value, '}');
+                int end = StringUtils.indexOf(value, '}',start);
                 String var = value.substring(start + 2, end);
-                list.add(var);
+                if(var.indexOf("sys:") == -1 && var.indexOf("env:") == -1) {
+                    list.add(var);
+                }
                 if (end != -1 && end < value.length() - 2) {
                     value = value.substring(end + 1);
                 } else {
