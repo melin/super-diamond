@@ -358,5 +358,32 @@ public class ProjectDaoImpl implements ProjectDao {
         int num = jdbcTemplate.queryForObject(sql,Integer.class,projCode);
         return num > 0;
     }
+
+    public Project queryProjectToObject(int projectId){
+        String sql="SELECT b.ID, b.PROJ_CODE, b.PROJ_NAME, a.USER_NAME,a.USER_CODE, b.OWNER_ID FROM CONF_USER a,CONF_PROJECT b WHERE b.ID = ? AND a.ID = b.OWNER_ID";
+        return jdbcTemplate.queryForObject(sql, new RowMapper<Project>(){
+            public Project mapRow(ResultSet rs, int rowNum) throws SQLException,
+                    DataAccessException {
+                Project project = new Project();
+                project.setId(rs.getInt(1));
+                project.setCode(rs.getString(2));
+                project.setName(rs.getString(3));
+                project.setUserName(rs.getString(4));
+                project.setUserCode(rs.getString(5));
+                project.setOwnerId(rs.getInt(6));
+                return project;
+            }
+        },new Object[]{projectId}) ;
+    }
+
+    public void updateProject(Project project,Project oldProject){
+        String sqlProject="update CONF_PROJECT set PROJ_CODE = ? ,PROJ_NAME = ? ,OWNER_ID = ? ,UPDATE_TIME = ? where ID = ?";
+        String sqlProjectUser = "insert into CONF_PROJECT_USER (PROJ_ID , USER_ID) values (? , ?)";
+        jdbcTemplate.update(sqlProject,project.getCode(),project.getName(),project.getOwnerId(),new Date(),project.getId());
+        if(project.getOwnerId() != oldProject.getOwnerId()){
+            jdbcTemplate.update(sqlProjectUser,project.getId(),project.getOwnerId());
+        }
+
+    }
 }
 

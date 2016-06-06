@@ -54,4 +54,8 @@ public interface ProjectDao {
 
     boolean findProjCode(String projCode);
 
+    Project queryProjectToObject(int projectId);
+
+    void updateProject(Project project,Project oldProject);
+
 }
