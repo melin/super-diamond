@@ -39,12 +39,12 @@ public class ProjectController extends BaseController {
     private static final int LIMIT = 10;
 
     @RequestMapping("/project/index")
-    public void queryProjects(ModelMap modelMap, @RequestParam(defaultValue = "1") int page) {
+    public void queryProjects(ModelMap modelMap, @RequestParam(defaultValue = "1") int page,HttpSession session) {
         User user = (User) SessionHolder.getSession().getAttribute("sessionUser");
         List<Project> projects = projectService.queryProjects(user, PageUtil.getOffset(page, LIMIT), LIMIT);
 
         modelMap.addAttribute("projects", projects);
-
+        session.setAttribute("page", page);
         long recordCount = projectService.queryProjectCount(user);
         modelMap.addAttribute("totalPages", PageUtil.pageCount(recordCount, LIMIT));
         modelMap.addAttribute("currentPage", page);
@@ -95,7 +95,7 @@ public class ProjectController extends BaseController {
 
             }else if(id != -1) {
                 session.setAttribute("project", project);
-                session.setAttribute("message", "这个项目名字已存在");
+                session.setAttribute("message", "这个项目编码已存在");
             }else{
                 projectService.updateProject(project,oldProject);
                 return "redirect:/project/index";

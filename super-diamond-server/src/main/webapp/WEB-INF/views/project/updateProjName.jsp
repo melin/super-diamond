@@ -9,7 +9,9 @@
     </div>
 </c:if>
 <h2>项目名称更新</h2>
-
+<c:url var="destinationUrl" value="/project/index">
+    <c:param name="page" value="${sessionScope.page}"/>
+</c:url>
 <form class="form-horizontal"  method="post" action='<c:url value="/project/saveUpdate" />' autocomplete="off" id ="projectForm">
     <input type="hidden" name="id"  value='<c:out value="${project.id}"/>'/>
     <div class="form-group">
@@ -32,6 +34,7 @@
     </div>
     <div class="form-actions">
         <button class="btn btn-primary" type="button" id="update">更新</button>
+        <a href='${destinationUrl}' class="btn btn-primary ">返回</a>
     </div>
 </form>
 <script type="text/javascript">
