@@ -166,4 +166,8 @@ public class ProjectServiceImpl implements ProjectService {
     public boolean findProjCode(String projCode){
         return projectDao.findProjCode(projCode);
     }
+
+    public Project queryProjectToObject(int projectId){return projectDao.queryProjectToObject(projectId);}
+
+   public void updateProject(Project project,Project oldProject){projectDao.updateProject(project,oldProject);}
 }

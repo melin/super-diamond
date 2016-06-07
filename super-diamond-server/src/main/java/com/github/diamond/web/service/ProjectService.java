@@ -54,4 +54,8 @@ public interface ProjectService {
     int getProjectIdByProjectCode(String code);
 
     boolean findProjCode(String projCode);
+
+    Project queryProjectToObject(int projectId);
+
+    void updateProject(Project project,Project oldProject);
 }

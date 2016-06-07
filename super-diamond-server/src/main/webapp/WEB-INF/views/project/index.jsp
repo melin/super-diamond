@@ -33,13 +33,18 @@
             <c:url var="deleteProjectUrl" value="/project/delete">
                 <c:param name="id" value="${project.id}"/>
             </c:url>
+            <c:url var="updateProjNameUrl" value="/project/updateProjName">
+                <c:param name="id" value="${project.id}"/>
+            </c:url>
             <c:url var="addUsersUrl" value="/project/addUsers">
                 <c:param name="id" value="${project.id}"/>
             </c:url>
             <td>
                 <c:if test="${sessionScope.sessionUser.userCode == 'admin'}">
-                    <a href="${deleteProjectUrl}" class="deleteProject">删除</a>&nbsp;&nbsp;&nbsp;
+                    <a href="${deleteProjectUrl}" class="deleteProject">删除</a>&nbsp;
+                    <a href="${updateProjNameUrl}" class="updateProjName">更新</a>&nbsp;
                 </c:if>
+
                 <a href="${addUsersUrl}" class="addUsers">添加项目成员</a>
             </td>
         </tr>
