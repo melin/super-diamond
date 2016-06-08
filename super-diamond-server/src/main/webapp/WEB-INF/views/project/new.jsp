@@ -32,15 +32,13 @@
         <input type="text" class="input-xlarge" name="copyCode">
         填写复制项目编码
     </div>
-    <c:choose>
-        <c:when test="${commonProjectExistFlag}">
-            <label class="control-label">是否公共项目：</label>
+    <label class="control-label">是否公共项目：</label>
 
-            <div class="controls">
-                <input type="checkbox" name="isCommon" id="project-isCommon">
-            </div>
-        </c:when>
-    </c:choose>
+    <div class="controls">
+        <input type="checkbox" name="isCommon" id="project-isCommon">
+    </div>
+
+
 
     <div class="form-actions">
         <button class="btn btn-primary" type="button" id="save">保存</button>

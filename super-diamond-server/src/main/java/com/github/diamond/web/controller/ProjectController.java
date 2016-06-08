@@ -121,7 +121,10 @@ public class ProjectController extends BaseController {
         } else if (StringUtils.isNotBlank(copyCode) && !projectService.checkProjectExist(copyCode)) {
             session.setAttribute("project", project);
             session.setAttribute("message", "复制项目编码不正确");
-        } else {
+        } else if(isCommon && StringUtils.isNotBlank(copyCode)){
+            session.setAttribute("project", project);
+            session.setAttribute("message", "公共项目不能复制其他项目的配置");
+        }else {
             if(!projectService.findProjCode(project.getCode())) {
                 int userId = projectService.findUserId(project.getUserCode());
                 if (userId == 0) {
