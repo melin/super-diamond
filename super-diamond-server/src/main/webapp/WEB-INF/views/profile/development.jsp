@@ -318,8 +318,7 @@
             </td>
             <td>
                 <a href='javascript:viewConfig(<c:out value="${config.CONFIG_ID}"/>, <c:out value="${config.IS_SHOW}"/>)'
-                   title="查看"><i
-                        class="icon-search"></i></a>
+                   title="查看"><i class="icon-search"></i></a>
                 <c:if test="${project.OWNER_ID == sessionScope.sessionUser.id}">
                     <a class="deleteConfig"
                        href='/superdiamond/config/delete/<c:out value="${config.CONFIG_ID}"/>?projectId=<c:out value="${projectId}"/>&type=<c:out value="${type}"/>&moduleName=<c:out value="${config.MODULE_NAME}"/>'
