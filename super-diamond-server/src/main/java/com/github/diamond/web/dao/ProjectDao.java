@@ -12,7 +12,9 @@ import java.util.Map;
 public interface ProjectDao {
     List<Project> queryProjectForUser(User user, int offset, int limit);
 
-    int queryCommonProjectId();
+    /*int queryCommonProjectId();*/
+
+    List queryMultiCommonProjectId();
 
     int getProjectIdByProjectCode(String code);
 
@@ -57,5 +59,7 @@ public interface ProjectDao {
     Project queryProjectToObject(int projectId);
 
     void updateProject(Project project,Project oldProject);
+
+    String getProjectCodeByProjectId(int projectId);
 
 }

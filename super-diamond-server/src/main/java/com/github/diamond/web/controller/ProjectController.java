@@ -52,12 +52,7 @@ public class ProjectController extends BaseController {
 
     @RequestMapping("/project/new")
     public void newProject(ModelMap modelMap) {
-        int id = projectService.queryCommonProjectId();
-        if(id != -1){
-            modelMap.addAttribute("commonProjectExistFlag",false);
-        }else {
-            modelMap.addAttribute("commonProjectExistFlag",true);
-        }
+
     }
 
     @RequestMapping("/project/updateProjName")

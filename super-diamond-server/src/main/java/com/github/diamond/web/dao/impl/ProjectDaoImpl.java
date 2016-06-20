@@ -75,7 +75,7 @@ public class ProjectDaoImpl implements ProjectDao {
         }
     }
 
-    @Override
+    /*@Override
     public int queryCommonProjectId() {
         String sql = "select id from CONF_PROJECT where DELETE_FLAG = 0 AND IS_COMMON =1";
         List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
@@ -84,6 +84,16 @@ public class ProjectDaoImpl implements ProjectDao {
             id = Integer.valueOf(String.valueOf(list.get(0).get("ID")));
         }
         return id;
+    }*/
+    @Override
+    public List queryMultiCommonProjectId(){
+        String sql = "select id from CONF_PROJECT where DELETE_FLAG = 0 AND IS_COMMON =1";
+        List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+        if(list.size() > 0){
+            return list;
+        }else{
+            return null;
+        }
     }
 
     @Override
@@ -96,6 +106,14 @@ public class ProjectDaoImpl implements ProjectDao {
         }
         return id;
     }
+
+    @Override
+    public String getProjectCodeByProjectId(int projectId) {
+        String sql = "SELECT PROJ_CODE FROM CONF_PROJECT WHERE ID = ? AND DELETE_FLAG = 0";
+        String projCode = jdbcTemplate.queryForObject(sql, String.class , projectId);
+        return projCode;
+    }
+
 
     /**
      * 增加配置项时，增加版本号.
@@ -157,13 +175,13 @@ public class ProjectDaoImpl implements ProjectDao {
 
         for (Map<String, Object> module : modules) {
             int moduleId = moduleDao.save(projId, (String) module.get("MODULE_NAME"));
-            sql = "SELECT b.CONFIG_KEY, b.CONFIG_VALUE, b.CONFIG_DESC, b. FROM CONF_PROJECT a, CONF_PROJECT_CONFIG b "
+            sql = "SELECT b.CONFIG_KEY, b.CONFIG_VALUE, b.CONFIG_DESC, b.IS_SHOW FROM CONF_PROJECT a, CONF_PROJECT_CONFIG b "
                     + "WHERE a.ID = b.PROJECT_ID AND a.PROJ_CODE=? AND b.MODULE_ID = ?";
             List<Map<String, Object>> configs = jdbcTemplate.queryForList(sql, projCode, module.get("MODULE_ID"));
 
             for (Map<String, Object> conf : configs) {
                 configDao.insertConfig((String) conf.get("CONFIG_KEY"), (String) conf.get("CONFIG_VALUE"),
-                        (String) conf.get("CONFIG_DESC"), (short) conf.get("IS_SHOW") > 0 ? true : false,
+                        (String) conf.get("CONFIG_DESC"), (int)conf.get("IS_SHOW") > 0 ? true : false,
                         projId, moduleId, userCode);
             }
         }
@@ -376,6 +394,7 @@ public class ProjectDaoImpl implements ProjectDao {
         },new Object[]{projectId}) ;
     }
 
+    @Transactional
     public void updateProject(Project project,Project oldProject){
         String sqlProject="update CONF_PROJECT set PROJ_CODE = ? ,PROJ_NAME = ? ,OWNER_ID = ? ,UPDATE_TIME = ? where ID = ?";
         String sqlProjectUser = "insert into CONF_PROJECT_USER (PROJ_ID , USER_ID) values (? , ?)";

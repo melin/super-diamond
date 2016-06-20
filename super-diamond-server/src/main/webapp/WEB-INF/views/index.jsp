@@ -1,6 +1,5 @@
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-
 <input type="hidden" value="indexId" id="pageId"/>
 
 <table class="table table-bordered table-striped">
@@ -14,7 +13,7 @@
     </thead>
     <tbody>
     <c:forEach items="${projects}" var="project">
-        <tr>
+        <tr id="projectId-${project.id}">
             <td>
                 <c:out value="${project.code}"/>
             </td>
@@ -62,4 +61,11 @@
         }
     }
     $('#paginator').bootstrapPaginator(options);
+    $(document).ready(function(){
+        <c:forEach items="${commonMultiProjectId}" var="commonProjectId">
+            $("#projectId-${commonProjectId.id}").children().each(function(){
+                $(this).css("background-color","#00ff00");
+            });
+        </c:forEach>
+    });
 </script>
