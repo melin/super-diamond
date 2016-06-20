@@ -75,7 +75,7 @@ public class ProjectDaoImpl implements ProjectDao {
         }
     }
 
-    @Override
+    /*@Override
     public int queryCommonProjectId() {
         String sql = "select id from CONF_PROJECT where DELETE_FLAG = 0 AND IS_COMMON =1";
         List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
@@ -84,6 +84,16 @@ public class ProjectDaoImpl implements ProjectDao {
             id = Integer.valueOf(String.valueOf(list.get(0).get("ID")));
         }
         return id;
+    }*/
+    @Override
+    public List queryMultiCommonProjectId(){
+        String sql = "select id from CONF_PROJECT where DELETE_FLAG = 0 AND IS_COMMON =1";
+        List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+        if(list.size() > 0){
+            return list;
+        }else{
+            return null;
+        }
     }
 
     @Override
@@ -96,6 +106,14 @@ public class ProjectDaoImpl implements ProjectDao {
         }
         return id;
     }
+
+    @Override
+    public String getProjectCodeByProjectId(int projectId) {
+        String sql = "SELECT PROJ_CODE FROM CONF_PROJECT WHERE ID = ? AND DELETE_FLAG = 0";
+        String projCode = jdbcTemplate.queryForObject(sql, String.class , projectId);
+        return projCode;
+    }
+
 
     /**
      * 增加配置项时，增加版本号.

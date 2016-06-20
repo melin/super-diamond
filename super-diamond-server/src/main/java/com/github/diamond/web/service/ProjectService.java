@@ -49,7 +49,7 @@ public interface ProjectService {
 
     ConfigExportData getConfigExportData(int projectId, String userName);
 
-    int queryCommonProjectId();
+    List queryMultiCommonProjectId();
 
     int getProjectIdByProjectCode(String code);
 

@@ -261,8 +261,14 @@
         });
 
         $("#saveConfig").click(function (e) {
+            var re_key = $("#config-configKey").val();
+            re_key ="\${" + re_key + "}";
+            var key_value = $("#config-configValue").val();
+            var re = new RegExp("\\"+re_key)
             if (!$("#config-configValue").val()) {
                 $("#configTip").text("configValue不能为空");
+            } else if(re.test(key_value)){
+                $("#configTip").text("configValue不能引用自身的configKey值");
             } else {
                 $("#configForm")[0].submit();
             }

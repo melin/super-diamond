@@ -501,49 +501,73 @@
         });
 
         $("#saveConfig").click(function (e) {
+            var re_key = $("#config-configKey").val();
+            re_key ="\${" + re_key + "}";
+            var key_value = $("#config-configValue").val();
+            var re = new RegExp("\\"+re_key);
             if (!$("#config-moduleId").val()) {
                 $("#configTip").text("模块不能为空");
             } else if (!$("#config-configKey").val().trim()) {
                 $("#configTip").text("configKey不能为空");
             } else if (!$("#config-configValue").val()) {
                 $("#configTip").text("configValue不能为空");
-            } else {
+            } else if(re.test(key_value)){
+                $("#configTip").text("configValue不能引用自身的configKey值");
+            }else {
                 $("#configForm")[0].submit();
             }
         });
 
         $("#saveConfigExt").click(function (e) {
             $("#config-flag").val("con");
+            var re_key = $("#config-configKey").val();
+            re_key ="\${" + re_key + "}";
+            var key_value = $("#config-configValue").val();
+            var re = new RegExp("\\"+re_key);
             if (!$("#config-moduleId").val()) {
                 $("#configTip").text("模块不能为空");
             } else if (!$("#config-configKey").val().trim()) {
                 $("#configTip").text("configKey不能为空");
             } else if (!$("#config-configValue").val()) {
                 $("#configTip").text("configValue不能为空");
-            } else {
+            } else if(re.test(key_value)){
+                $("#configTip").text("configValue不能引用自身的configKey值");
+            }else {
                 $("#configForm")[0].submit();
             }
         });
 
         $("#updateConfig").click(function (e) {
+            var re_key = $("#update-config-configKey").val();
+            re_key ="\${" + re_key + "}";
+            var key_value = $("update-config-configValue").val();
+            var re = new RegExp("\\"+re_key);
             if (!$("#update-config-moduleId").val()) {
                 $("#updateConfigTip").text("模块不能为空");
             } else if (!$("#update-config-configKey").val().trim()) {
                 $("#updateConfigTip").text("configKey不能为空");
             } else if (!$("#update-config-configValue").val()) {
                 $("#updateConfigTip").text("configValue不能为空");
-            } else {
+            } else if(re.test(key_value)){
+                $("#updateConfigTip").text("configValue不能引用自身的configKey值");
+            }else {
                 $("#updateConfigForm")[0].submit();
             }
         });
 
         $("#updateConfigExt").click(function (e) {
+            var re_key = $("update-config-configKey").val();
+            re_key ="\${" + re_key + "}";
+            var key_value = $("#update-config-configValue").val();
+            var re = new RegExp("\\"+re_key);
             if (!$("#update-config-moduleId").val()) {
                 $("#updateConfigTip").text("模块不能为空");
             } else if (!$("#update-config-configKey").val().trim()) {
                 $("#updateConfigTip").text("configKey不能为空");
             } else if (!$("#update-config-configValue").val()) {
                 $("#updateConfigTip").text("configValue不能为空");
+            }else if(re.test(key_value)){
+                $("#updateConfigTip").text("configValue不能引用自身的configKey值");
             } else {
                 $("#updateConfigForm")[0].submit();
             }
