@@ -49,9 +49,13 @@ public interface ProjectService {
 
     ConfigExportData getConfigExportData(int projectId, String userName);
 
-    int queryCommonProjectId();
+    List queryMultiCommonProjectId();
 
     int getProjectIdByProjectCode(String code);
 
     boolean findProjCode(String projCode);
+
+    Project queryProjectToObject(int projectId);
+
+    void updateProject(Project project,Project oldProject);
 }

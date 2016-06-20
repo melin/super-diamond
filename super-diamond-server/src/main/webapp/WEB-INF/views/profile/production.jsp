@@ -71,7 +71,56 @@
         <button class="btn btn-primary" id="saveConfig">保存</button>
     </div>
 </div>
+<div id="viewConfigWin" style="width:700px" class="modal hide fade" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myViewConfigModalLabel">参数配置</h3>
+    </div>
+    <div class="modal-body">
+        <form id="configViewForm" class="form-horizontal">
+            <div class="control-group">
+                <label class="control-label">模块：</label>
 
+                <div class="controls">
+                    <input type="text" name="moduleName" class="input-xxlarge" id="configModuleName"
+                           readonly="readonly">
+                </div>
+
+                <label class="control-label">Config Key：</label>
+
+                <div class="controls">
+                    <input type="text" name="configKey" class="input-xxlarge" id="configConfigKey" readonly="readonly">
+                </div>
+
+                <label class="control-label">Config Value：</label>
+
+                <div class="controls">
+                    <textarea rows="2" name="configValue" class="input-xxlarge" id="configConfigValue"
+                              readonly="readonly"></textarea>
+                </div>
+
+                <label class="control-label">Real Config Value：</label>
+
+                <div class="controls">
+                    <textarea rows="6" name="realConfigValue" class="input-xxlarge" id="realConfigConfigValue"
+                              readonly="readonly"></textarea>
+                </div>
+
+                <label class="control-label">描述：</label>
+
+                <div class="controls">
+                    <textarea rows="2" class="input-xxlarge" name="configDesc" id="configConfigDesc"
+                              readonly="readonly"></textarea>
+                </div>
+
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">关闭</button>
+    </div>
+</div>
 <table class="table table-striped table-bordered">
     <thead>
     <tr>
@@ -128,6 +177,8 @@
                 <c:out value="${config.PRODUCTION_TIME}"/>
             </td>
             <td>
+                <a href='javascript:viewConfig(<c:out value="${config.CONFIG_ID}"/>)'
+                   title="查看"><i class="icon-search"></i></a>
                 <a href='javascript:updateConfig(<c:out value="${config.CONFIG_ID}"/>)' title="更新"><i
                         class="icon-edit"></i></a>
             </td>
@@ -158,6 +209,17 @@
         $('#addConfigWin').modal({
             backdrop: false
         })
+    }
+    function viewConfig(id) {
+        var tds = $("#row-" + id + " > td");
+        $("#configModuleName").val($(tds.get(0)).text().trim());
+        $("#configConfigKey").val($(tds.get(1)).attr("value"));
+        $("#configConfigValue").val($(tds.get(2)).attr("title"));
+        $("#realConfigConfigValue").val($(tds.get(3)).attr("title"));
+        $("#configConfigDesc").val($(tds.get(4)).attr("title"));
+        $('#viewConfigWin').modal({
+            backdrop: false
+        });
     }
 
     $(document).ready(function () {
@@ -196,8 +258,14 @@
         });
 
         $("#saveConfig").click(function (e) {
+            var re_key = $("#config-configKey").val();
+            re_key ="\${" + re_key + "}";
+            var key_value = $("#config-configValue").val();
+            var re = new RegExp("\\"+re_key)
             if (!$("#config-configValue").val()) {
                 $("#configTip").text("configValue不能为空");
+            }else if(re.test(key_value)){
+                $("#configTip").text("configValue不能引用自身的configKey值");
             } else {
                 $("#configForm")[0].submit();
             }

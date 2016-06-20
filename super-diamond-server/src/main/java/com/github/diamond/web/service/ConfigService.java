@@ -35,9 +35,13 @@ public interface ConfigService {
 
     Config getExportConfig(int projectId, int moduleId, int configId, String type);
 
-    Map<String, String> getCommonConfigMap(int projectId, String type);
+//    Map<String, String> getCommonConfigMap(int projectId, String type);
 
-    Map<String, String> getCommonConfigMap(int projectId, String type, String[] encryptPropNameArr);
+    Map<String, String> getCommonConfigMap(List<Map<String ,Object>> multiProjectId, String type);
+
+//    Map<String, String> getCommonConfigMap(int projectId, String type, String[] encryptPropNameArr);
+
+    Map<String, String> getCommonConfigMap(List<Map<String ,Object>> multiProjectId, String type, String[] encryptPropNameArr);
 
     Map<String, String> replaceByCommonConfigs(int projectId, String type, Map<String, String> commonCofigStore);
 

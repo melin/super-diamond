@@ -9,6 +9,7 @@
 <button type="button" id="exportModule" class="btn btn-primary">导出</button>
 
 <input id="projectName" type="text" style="display:none" value="<c:out value="${project.PROJ_NAME}"/>"/>
+<input id="projectCode" type="text" style="display:none" value="<c:out value="${project.PROJ_CODE}"/>"/>
 
 <div id="importModuleWin" class="modal hide fade" tabindex="-1" role="dialog"
      aria-labelledby="importLabel" aria-hidden="true">
@@ -240,7 +241,8 @@
             var jsonFormat = [jsonF];
             var blob = new Blob(jsonFormat, {type: 'application/json'});
             var name = document.getElementById("projectName").value.toString();
-            saveAs(blob, name + ".json");
+            var code = document.getElementById("projectCode").value.toString();
+            saveAs(blob, code + "(" + name + ")" + ".json");
         }
 
         $("#exportProperties").click(function (e) {
@@ -257,7 +259,6 @@
         });
 
         function getProperties(URL) {
-            debugger
             var propertiesString = null;
             $.ajax({
                 type: "get",
@@ -277,7 +278,8 @@
             var propertiseFormat = [propertiesString]
             var blob = new Blob(propertiseFormat, {type: 'application/plain'});
             var name = document.getElementById("projectName").value.toString();
-            saveAs(blob, name + ".properties");
+            var code = document.getElementById("projectCode").value.toString();
+            saveAs(blob, code +"("+ name + ")" + ".properties");
         }
     })
 </script>

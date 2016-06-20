@@ -14,11 +14,14 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -36,12 +39,12 @@ public class ProjectController extends BaseController {
     private static final int LIMIT = 10;
 
     @RequestMapping("/project/index")
-    public void queryProjects(ModelMap modelMap, @RequestParam(defaultValue = "1") int page) {
+    public void queryProjects(ModelMap modelMap, @RequestParam(defaultValue = "1") int page,HttpSession session) {
         User user = (User) SessionHolder.getSession().getAttribute("sessionUser");
         List<Project> projects = projectService.queryProjects(user, PageUtil.getOffset(page, LIMIT), LIMIT);
 
         modelMap.addAttribute("projects", projects);
-
+        session.setAttribute("page", page);
         long recordCount = projectService.queryProjectCount(user);
         modelMap.addAttribute("totalPages", PageUtil.pageCount(recordCount, LIMIT));
         modelMap.addAttribute("currentPage", page);
@@ -49,12 +52,54 @@ public class ProjectController extends BaseController {
 
     @RequestMapping("/project/new")
     public void newProject(ModelMap modelMap) {
-        int id = projectService.queryCommonProjectId();
-        if(id != -1){
-            modelMap.addAttribute("commonProjectExistFlag",false);
-        }else {
-            modelMap.addAttribute("commonProjectExistFlag",true);
+
+    }
+
+    @RequestMapping("/project/updateProjName")
+    public void updateProjName(int id,ModelMap modelMap){
+                modelMap.addAttribute("project",projectService.queryProjectToObject(id));
+    }
+
+    @RequestMapping(value="/project/saveUpdate",method = {RequestMethod.POST})
+    public String saveUpdate(Project project,HttpSession session){
+        int userId = projectService.findUserId(project.getUserCode());
+        if (StringUtils.isBlank(project.getCode())) {
+            session.setAttribute("project", project);
+            session.setAttribute("message", "项目编码不能为空");
+        } else if (StringUtils.isBlank(project.getName())) {
+            session.setAttribute("project", project);
+            session.setAttribute("message", "项目名称不能为空");
+        } else if (StringUtils.isBlank(project.getUserCode())){
+            session.setAttribute("project", project);
+            session.setAttribute("message", "项目管理者不能为空");
+        } else if(userId == 0){
+            session.setAttribute("project", project);
+            session.setAttribute("message", "项目管理者不存在");
+        }else{
+            project.setOwnerId(userId);
+            Project oldProject=projectService.queryProjectToObject(project.getId());
+            int id=projectService.getProjectIdByProjectCode(project.getCode());
+            if(id == oldProject.getId()){
+                if(project.getName().equals(oldProject.getName()) && project.getUserCode().equals(oldProject.getUserCode())){
+                    session.setAttribute("project", project);
+                    session.setAttribute("message", "您没有更新页面上的项目内容");
+                }else{
+                    projectService.updateProject(project,oldProject);
+                    return "redirect:/project/index";
+                }
+
+            }else if(id != -1) {
+                session.setAttribute("project", project);
+                session.setAttribute("message", "这个项目编码已存在");
+            }else{
+                projectService.updateProject(project,oldProject);
+                return "redirect:/project/index";
+
+            }
+
         }
+        return "project/updateProjName";
+
     }
 
     @RequestMapping(value = "/project/save", method = {RequestMethod.POST})

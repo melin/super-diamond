@@ -149,6 +149,7 @@ public class ModuleController extends BaseController {
         ConfigExportData configExportData = projectService.getConfigExportData(projectId, userName);
         moduleService.fillConfigExportJsonData(projectId, moduleIds, type, configExportData);
         String json = JSON.toJSONString(configExportData, true);
+
         return URLEncoder.encode(json,"utf-8").replace("+", "%20");
     }
 

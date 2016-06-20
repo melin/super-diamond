@@ -1,5 +1,7 @@
 package com.github.diamond.web.model;
 
+
+
 import java.util.List;
 
 /**
@@ -26,6 +28,7 @@ public class Project {
         this.id = id;
     }
 
+
     public String getCode() {
         return code;
     }
@@ -33,6 +36,7 @@ public class Project {
     public void setCode(String code) {
         this.code = code;
     }
+
 
     public String getName() {
         return name;
@@ -50,6 +54,7 @@ public class Project {
         this.ownerId = ownerId;
     }
 
+
     public String getUserCode() {
         return userCode;
     }
@@ -57,6 +62,7 @@ public class Project {
     public void setUserCode(String userCode) {
         this.userCode = userCode;
     }
+
 
     public String getUserName() {
         return userName;

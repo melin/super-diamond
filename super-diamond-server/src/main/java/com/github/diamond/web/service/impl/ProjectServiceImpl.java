@@ -155,8 +155,8 @@ public class ProjectServiceImpl implements ProjectService {
         return new ConfigExportData(exportUser, new Date(), projectCode, projectDesc, configver, serverIp);
     }
 
-    public int queryCommonProjectId() {
-        return projectDao.queryCommonProjectId();
+    public List queryMultiCommonProjectId() {
+        return projectDao.queryMultiCommonProjectId();
     }
 
     public int getProjectIdByProjectCode(String code) {
@@ -166,4 +166,8 @@ public class ProjectServiceImpl implements ProjectService {
     public boolean findProjCode(String projCode){
         return projectDao.findProjCode(projCode);
     }
+
+    public Project queryProjectToObject(int projectId){return projectDao.queryProjectToObject(projectId);}
+
+   public void updateProject(Project project,Project oldProject){projectDao.updateProject(project,oldProject);}
 }
