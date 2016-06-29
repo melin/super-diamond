@@ -74,17 +74,20 @@
 <div class="container">
     <decorator:body></decorator:body>
     <div id="paginator"></div>
-			<span class="label label-success">Versions: 
-				<c:if test="${type=='development'}">
-                    <c:out value="${project.DEVELOPMENT_VERSION}"/>
-                </c:if>
-				<c:if test="${type=='production'}">
-                    <c:out value="${project.PRODUCTION_VERSION}"/>
-                </c:if>
-				<c:if test="${type=='test'}">
-                    <c:out value="${project.TEST_VERSION}"/>
-                </c:if>
-			</span>
+
+    <c:if test="${project.IS_COMMON == '1'}"><img  title="公共项目,可在其他非公共项目中进行配置引用" src="../../resources/images/refrence.png" > </c:if>
+
+    <span class="label label-success">Versions:
+        <c:if test="${type=='development'}">
+            <c:out value="${project.DEVELOPMENT_VERSION}"/>
+        </c:if>
+        <c:if test="${type=='production'}">
+            <c:out value="${project.PRODUCTION_VERSION}"/>
+        </c:if>
+        <c:if test="${type=='test'}">
+            <c:out value="${project.TEST_VERSION}"/>
+        </c:if>
+    </span>
 </div>
 <% request.getSession().removeAttribute("message"); %>
 </body>
@@ -93,7 +96,7 @@
 
     var moduleId = '<c:out value="${moduleId}" />';
     var recordLimit = '<c:out value="${recordLimit}" />';
-    var isShow ='<c:out value="${isShow}"/>';
+    var isShow = '<c:out value="${isShow}"/>';
 
     var options = {
         size: "small",

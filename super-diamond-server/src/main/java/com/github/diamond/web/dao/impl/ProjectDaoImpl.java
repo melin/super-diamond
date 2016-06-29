@@ -254,17 +254,20 @@ public class ProjectDaoImpl implements ProjectDao {
         return users;
     }
 
-    public List<Project> queryProjects(User user, int offset, int limit) {
-        String sql = "SELECT b.ID, b.PROJ_CODE, b.PROJ_NAME, a.USER_NAME, b.OWNER_ID, b.IS_COMMON FROM CONF_USER a, CONF_PROJECT b "
-                + "WHERE a.ID=b.OWNER_ID AND b.DELETE_FLAG = 0 ";
+    public List<Project> queryProjects(User user, boolean onlyOwn, int offset, int limit) {
 
+        String sql;
         if (!"admin".equals(user.getUserCode())) {
-            sql = sql + " AND b.OWNER_ID = ? ORDER BY b.id asc limit ?,?";
+            sql = "SELECT b.ID, b.PROJ_CODE, b.PROJ_NAME, a.USER_NAME, b.OWNER_ID, b.IS_COMMON FROM CONF_USER a JOIN CONF_PROJECT_USER c ON a.ID = c.USER_ID \n" +
+                    "JOIN  CONF_PROJECT b ON b.ID=c.PROJ_ID WHERE " + (onlyOwn ? " b.OWNER_ID=" : "c.USER_ID = ") + " ? AND b.DELETE_FLAG = 0 ORDER BY b.id asc limit ?,?";
+
             return jdbcTemplate.query(sql, new ProjectRowMapper(), user.getId(), offset, limit);
         } else {
-            sql = sql + " ORDER BY b.id asc limit ?,?";
+            sql = "SELECT b.ID, b.PROJ_CODE, b.PROJ_NAME, a.USER_NAME, b.OWNER_ID, b.IS_COMMON FROM CONF_USER a JOIN CONF_PROJECT b ON a.ID=b.OWNER_ID WHERE b.DELETE_FLAG = 0  ORDER BY b.id asc limit ?,? ";
+
+
+            return jdbcTemplate.query(sql, new ProjectRowMapper(), offset, limit);
         }
-        return jdbcTemplate.query(sql, new ProjectRowMapper(), offset, limit);
     }
 
     public int queryProjectCount(User user) {

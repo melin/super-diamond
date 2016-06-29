@@ -49,7 +49,7 @@ public interface ProjectDao {
 
     List<User> queryProjUsers(int projectId);
 
-    List<Project> queryProjects(User user, int offset, int limit);
+    List<Project> queryProjects(User user, boolean onlyOwn, int offset, int limit);
 
     int queryProjectCount(User user);
 

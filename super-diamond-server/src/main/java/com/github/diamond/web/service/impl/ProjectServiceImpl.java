@@ -30,8 +30,8 @@ public class ProjectServiceImpl implements ProjectService {
     @Autowired
     private ProjectDao projectDao;
 
-    public List<Project> queryProjects(User user, int offset, int limit) {
-        return projectDao.queryProjects(user, offset, limit);
+    public List<Project> queryProjects(User user, boolean onlyOwn, int offset, int limit) {
+        return projectDao.queryProjects(user, onlyOwn, offset, limit);
     }
 
     public int queryProjectCount(User user) {

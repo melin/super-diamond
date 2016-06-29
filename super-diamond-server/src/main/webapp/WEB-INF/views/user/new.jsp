@@ -61,7 +61,6 @@
 
         <%--var userExistFlag = "<c:out value="${requestScope.userExistFlag}"/>";--%>
         var userExistFlag = "<%= request.getParameter("userExistFlag")%>"
-        debugger
         if (userExistFlag == "true") {
             $("#userCodeTip").text("登录账号在系统已注册，请更改账号！");
         }

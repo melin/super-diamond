@@ -16,11 +16,12 @@ public interface ProjectService {
      * 查询用户项目
      *
      * @param user 用户实体类（非admin用户仅查找自己拥有的或是参与的项目，admin用户查找所有项目）
+     * @param onlyOwn 仅显示自己拥有的
      * @param offset
      * @param limit
      * @return
      */
-    List<Project> queryProjects(User user, int offset, int limit);
+    List<Project> queryProjects(User user, boolean onlyOwn,  int offset, int limit);
 
     int queryProjectCount(User user);
 

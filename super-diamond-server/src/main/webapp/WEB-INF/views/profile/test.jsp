@@ -129,8 +129,8 @@
     <tr>
         <th width="60">Module</th>
         <th width="100">Key</th>
+        <th>Config</th>
         <th>Value</th>
-        <th>AfterReplaceValue</th>
         <th width="100">描述</th>
         <th width="45">操作人</th>
         <th width="120">操作时间</th>

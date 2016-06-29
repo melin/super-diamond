@@ -33,7 +33,7 @@ public class IndexContoller extends BaseController {
     @RequestMapping("/index")
     public void index(ModelMap modelMap, @RequestParam(defaultValue = "1") int page) {
         User user = (User) SessionHolder.getSession().getAttribute("sessionUser");
-        List<Project> projects = projectService.queryProjects(user, PageUtil.getOffset(page, LIMIT), LIMIT);
+        List<Project> projects = projectService.queryProjects(user, false, PageUtil.getOffset(page, LIMIT), LIMIT);
         for (Project project : projects) {
             List<String> roles = projectService.queryRoles(project.getId(), user.getId());
             project.setRoles(roles);
