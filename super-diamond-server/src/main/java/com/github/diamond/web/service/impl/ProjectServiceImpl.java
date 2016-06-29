@@ -85,19 +85,6 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     /**
-     * 查询用户所拥有的项目.
-     *
-     * @param user
-     * @param offset
-     * @param limit
-     * @return
-     */
-    public List<Project> queryProjectForUser(User user, int offset, int limit) {
-        List<Project> projects = projectDao.queryProjectForUser(user, offset, limit);
-        return projects;
-    }
-
-    /**
      * 查询用户所拥有的项目数量.
      *
      * @param user
@@ -163,11 +150,15 @@ public class ProjectServiceImpl implements ProjectService {
         return projectDao.getProjectIdByProjectCode(code);
     }
 
-    public boolean findProjCode(String projCode){
+    public boolean findProjCode(String projCode) {
         return projectDao.findProjCode(projCode);
     }
 
-    public Project queryProjectToObject(int projectId){return projectDao.queryProjectToObject(projectId);}
+    public Project queryProjectToObject(int projectId) {
+        return projectDao.queryProjectToObject(projectId);
+    }
 
-   public void updateProject(Project project,Project oldProject){projectDao.updateProject(project,oldProject);}
+    public void updateProject(Project project, Project oldProject) {
+        projectDao.updateProject(project, oldProject);
+    }
 }

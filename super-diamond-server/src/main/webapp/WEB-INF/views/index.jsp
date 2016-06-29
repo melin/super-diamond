@@ -13,8 +13,9 @@
     </thead>
     <tbody>
     <c:forEach items="${projects}" var="project">
-        <tr id="projectId-${project.id}">
+        <tr>
             <td>
+                <c:if test="${project.common}"><img style="position:relative; width: 20px; top: -2px;" title="公共项目,可在其他非公共项目中进行配置引用" src="resources/images/refrence.png"> </c:if>
                 <c:out value="${project.code}"/>
             </td>
             <td>
@@ -61,11 +62,15 @@
         }
     }
     $('#paginator').bootstrapPaginator(options);
-    $(document).ready(function(){
-        <c:forEach items="${commonMultiProjectId}" var="commonProjectId">
-            $("#projectId-${commonProjectId.id}").children().each(function(){
-                $(this).css("background-color","#00ff00");
-            });
-        </c:forEach>
-    });
+
+
+
+
+    <%--$(document).ready(function(){--%>
+        <%--<c:forEach items="${commonMultiProjectId}" var="commonProjectId">--%>
+            <%--$("#projectId-${commonProjectId.id}").children().each(function(){--%>
+                <%--$(this).css("background-color","#00ff00");--%>
+            <%--});--%>
+        <%--</c:forEach>--%>
+    <%--});--%>
 </script>

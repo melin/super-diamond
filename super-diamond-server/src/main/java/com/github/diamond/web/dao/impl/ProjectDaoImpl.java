@@ -33,65 +33,13 @@ public class ProjectDaoImpl implements ProjectDao {
     @Autowired
     private ConfigDao configDao;
 
-    /**
-     * 查询用户所拥有的项目.
-     *
-     * @param user
-     * @param offset
-     * @param limit
-     * @return
-     */
-    public List<Project> queryProjectForUser(User user, int offset, int limit) {
-        if ("admin".equals(user.getUserCode())) {
-            String sql = "SELECT distinct b.ID, b.PROJ_CODE, b.PROJ_NAME FROM CONF_PROJECT_USER a, CONF_PROJECT b "
-                    + "WHERE a.PROJ_ID = b.ID AND b.DELETE_FLAG = 0 order by b.ID desc limit ?, ?";
-            List<Project> projects = jdbcTemplate.query(sql, new RowMapper<Project>() {
-
-                public Project mapRow(ResultSet rs, int rowNum) throws SQLException,
-                        DataAccessException {
-                    Project project = new Project();
-                    project.setId(rs.getInt(1));
-                    project.setCode(rs.getString(2));
-                    project.setName(rs.getString(3));
-                    return project;
-                }
-            }, offset, limit);
-            return projects;
-        } else {
-            String sql = "SELECT distinct b.ID, b.PROJ_CODE, b.PROJ_NAME FROM CONF_PROJECT_USER a, CONF_PROJECT b "
-                    + "WHERE a.PROJ_ID = b.ID and a.USER_ID=? AND b.DELETE_FLAG = 0 order by b.ID desc limit ?, ?";
-            List<Project> projects = jdbcTemplate.query(sql, new RowMapper<Project>() {
-
-                public Project mapRow(ResultSet rs, int rowNum) throws SQLException,
-                        DataAccessException {
-                    Project project = new Project();
-                    project.setId(rs.getInt(1));
-                    project.setCode(rs.getString(2));
-                    project.setName(rs.getString(3));
-                    return project;
-                }
-            }, user.getId(), offset, limit);
-            return projects;
-        }
-    }
-
-    /*@Override
-    public int queryCommonProjectId() {
-        String sql = "select id from CONF_PROJECT where DELETE_FLAG = 0 AND IS_COMMON =1";
-        List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
-        int id = -1;
-        if (list.size() == 1) {
-            id = Integer.valueOf(String.valueOf(list.get(0).get("ID")));
-        }
-        return id;
-    }*/
     @Override
-    public List queryMultiCommonProjectId(){
+    public List queryMultiCommonProjectId() {
         String sql = "select id from CONF_PROJECT where DELETE_FLAG = 0 AND IS_COMMON =1";
         List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
-        if(list.size() > 0){
+        if (list.size() > 0) {
             return list;
-        }else{
+        } else {
             return null;
         }
     }
@@ -110,7 +58,7 @@ public class ProjectDaoImpl implements ProjectDao {
     @Override
     public String getProjectCodeByProjectId(int projectId) {
         String sql = "SELECT PROJ_CODE FROM CONF_PROJECT WHERE ID = ? AND DELETE_FLAG = 0";
-        String projCode = jdbcTemplate.queryForObject(sql, String.class , projectId);
+        String projCode = jdbcTemplate.queryForObject(sql, String.class, projectId);
         return projCode;
     }
 
@@ -181,7 +129,7 @@ public class ProjectDaoImpl implements ProjectDao {
 
             for (Map<String, Object> conf : configs) {
                 configDao.insertConfig((String) conf.get("CONFIG_KEY"), (String) conf.get("CONFIG_VALUE"),
-                        (String) conf.get("CONFIG_DESC"), (int)conf.get("IS_SHOW") > 0 ? true : false,
+                        (String) conf.get("CONFIG_DESC"), (int) conf.get("IS_SHOW") > 0 ? true : false,
                         projId, moduleId, userCode);
             }
         }
@@ -259,7 +207,7 @@ public class ProjectDaoImpl implements ProjectDao {
     public void saveProject(Project project, String copyCode, User user, boolean isCommon) {
         String sql = "SELECT MAX(id)+1 FROM CONF_PROJECT";
         Integer projId = jdbcTemplate.queryForObject(sql, Integer.class);
-        if(projId == null){
+        if (projId == null) {
             projId = 1;
         }
         sql = "insert into CONF_PROJECT (ID, PROJ_CODE, PROJ_NAME, OWNER_ID, CREATE_TIME,IS_COMMON) values (?, ?, ?, ?, ?,?)";
@@ -307,7 +255,7 @@ public class ProjectDaoImpl implements ProjectDao {
     }
 
     public List<Project> queryProjects(User user, int offset, int limit) {
-        String sql = "SELECT b.ID, b.PROJ_CODE, b.PROJ_NAME, a.USER_NAME, b.OWNER_ID FROM CONF_USER a, CONF_PROJECT b "
+        String sql = "SELECT b.ID, b.PROJ_CODE, b.PROJ_NAME, a.USER_NAME, b.OWNER_ID, b.IS_COMMON FROM CONF_USER a, CONF_PROJECT b "
                 + "WHERE a.ID=b.OWNER_ID AND b.DELETE_FLAG = 0 ";
 
         if (!"admin".equals(user.getUserCode())) {
@@ -335,9 +283,9 @@ public class ProjectDaoImpl implements ProjectDao {
         try {
             String sql = "SELECT ID FROM CONF_USER WHERE USER_CODE = ?";
             Integer userId = jdbcTemplate.queryForObject(sql, new Object[]{userCode}, Integer.class);
-            if(userId != null){
+            if (userId != null) {
                 return userId;
-            }else {
+            } else {
                 return 0;
             }
         } catch (DataAccessException e) {
@@ -355,6 +303,7 @@ public class ProjectDaoImpl implements ProjectDao {
             project.setName(rs.getString(3));
             project.setUserName(rs.getString(4));
             project.setOwnerId(rs.getInt(5));
+            project.setCommon(rs.getBoolean(6));
             return project;
         }
     }
@@ -371,15 +320,15 @@ public class ProjectDaoImpl implements ProjectDao {
         }
     }
 
-    public boolean findProjCode(String projCode){
+    public boolean findProjCode(String projCode) {
         String sql = "SELECT count(*) FROM CONF_PROJECT WHERE PROJ_CODE = ? AND DELETE_FLAG = 0";
-        int num = jdbcTemplate.queryForObject(sql,Integer.class,projCode);
+        int num = jdbcTemplate.queryForObject(sql, Integer.class, projCode);
         return num > 0;
     }
 
-    public Project queryProjectToObject(int projectId){
-        String sql="SELECT b.ID, b.PROJ_CODE, b.PROJ_NAME, a.USER_NAME,a.USER_CODE, b.OWNER_ID FROM CONF_USER a,CONF_PROJECT b WHERE b.ID = ? AND a.ID = b.OWNER_ID";
-        return jdbcTemplate.queryForObject(sql, new RowMapper<Project>(){
+    public Project queryProjectToObject(int projectId) {
+        String sql = "SELECT b.ID, b.PROJ_CODE, b.PROJ_NAME, a.USER_NAME,a.USER_CODE, b.OWNER_ID FROM CONF_USER a,CONF_PROJECT b WHERE b.ID = ? AND a.ID = b.OWNER_ID";
+        return jdbcTemplate.queryForObject(sql, new RowMapper<Project>() {
             public Project mapRow(ResultSet rs, int rowNum) throws SQLException,
                     DataAccessException {
                 Project project = new Project();
@@ -391,16 +340,16 @@ public class ProjectDaoImpl implements ProjectDao {
                 project.setOwnerId(rs.getInt(6));
                 return project;
             }
-        },new Object[]{projectId}) ;
+        }, new Object[]{projectId});
     }
 
     @Transactional
-    public void updateProject(Project project,Project oldProject){
-        String sqlProject="update CONF_PROJECT set PROJ_CODE = ? ,PROJ_NAME = ? ,OWNER_ID = ? ,UPDATE_TIME = ? where ID = ?";
+    public void updateProject(Project project, Project oldProject) {
+        String sqlProject = "update CONF_PROJECT set PROJ_CODE = ? ,PROJ_NAME = ? ,OWNER_ID = ? ,UPDATE_TIME = ? where ID = ?";
         String sqlProjectUser = "insert into CONF_PROJECT_USER (PROJ_ID , USER_ID) values (? , ?)";
-        jdbcTemplate.update(sqlProject,project.getCode(),project.getName(),project.getOwnerId(),new Date(),project.getId());
-        if(project.getOwnerId() != oldProject.getOwnerId()){
-            jdbcTemplate.update(sqlProjectUser,project.getId(),project.getOwnerId());
+        jdbcTemplate.update(sqlProject, project.getCode(), project.getName(), project.getOwnerId(), new Date(), project.getId());
+        if (project.getOwnerId() != oldProject.getOwnerId()) {
+            jdbcTemplate.update(sqlProjectUser, project.getId(), project.getOwnerId());
         }
 
     }

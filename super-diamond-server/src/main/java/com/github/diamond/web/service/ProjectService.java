@@ -8,9 +8,18 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by sjpan on 2016/3/16.
+ * 项目服务接口
  */
 public interface ProjectService {
+
+    /**
+     * 查询用户项目
+     *
+     * @param user 用户实体类（非admin用户仅查找自己拥有的或是参与的项目，admin用户查找所有项目）
+     * @param offset
+     * @param limit
+     * @return
+     */
     List<Project> queryProjects(User user, int offset, int limit);
 
     int queryProjectCount(User user);
@@ -34,8 +43,6 @@ public interface ProjectService {
     void saveUser(int projectId, int userId, String development, String test, String build, String production, String admin);
 
     void deleteUser(int projectId, int userId);
-
-    List<Project> queryProjectForUser(User user, int offset, int limit);
 
     int queryProjectCountForUser(User user);
 

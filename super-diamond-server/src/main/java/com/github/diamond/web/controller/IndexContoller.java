@@ -33,14 +33,12 @@ public class IndexContoller extends BaseController {
     @RequestMapping("/index")
     public void index(ModelMap modelMap, @RequestParam(defaultValue = "1") int page) {
         User user = (User) SessionHolder.getSession().getAttribute("sessionUser");
-        List<Map<String,Object>> commonMultiProjectId = projectService.queryMultiCommonProjectId();
-        List<Project> projects = projectService.queryProjectForUser(user, PageUtil.getOffset(page, LIMIT), LIMIT);
+        List<Project> projects = projectService.queryProjects(user, PageUtil.getOffset(page, LIMIT), LIMIT);
         for (Project project : projects) {
             List<String> roles = projectService.queryRoles(project.getId(), user.getId());
             project.setRoles(roles);
         }
         modelMap.addAttribute("projects", projects);
-        modelMap.addAttribute("commonMultiProjectId",commonMultiProjectId);
         long recordCount = projectService.queryProjectCountForUser(user);
         modelMap.addAttribute("totalPages", PageUtil.pageCount(recordCount, LIMIT));
         modelMap.addAttribute("currentPage", page);

@@ -10,10 +10,11 @@ import java.util.Map;
  * Created by sjpan on 2016/3/16.
  */
 public interface ProjectDao {
-    List<Project> queryProjectForUser(User user, int offset, int limit);
-
-    /*int queryCommonProjectId();*/
-
+    /**
+     *  查询所有公共项目
+     *
+     * @return
+     */
     List queryMultiCommonProjectId();
 
     int getProjectIdByProjectCode(String code);
