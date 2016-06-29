@@ -83,7 +83,16 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
-        $("#login").click(function (e) {
+
+
+        $("#login").click(doLogin);
+        $("#password").keyup(function(e){
+            if(e.keyCode == 13) {
+                doLogin();
+            }
+        })
+
+        function doLogin(){
             $("#userCodeTip, #passwordTip").text("");
 
             if (!$("#userCode").val().trim()) {
@@ -93,7 +102,7 @@
             } else {
                 $("#loginForm")[0].submit();
             }
-        });
+        }
     });
 </script>
 </body>
