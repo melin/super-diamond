@@ -1,5 +1,7 @@
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+
 
 <a class="brand" href="/superdiamond/index">首页</a> >> <b><c:out value="${project.PROJ_NAME}"/> - <c:out
         value="${type}"/></b> <br/><br/>
@@ -275,7 +277,8 @@
     </thead>
     <tbody>
     <c:forEach items="${configs}" var="config">
-        <tr id='row-<c:out value="${config.CONFIG_ID}"/>'>
+        <tr id='row-<c:out value="${config.CONFIG_ID}"/>'
+            <c:if test="${fn:startsWith(config.REAL_CONFIG_VALUE, 'RPF:')}"> style=" background: yellow; color: red; font-weight: bold;"  title="配置替换失败" </c:if>>
             <td value='<c:out value="${config.MODULE_ID}"/>'>
                 <c:out value="${config.MODULE_NAME}"/>
             </td>
@@ -285,19 +288,16 @@
             <td title='<c:out value="${config.CONFIG_VALUE}"/>'>
                 <script type="text/javascript">
                     var value = '<c:out value="${config.CONFIG_VALUE}"/>';
-                    if (value.length > 30)
-                        document.write(value.substring(0, 30) + "...");
-                    else
-                        document.write(value);
+                    document.write(value.length > 30 ? value.substring(0, 30) + "..." : value);
                 </script>
             </td>
-            <td title='<c:out value="${config.REAL_CONFIG_VALUE}"/>'>
+            <td title="<c:out value='${fn:replace(config.REAL_CONFIG_VALUE,\"RPF:\",\"\")}' />" >
                 <script type="text/javascript">
                     var value = '<c:out value="${config.REAL_CONFIG_VALUE}"/>';
-                    if (value.length > 30)
-                        document.write(value.substring(0, 30) + "...");
-                    else
-                        document.write(value);
+                    if(value.indexOf("RPF:") == 0) {
+                        value = value.replace("RPF:","");
+                    }
+                    document.write(value.length > 30 ? value.substring(0, 30) + "..." : value);
                 </script>
             </td>
             <td title='<c:out value="${config.CONFIG_DESC}"/>'>

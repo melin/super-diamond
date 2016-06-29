@@ -33,6 +33,8 @@ import java.util.Map;
 @Service
 public class ConfigServiceImpl implements ConfigService {
 
+    private final static   String ERROR_REPLACE_TOKEN = "RPF:";
+
     @Autowired
     private ProjectDao projectDao;
 
@@ -45,99 +47,47 @@ public class ConfigServiceImpl implements ConfigService {
         Map<String, String> commonStore = new HashMap<>();
         Map<String, String> store;
         if ("development".equals(type)) {
-            List<Map<String, Object>> commonProjectId = projectDao.queryMultiCommonProjectId();
-            if (commonProjectId != null && !ProjectIdUtil.isIdExistsInCommonId(projectId, commonProjectId)) {
-                commonStore = getCommonConfigMap(commonProjectId, type);
-            }
-            store = replaceByCommonConfigs(projectId, type, commonStore);
-            pageConfigList = configDao.queryDevelopmentConfigs(projectId, type, moduleId, offset, limit, isShow);
-            for (int i = 0; i < pageConfigList.size(); i++) {
-                int index = String.valueOf(pageConfigList.get(i).get("CONFIG_DESC")).indexOf("\r\n");
-                if (index != -1) {
-                    String desc = StringUtils.replace(String.valueOf(pageConfigList.get(i).get("CONFIG_DESC")), "\r\n", "<br/>");
-                    pageConfigList.get(i).remove("CONFIG_DESC");
-                    pageConfigList.get(i).put("CONFIG_DESC", desc);
-                }
-                String str = PlaceHolderUtil.findPlaceHolderVar(store.get(pageConfigList.get(i).get("CONFIG_KEY")));
-                if (str != null && !ProjectIdUtil.isIdExistsInCommonId(projectId, commonProjectId)) {
-                    StrSubstitutor strSubstitutor = new StrSubstitutor(store);
-                    String realValue = strSubstitutor.replace(store.get(pageConfigList.get(i).get("CONFIG_KEY")));
-                    pageConfigList.get(i).put("REAL_CONFIG_VALUE", realValue);
-                } else {
-                    pageConfigList.get(i).put("REAL_CONFIG_VALUE", store.get(pageConfigList.get(i).get("CONFIG_KEY")));
-                }
-            }
+            List<Map<String, Object>> originalConfigList = configDao.queryDevelopmentConfigs(projectId, type, moduleId, offset, limit, isShow);
+            pageConfigList = doQueryConfigs(projectId, type, originalConfigList, commonStore, "REAL_CONFIG_VALUE");
         } else if ("test".equals(type)) {
-            List<Map<String, Object>> commonProjectId = projectDao.queryMultiCommonProjectId();
-            if (commonProjectId != null && !ProjectIdUtil.isIdExistsInCommonId(projectId, commonProjectId)) {
-                commonStore = getCommonConfigMap(commonProjectId, type);
-            }
-            store = replaceByCommonConfigs(projectId, type, commonStore);
-            pageConfigList = configDao.queryTestConfigs(projectId, type, moduleId, offset, limit, isShow);
-            for (int i = 0; i < pageConfigList.size(); i++) {
-                int index = String.valueOf(pageConfigList.get(i).get("CONFIG_DESC")).indexOf("\r\n");
-                if (index != -1) {
-                    String desc = StringUtils.replace(String.valueOf(pageConfigList.get(i).get("CONFIG_DESC")), "\r\n", "<br/>");
-                    pageConfigList.get(i).remove("CONFIG_DESC");
-                    pageConfigList.get(i).put("CONFIG_DESC", desc);
-                }
-                String str = PlaceHolderUtil.findPlaceHolderVar(store.get(pageConfigList.get(i).get("CONFIG_KEY")));
-                if (str != null && !ProjectIdUtil.isIdExistsInCommonId(projectId, commonProjectId)) {
-                    StrSubstitutor strSubstitutor = new StrSubstitutor(store);
-                    String realValue = strSubstitutor.replace(store.get(pageConfigList.get(i).get("CONFIG_KEY")));
-                    pageConfigList.get(i).put("REAL_TEST_VALUE", realValue);
-                } else {
-                    pageConfigList.get(i).put("REAL_TEST_VALUE", store.get(pageConfigList.get(i).get("CONFIG_KEY")));
-                }
-            }
+            List<Map<String, Object>> originalConfigList = configDao.queryTestConfigs(projectId, type, moduleId, offset, limit, isShow);
+            pageConfigList = doQueryConfigs(projectId, type, originalConfigList, commonStore, "REAL_TEST_VALUE");
         } else if ("production".equals(type)) {
-            List<Map<String, Object>> commonProjectId = projectDao.queryMultiCommonProjectId();
-            if (commonProjectId != null && !ProjectIdUtil.isIdExistsInCommonId(projectId, commonProjectId)) {
-                commonStore = getCommonConfigMap(commonProjectId, type);
-            }
-            store = replaceByCommonConfigs(projectId, type, commonStore);
-            pageConfigList = configDao.queryProductionConfigs(projectId, type, moduleId, offset, limit, isShow);
-            for (int i = 0; i < pageConfigList.size(); i++) {
-                int index = String.valueOf(pageConfigList.get(i).get("CONFIG_DESC")).indexOf("\r\n");
-                if (index != -1) {
-                    String desc = StringUtils.replace(String.valueOf(pageConfigList.get(i).get("CONFIG_DESC")), "\r\n", "<br/>");
-                    pageConfigList.get(i).remove("CONFIG_DESC");
-                    pageConfigList.get(i).put("CONFIG_DESC", desc);
-                }
-                String str = PlaceHolderUtil.findPlaceHolderVar(store.get(pageConfigList.get(i).get("CONFIG_KEY")));
-                if (str != null && !ProjectIdUtil.isIdExistsInCommonId(projectId, commonProjectId)) {
-                    StrSubstitutor strSubstitutor = new StrSubstitutor(store);
-                    String realValue = strSubstitutor.replace(store.get(pageConfigList.get(i).get("CONFIG_KEY")));
-                    pageConfigList.get(i).put("REAL_PRODUCTION_VALUE", realValue);
-                } else {
-                    pageConfigList.get(i).put("REAL_PRODUCTION_VALUE", store.get(pageConfigList.get(i).get("CONFIG_KEY")));
-                }
-            }
+            List<Map<String, Object>> originalConfigList = configDao.queryProductionConfigs(projectId, type, moduleId, offset, limit, isShow);
+            pageConfigList = doQueryConfigs(projectId, type, originalConfigList, commonStore, "REAL_PRODUCTION_VALUE");
         } else {
-            List<Map<String, Object>> commonProjectId = projectDao.queryMultiCommonProjectId();
-            if (commonProjectId != null && !ProjectIdUtil.isIdExistsInCommonId(projectId, commonProjectId)) {
-                commonStore = getCommonConfigMap(commonProjectId, type);
-            }
-            store = replaceByCommonConfigs(projectId, type, commonStore);
-            pageConfigList = configDao.queryBuildConfigs(projectId, type, moduleId, offset, limit, isShow);
-            for (int i = 0; i < pageConfigList.size(); i++) {
-                int index = String.valueOf(pageConfigList.get(i).get("CONFIG_DESC")).indexOf("\r\n");
-                if (index != -1) {
-                    String desc = StringUtils.replace(String.valueOf(pageConfigList.get(i).get("CONFIG_DESC")), "\r\n", "<br/>");
-                    pageConfigList.get(i).remove("CONFIG_DESC");
-                    pageConfigList.get(i).put("CONFIG_DESC", desc);
-                }
-                String str = PlaceHolderUtil.findPlaceHolderVar(store.get(pageConfigList.get(i).get("CONFIG_KEY")));
-                if (str != null && !ProjectIdUtil.isIdExistsInCommonId(projectId, commonProjectId)) {
-                    StrSubstitutor strSubstitutor = new StrSubstitutor(store);
-                    String realValue = strSubstitutor.replace(store.get(pageConfigList.get(i).get("CONFIG_KEY")));
-                    pageConfigList.get(i).put("REAL_BUILD_VALUE", realValue);
-                } else {
-                    pageConfigList.get(i).put("REAL_BUILD_VALUE", store.get(pageConfigList.get(i).get("CONFIG_KEY")));
-                }
-            }
+            List<Map<String, Object>> originalConfigList = configDao.queryBuildConfigs(projectId, type, moduleId, offset, limit, isShow);
+            pageConfigList = doQueryConfigs(projectId, type, originalConfigList, commonStore, "REAL_BUILD_VALUE");
         }
         return pageConfigList;
+    }
+
+    private List<Map<String, Object>> doQueryConfigs(int projectId, String type, List<Map<String, Object>> originalConfigList, Map<String, String> commonStore, String realConfigValKey) {
+        Map<String, String> store;
+        List<Map<String, Object>> commonProjectId = projectDao.queryMultiCommonProjectId();
+        if (commonProjectId != null && !ProjectIdUtil.isIdExistsInCommonId(projectId, commonProjectId)) {
+            commonStore = getCommonConfigMap(commonProjectId, type);
+        }
+        store = replaceByCommonConfigs(projectId, type, commonStore);
+
+        for (Map<String, Object> config : originalConfigList) {
+            int index = String.valueOf(config.get("CONFIG_DESC")).indexOf("\r\n");
+            if (index != -1) {
+                String desc = StringUtils.replace(String.valueOf(config.get("CONFIG_DESC")), "\r\n", "<br/>");
+                config.remove("CONFIG_DESC");
+                config.put("CONFIG_DESC", desc);
+            }
+            String str = PlaceHolderUtil.findPlaceHolderVar(store.get(config.get("CONFIG_KEY")));
+            if (str != null && !ProjectIdUtil.isIdExistsInCommonId(projectId, commonProjectId)) {
+                StrSubstitutor strSubstitutor = new StrSubstitutor(store);
+                String realValue = strSubstitutor.replace(store.get(config.get("CONFIG_KEY")));
+                config.put(realConfigValKey, realValue);
+            } else {
+                config.put(realConfigValKey, store.get(config.get("CONFIG_KEY")));
+            }
+        }
+
+        return originalConfigList;
     }
 
     public int queryConfigCount(int projectId, int moduleId, boolean isShow) {
@@ -860,68 +810,7 @@ public class ConfigServiceImpl implements ConfigService {
         return new Config(configKey, configValue, configDesc);
     }
 
-    /*public Map<String, String> getCommonConfigMap(int projectId, String type) {
-         Map<String, String> store = new HashMap<>();
-         List<Map<String, Object>> allConfigList = configDao.queryConfigs(projectId, type);
 
-         Map<String, String> storeTmp = new HashMap<>();
-         for (int j = 0; j < allConfigList.size(); j++) {
-             if ("development".equals(type)) {
-                 storeTmp.put(String.valueOf(allConfigList.get(j).get("CONFIG_KEY")),
-                         String.valueOf(allConfigList.get(j).get("CONFIG_VALUE")));
-             } else if ("production".equals(type)) {
-                 storeTmp.put(String.valueOf(allConfigList.get(j).get("CONFIG_KEY")),
-                         String.valueOf(allConfigList.get(j).get("PRODUCTION_VALUE")));
-             } else if ("test".equals(type)) {
-                 storeTmp.put(String.valueOf(allConfigList.get(j).get("CONFIG_KEY")),
-                         String.valueOf(allConfigList.get(j).get("TEST_VALUE")));
-             } else if ("build".equals(type)) {
-                 storeTmp.put(String.valueOf(allConfigList.get(j).get("CONFIG_KEY")),
-                         String.valueOf(allConfigList.get(j).get("BUILD_VALUE")));
-             }
-         }
-
-         for (int j = 0; j < allConfigList.size(); j++) {
-             if ("development".equals(type)) {
-                 String str = PlaceHolderUtil.findPlaceHolderVar(String.valueOf(allConfigList.get(j).get("CONFIG_VALUE")));
-                 if (str != null && storeTmp.size() != 0) {
-                     StrSubstitutor strSubstitutor = new StrSubstitutor(storeTmp);
-                     String realValue = strSubstitutor.replace(String.valueOf(allConfigList.get(j).get("CONFIG_VALUE")));
-                     store.put("common:" + String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), realValue);
-                 } else {
-                     store.put("common:" + String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), String.valueOf(allConfigList.get(j).get("CONFIG_VALUE")));
-                 }
-             } else if ("production".equals(type)) {
-                 String str = PlaceHolderUtil.findPlaceHolderVar(String.valueOf(allConfigList.get(j).get("PRODUCTION_VALUE")));
-                 if (str != null && storeTmp.size() != 0) {
-                     StrSubstitutor strSubstitutor = new StrSubstitutor(storeTmp);
-                     String realValue = strSubstitutor.replace(String.valueOf(allConfigList.get(j).get("PRODUCTION_VALUE")));
-                     store.put("common:" + String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), realValue);
-                 } else {
-                     store.put("common:" + String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), String.valueOf(allConfigList.get(j).get("PRODUCTION_VALUE")));
-                 }
-             } else if ("test".equals(type)) {
-                 String str = PlaceHolderUtil.findPlaceHolderVar(String.valueOf(allConfigList.get(j).get("TEST_VALUE")));
-                 if (str != null && storeTmp.size() != 0) {
-                     StrSubstitutor strSubstitutor = new StrSubstitutor(storeTmp);
-                     String realValue = strSubstitutor.replace(String.valueOf(allConfigList.get(j).get("TEST_VALUE")));
-                     store.put("common:" + String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), realValue);
-                 } else {
-                     store.put("common:" + String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), String.valueOf(allConfigList.get(j).get("TEST_VALUE")));
-                 }
-             } else if ("build".equals(type)) {
-                 String str = PlaceHolderUtil.findPlaceHolderVar(String.valueOf(allConfigList.get(j).get("BUILD_VALUE")));
-                 if (str != null && storeTmp.size() != 0) {
-                     StrSubstitutor strSubstitutor = new StrSubstitutor(storeTmp);
-                     String realValue = strSubstitutor.replace(String.valueOf(allConfigList.get(j).get("BUILD_VALUE")));
-                     store.put("common:" + String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), realValue);
-                 } else {
-                     store.put("common:" + String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), String.valueOf(allConfigList.get(j).get("BUILD_VALUE")));
-                 }
-             }
-         }
-         return store;
-     }*/
     public Map<String, String> getCommonConfigMap(List<Map<String, Object>> multiProjectId, String type) {
         Map<String, String> store = new HashMap<>();
         for (int id = 0; id < multiProjectId.size(); id++) {
@@ -929,150 +818,45 @@ public class ConfigServiceImpl implements ConfigService {
             List<Map<String, Object>> allConfigList = configDao.queryConfigs(projectId, type);
             String projCode = projectDao.getProjectCodeByProjectId(projectId);
             Map<String, String> storeTmp = new HashMap<>();
-            for (int j = 0; j < allConfigList.size(); j++) {
-                if ("development".equals(type)) {
-                    storeTmp.put(String.valueOf(allConfigList.get(j).get("CONFIG_KEY")),
-                            String.valueOf(allConfigList.get(j).get("CONFIG_VALUE")));
-                } else if ("production".equals(type)) {
-                    storeTmp.put(String.valueOf(allConfigList.get(j).get("CONFIG_KEY")),
-                            String.valueOf(allConfigList.get(j).get("PRODUCTION_VALUE")));
-                } else if ("test".equals(type)) {
-                    storeTmp.put(String.valueOf(allConfigList.get(j).get("CONFIG_KEY")),
-                            String.valueOf(allConfigList.get(j).get("TEST_VALUE")));
-                } else if ("build".equals(type)) {
-                    storeTmp.put(String.valueOf(allConfigList.get(j).get("CONFIG_KEY")),
-                            String.valueOf(allConfigList.get(j).get("BUILD_VALUE")));
-                }
+            if ("development".equals(type)) {
+                handleConfigVal(allConfigList, projCode, storeTmp, "CONFIG_VALUE", null);
+            } else if ("production".equals(type)) {
+                handleConfigVal(allConfigList, projCode, storeTmp, "PRODUCTION_VALUE", null);
+            } else if ("test".equals(type)) {
+                handleConfigVal(allConfigList, projCode, storeTmp, "TEST_VALUE", null);
+            } else if ("build".equals(type)) {
+                handleConfigVal(allConfigList, projCode, storeTmp, "BUILD_VALUE", null);
             }
 
-            for (int j = 0; j < allConfigList.size(); j++) {
-                if ("development".equals(type)) {
-                    String str = PlaceHolderUtil.findPlaceHolderVar(String.valueOf(allConfigList.get(j).get("CONFIG_VALUE")));
-                    if (str != null && storeTmp.size() != 0) {
-                        StrSubstitutor strSubstitutor = new StrSubstitutor(storeTmp);
-                        String realValue = strSubstitutor.replace(String.valueOf(allConfigList.get(j).get("CONFIG_VALUE")));
-                        store.put(projCode + ":" + String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), realValue);
-                    } else {
-                        store.put(projCode + ":" + String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), String.valueOf(allConfigList.get(j).get("CONFIG_VALUE")));
-                    }
-                } else if ("production".equals(type)) {
-                    String str = PlaceHolderUtil.findPlaceHolderVar(String.valueOf(allConfigList.get(j).get("PRODUCTION_VALUE")));
-                    if (str != null && storeTmp.size() != 0) {
-                        StrSubstitutor strSubstitutor = new StrSubstitutor(storeTmp);
-                        String realValue = strSubstitutor.replace(String.valueOf(allConfigList.get(j).get("PRODUCTION_VALUE")));
-                        store.put(projCode + ":" + String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), realValue);
-                    } else {
-                        store.put(projCode + ":" + String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), String.valueOf(allConfigList.get(j).get("PRODUCTION_VALUE")));
-                    }
-                } else if ("test".equals(type)) {
-                    String str = PlaceHolderUtil.findPlaceHolderVar(String.valueOf(allConfigList.get(j).get("TEST_VALUE")));
-                    if (str != null && storeTmp.size() != 0) {
-                        StrSubstitutor strSubstitutor = new StrSubstitutor(storeTmp);
-                        String realValue = strSubstitutor.replace(String.valueOf(allConfigList.get(j).get("TEST_VALUE")));
-                        store.put(projCode + ":" + String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), realValue);
-                    } else {
-                        store.put(projCode + ":" + String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), String.valueOf(allConfigList.get(j).get("TEST_VALUE")));
-                    }
-                } else if ("build".equals(type)) {
-                    String str = PlaceHolderUtil.findPlaceHolderVar(String.valueOf(allConfigList.get(j).get("BUILD_VALUE")));
-                    if (str != null && storeTmp.size() != 0) {
-                        StrSubstitutor strSubstitutor = new StrSubstitutor(storeTmp);
-                        String realValue = strSubstitutor.replace(String.valueOf(allConfigList.get(j).get("BUILD_VALUE")));
-                        store.put(projCode + ":" + String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), realValue);
-                    } else {
-                        store.put(projCode + ":" + String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), String.valueOf(allConfigList.get(j).get("BUILD_VALUE")));
-                    }
-                }
+            if ("development".equals(type)) {
+                doConfigValReplace(store, allConfigList, projCode, storeTmp, "CONFIG_VALUE");
+            } else if ("production".equals(type)) {
+                doConfigValReplace(store, allConfigList, projCode, storeTmp, "PRODUCTION_VALUE");
+            } else if ("test".equals(type)) {
+                doConfigValReplace(store, allConfigList, projCode, storeTmp, "TEST_VALUE");
+            } else if ("build".equals(type)) {
+                doConfigValReplace(store, allConfigList, projCode, storeTmp, "BUILD_VALUE");
             }
         }
-
 
         return store;
     }
 
-    /*public Map<String, String> getCommonConfigMap(int projectId, String type, String[] encryptPropNameArr) {
-        Map<String, String> store = new HashMap<>();
-        List<Map<String, Object>> allConfigList = configDao.queryConfigs(projectId, type);
+    private void doConfigValReplace(Map<String, String> store, List<Map<String, Object>> allConfigList, String projCode, Map<String, String> storeTmp, String configValueProfileKey) {
 
-        Map<String, String> storeTmp = new HashMap<>();
-        for (int j = 0; j < allConfigList.size(); j++) {
-            if ("development".equals(type)) {
-                String value;
-                if (ArrayUtils.contains(encryptPropNameArr, "common:" + allConfigList.get(j).get("CONFIG_KEY"))) {
-                    value = "$[" + String.valueOf(allConfigList.get(j).get("CONFIG_VALUE")) + "]";
-                } else {
-                    value = String.valueOf(allConfigList.get(j).get("CONFIG_VALUE"));
-                }
-                storeTmp.put(String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), value);
-            } else if ("production".equals(type)) {
-                String value;
-                if (ArrayUtils.contains(encryptPropNameArr, "common:" + allConfigList.get(j).get("CONFIG_KEY"))) {
-                    value = "$[" + String.valueOf(allConfigList.get(j).get("PRODUCTION_VALUE")) + "]";
-                } else {
-                    value = String.valueOf(allConfigList.get(j).get("PRODUCTION_VALUE"));
-                }
-                storeTmp.put(String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), value);
-            } else if ("test".equals(type)) {
-                String value;
-                if (ArrayUtils.contains(encryptPropNameArr, "common:" + allConfigList.get(j).get("CONFIG_KEY"))) {
-                    value = "$[" + String.valueOf(allConfigList.get(j).get("TEST_VALUE")) + "]";
-                } else {
-                    value = String.valueOf(allConfigList.get(j).get("TEST_VALUE"));
-                }
-                storeTmp.put(String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), value);
-            } else if ("build".equals(type)) {
-                String value;
-                if (ArrayUtils.contains(encryptPropNameArr, "common:" + allConfigList.get(j).get("CONFIG_KEY"))) {
-                    value = "$[" + String.valueOf(allConfigList.get(j).get("BUILD_VALUE")) + "]";
-                } else {
-                    value = String.valueOf(allConfigList.get(j).get("BUILD_VALUE"));
-                }
-                storeTmp.put(String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), value);
+        for (Map<String, Object> config : allConfigList) {
+            String configVal = String.valueOf(config.get(configValueProfileKey));
+            String str = PlaceHolderUtil.findPlaceHolderVar(configVal);
+            if (str != null && storeTmp.size() != 0) {
+                StrSubstitutor strSubstitutor = new StrSubstitutor(storeTmp);
+                String realValue = strSubstitutor.replace(configVal);
+                store.put(projCode + ":" + String.valueOf(config.get("CONFIG_KEY")), realValue);
+            } else {
+                store.put(projCode + ":" + String.valueOf(config.get("CONFIG_KEY")), configVal);
             }
         }
 
-
-        for (int j = 0; j < allConfigList.size(); j++) {
-            if ("development".equals(type)) {
-                String str = PlaceHolderUtil.findPlaceHolderVar(String.valueOf(allConfigList.get(j).get("CONFIG_VALUE")));
-                if (str != null && storeTmp.size() != 0) {
-                    StrSubstitutor strSubstitutor = new StrSubstitutor(storeTmp);
-                    String realValue = strSubstitutor.replace(String.valueOf(allConfigList.get(j).get("CONFIG_VALUE")));
-                    store.put("common:" + String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), realValue);
-                } else {
-                    store.put("common:" + String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), storeTmp.get(String.valueOf(allConfigList.get(j).get("CONFIG_KEY"))));
-                }
-            } else if ("production".equals(type)) {
-                String str = PlaceHolderUtil.findPlaceHolderVar(String.valueOf(allConfigList.get(j).get("PRODUCTION_VALUE")));
-                if (str != null && storeTmp.size() != 0) {
-                    StrSubstitutor strSubstitutor = new StrSubstitutor(storeTmp);
-                    String realValue = strSubstitutor.replace(String.valueOf(allConfigList.get(j).get("PRODUCTION_VALUE")));
-                    store.put("common:" + String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), realValue);
-                } else {
-                    store.put("common:" + String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), storeTmp.get(String.valueOf(allConfigList.get(j).get("CONFIG_KEY"))));
-                }
-            } else if ("test".equals(type)) {
-                String str = PlaceHolderUtil.findPlaceHolderVar(String.valueOf(allConfigList.get(j).get("TEST_VALUE")));
-                if (str != null && storeTmp.size() != 0) {
-                    StrSubstitutor strSubstitutor = new StrSubstitutor(storeTmp);
-                    String realValue = strSubstitutor.replace(String.valueOf(allConfigList.get(j).get("TEST_VALUE")));
-                    store.put("common:" + String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), realValue);
-                } else {
-                    store.put("common:" + String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), storeTmp.get(String.valueOf(allConfigList.get(j).get("CONFIG_KEY"))));
-                }
-            } else if ("build".equals(type)) {
-                String str = PlaceHolderUtil.findPlaceHolderVar(String.valueOf(allConfigList.get(j).get("BUILD_VALUE")));
-                if (str != null && storeTmp.size() != 0) {
-                    StrSubstitutor strSubstitutor = new StrSubstitutor(storeTmp);
-                    String realValue = strSubstitutor.replace(String.valueOf(allConfigList.get(j).get("BUILD_VALUE")));
-                    store.put("common:" + String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), realValue);
-                } else {
-                    store.put("common:" + String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), storeTmp.get(String.valueOf(allConfigList.get(j).get("CONFIG_KEY"))));
-                }
-            }
-        }
-        return store;
-    }*/
+    }
 
     public Map<String, String> getCommonConfigMap(List<Map<String, Object>> multiProjectId, String type, String[] encryptPropNameArr) {
         Map<String, String> store = new HashMap<>();
@@ -1081,262 +865,95 @@ public class ConfigServiceImpl implements ConfigService {
             List<Map<String, Object>> allConfigList = configDao.queryConfigs(projectId, type);
             String projCode = projectDao.getProjectCodeByProjectId(projectId);
             Map<String, String> storeTmp = new HashMap<>();
-            for (int j = 0; j < allConfigList.size(); j++) {
-                if ("development".equals(type)) {
-                    String value;
-                    if (ArrayUtils.contains(encryptPropNameArr, projCode + ":" + allConfigList.get(j).get("CONFIG_KEY"))) {
-                        value = "$[" + String.valueOf(allConfigList.get(j).get("CONFIG_VALUE")) + "]";
-                    } else {
-                        value = String.valueOf(allConfigList.get(j).get("CONFIG_VALUE"));
-                    }
-                    storeTmp.put(String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), value);
-                } else if ("production".equals(type)) {
-                    String value;
-                    if (ArrayUtils.contains(encryptPropNameArr, projCode + ":" + allConfigList.get(j).get("CONFIG_KEY"))) {
-                        value = "$[" + String.valueOf(allConfigList.get(j).get("PRODUCTION_VALUE")) + "]";
-                    } else {
-                        value = String.valueOf(allConfigList.get(j).get("PRODUCTION_VALUE"));
-                    }
-                    storeTmp.put(String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), value);
-                } else if ("test".equals(type)) {
-                    String value;
-                    if (ArrayUtils.contains(encryptPropNameArr, projCode + ":" + allConfigList.get(j).get("CONFIG_KEY"))) {
-                        value = "$[" + String.valueOf(allConfigList.get(j).get("TEST_VALUE")) + "]";
-                    } else {
-                        value = String.valueOf(allConfigList.get(j).get("TEST_VALUE"));
-                    }
-                    storeTmp.put(String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), value);
-                } else if ("build".equals(type)) {
-                    String value;
-                    if (ArrayUtils.contains(encryptPropNameArr, projCode + ":" + allConfigList.get(j).get("CONFIG_KEY"))) {
-                        value = "$[" + String.valueOf(allConfigList.get(j).get("BUILD_VALUE")) + "]";
-                    } else {
-                        value = String.valueOf(allConfigList.get(j).get("BUILD_VALUE"));
-                    }
-                    storeTmp.put(String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), value);
-                }
+            if ("development".equals(type)) {
+                handleConfigVal(allConfigList, projCode, storeTmp, "CONFIG_VALUE", encryptPropNameArr);
+            } else if ("production".equals(type)) {
+                handleConfigVal(allConfigList, projCode, storeTmp, "PRODUCTION_VALUE", encryptPropNameArr);
+            } else if ("test".equals(type)) {
+                handleConfigVal(allConfigList, projCode, storeTmp, "TEST_VALUE", encryptPropNameArr);
+            } else if ("build".equals(type)) {
+                handleConfigVal(allConfigList, projCode, storeTmp, "BUILD_VALUE", encryptPropNameArr);
             }
 
-
-            for (int j = 0; j < allConfigList.size(); j++) {
-                if ("development".equals(type)) {
-                    String str = PlaceHolderUtil.findPlaceHolderVar(String.valueOf(allConfigList.get(j).get("CONFIG_VALUE")));
-                    if (str != null && storeTmp.size() != 0) {
-                        StrSubstitutor strSubstitutor = new StrSubstitutor(storeTmp);
-                        String realValue = strSubstitutor.replace(String.valueOf(allConfigList.get(j).get("CONFIG_VALUE")));
-                        store.put(projCode + ":" + String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), realValue);
-                    } else {
-                        store.put(projCode + ":" + String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), storeTmp.get(String.valueOf(allConfigList.get(j).get("CONFIG_KEY"))));
-                    }
-                } else if ("production".equals(type)) {
-                    String str = PlaceHolderUtil.findPlaceHolderVar(String.valueOf(allConfigList.get(j).get("PRODUCTION_VALUE")));
-                    if (str != null && storeTmp.size() != 0) {
-                        StrSubstitutor strSubstitutor = new StrSubstitutor(storeTmp);
-                        String realValue = strSubstitutor.replace(String.valueOf(allConfigList.get(j).get("PRODUCTION_VALUE")));
-                        store.put(projCode + ":" + String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), realValue);
-                    } else {
-                        store.put(projCode + ":" + String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), storeTmp.get(String.valueOf(allConfigList.get(j).get("CONFIG_KEY"))));
-                    }
-                } else if ("test".equals(type)) {
-                    String str = PlaceHolderUtil.findPlaceHolderVar(String.valueOf(allConfigList.get(j).get("TEST_VALUE")));
-                    if (str != null && storeTmp.size() != 0) {
-                        StrSubstitutor strSubstitutor = new StrSubstitutor(storeTmp);
-                        String realValue = strSubstitutor.replace(String.valueOf(allConfigList.get(j).get("TEST_VALUE")));
-                        store.put(projCode + ":" + String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), realValue);
-                    } else {
-                        store.put(projCode + ":" + String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), storeTmp.get(String.valueOf(allConfigList.get(j).get("CONFIG_KEY"))));
-                    }
-                } else if ("build".equals(type)) {
-                    String str = PlaceHolderUtil.findPlaceHolderVar(String.valueOf(allConfigList.get(j).get("BUILD_VALUE")));
-                    if (str != null && storeTmp.size() != 0) {
-                        StrSubstitutor strSubstitutor = new StrSubstitutor(storeTmp);
-                        String realValue = strSubstitutor.replace(String.valueOf(allConfigList.get(j).get("BUILD_VALUE")));
-                        store.put(projCode + ":" + String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), realValue);
-                    } else {
-                        store.put(projCode + ":" + String.valueOf(allConfigList.get(j).get("CONFIG_KEY")), storeTmp.get(String.valueOf(allConfigList.get(j).get("CONFIG_KEY"))));
-                    }
-                }
+            if ("development".equals(type)) {
+                doConfigValReplace(store, allConfigList, projCode, storeTmp, "CONFIG_VALUE");
+            } else if ("production".equals(type)) {
+                doConfigValReplace(store, allConfigList, projCode, storeTmp, "PRODUCTION_VALUE");
+            } else if ("test".equals(type)) {
+                doConfigValReplace(store, allConfigList, projCode, storeTmp, "TEST_VALUE");
+            } else if ("build".equals(type)) {
+                doConfigValReplace(store, allConfigList, projCode, storeTmp, "BUILD_VALUE");
             }
         }
 
         return store;
     }
 
+    private void handleConfigVal(List<Map<String, Object>> allConfigList, String projCode, Map<String, String> storeTmp, String configValueProfileKey, String[] encryptPropNameArr) {
 
-    /*public Map<String, String> replaceCommonConfigs(int projectId, String type, Map<String, String> commonCofigStore) {
-        Map<String, String> store = new HashMap<>();
-        List<Map<String, Object>> allConfigList = configDao.queryCommonConfigs(projectId, type);
-        if ("development".equals(type)) {
-            for (int i = 0; i < allConfigList.size(); i++) {
-                String str = PlaceHolderUtil.findPlaceHolderVar(String.valueOf(allConfigList.get(i).get("CONFIG_VALUE")));
-                if (str != null && commonCofigStore.size() != 0) {
-                    String realValue = PlaceHolderUtil.replaceVarWithValue(commonCofigStore, str,
-                            String.valueOf(allConfigList.get(i).get("CONFIG_VALUE")));
-                    store.put(String.valueOf(allConfigList.get(i).get("CONFIG_KEY")), realValue);
-                } else {
-                    store.put(String.valueOf(allConfigList.get(i).get("CONFIG_KEY")), String.valueOf(allConfigList.get(i).get("CONFIG_VALUE")));
-                }
+        for (Map<String, Object> config : allConfigList) {
+            String configVal = String.valueOf(config.get(configValueProfileKey));
+            String value;
+            if (encryptPropNameArr != null && ArrayUtils.contains(encryptPropNameArr, projCode + ":" + config.get("CONFIG_KEY"))) {
+                value = "$[" + configVal + "]";
+            } else {
+                value = configVal;
             }
-        } else if ("production".equals(type)) {
-            for (int i = 0; i < allConfigList.size(); i++) {
-                String str = PlaceHolderUtil.findPlaceHolderVar(String.valueOf(allConfigList.get(i).get("PRODUCTION_VALUE")));
-                if (str != null && commonCofigStore.size() != 0) {
-                    String realValue = PlaceHolderUtil.replaceVarWithValue(commonCofigStore, str,
-                            String.valueOf(allConfigList.get(i).get("PRODUCTION_VALUE")));
-                    store.put(String.valueOf(allConfigList.get(i).get("CONFIG_KEY")), realValue);
-                } else {
-                    store.put(String.valueOf(allConfigList.get(i).get("CONFIG_KEY")), String.valueOf(allConfigList.get(i).get("PRODUCTION_VALUE")));
-                }
-            }
-        } else if ("test".equals(type)) {
-            for (int i = 0; i < allConfigList.size(); i++) {
-                String str = PlaceHolderUtil.findPlaceHolderVar(String.valueOf(allConfigList.get(i).get("TEST_VALUE")));
-                if (str != null && commonCofigStore.size() != 0) {
-                    String realValue = PlaceHolderUtil.replaceVarWithValue(commonCofigStore, str,
-                            String.valueOf(allConfigList.get(i).get("TEST_VALUE")));
-                    store.put(String.valueOf(allConfigList.get(i).get("CONFIG_KEY")), realValue);
-                } else {
-                    store.put(String.valueOf(allConfigList.get(i).get("CONFIG_KEY")), String.valueOf(allConfigList.get(i).get("TEST_VALUE")));
-                }
-            }
-        } else if ("build".equals(type)) {
-            for (int i = 0; i < allConfigList.size(); i++) {
-                String str = PlaceHolderUtil.findPlaceHolderVar(String.valueOf(allConfigList.get(i).get("BUILD_VALUE")));
-                if (str != null && commonCofigStore.size() != 0) {
-                    String realValue = PlaceHolderUtil.replaceVarWithValue(commonCofigStore, str,
-                            String.valueOf(allConfigList.get(i).get("BUILD_VALUE")));
-                    store.put(String.valueOf(allConfigList.get(i).get("CONFIG_KEY")), realValue);
-                } else {
-                    store.put(String.valueOf(allConfigList.get(i).get("CONFIG_KEY")), String.valueOf(allConfigList.get(i).get("BUILD_VALUE")));
-                }
-            }
+            storeTmp.put(String.valueOf(config.get("CONFIG_KEY")), value);
         }
-        return store;
-    }*/
+    }
 
-    public Map<String, String> replaceByCommonConfigs(int projectId, String type, Map<String, String> commonCofigStore) {
-        Map<String, String> store = new HashMap<>();
-        List<Map<String, Object>> allConfigList = configDao.queryConfigs(projectId, type);
-        if ("development".equals(type)) {
-            for (int i = 0; i < allConfigList.size(); i++) {
-                String str = PlaceHolderUtil.findPlaceHolderVar(String.valueOf(allConfigList.get(i).get("CONFIG_VALUE")));
-                if (str != null && commonCofigStore.size() != 0) {
-                    StrSubstitutor strSubstitutor = new StrSubstitutor(commonCofigStore);
-                    String realValue = strSubstitutor.replace(String.valueOf(allConfigList.get(i).get("CONFIG_VALUE")));
-                    store.put(String.valueOf(allConfigList.get(i).get("CONFIG_KEY")), realValue);
-                } else {
-                    store.put(String.valueOf(allConfigList.get(i).get("CONFIG_KEY")), String.valueOf(allConfigList.get(i).get("CONFIG_VALUE")));
-                }
-            }
-        } else if ("production".equals(type)) {
-            for (int i = 0; i < allConfigList.size(); i++) {
-                String str = PlaceHolderUtil.findPlaceHolderVar(String.valueOf(allConfigList.get(i).get("PRODUCTION_VALUE")));
-                if (str != null && commonCofigStore.size() != 0) {
-                    StrSubstitutor strSubstitutor = new StrSubstitutor(commonCofigStore);
-                    String realValue = strSubstitutor.replace(String.valueOf(allConfigList.get(i).get("PRODUCTION_VALUE")));
-                    store.put(String.valueOf(allConfigList.get(i).get("CONFIG_KEY")), realValue);
-                } else {
-                    store.put(String.valueOf(allConfigList.get(i).get("CONFIG_KEY")), String.valueOf(allConfigList.get(i).get("PRODUCTION_VALUE")));
-                }
-            }
-        } else if ("test".equals(type)) {
-            for (int i = 0; i < allConfigList.size(); i++) {
-                String str = PlaceHolderUtil.findPlaceHolderVar(String.valueOf(allConfigList.get(i).get("TEST_VALUE")));
-                if (str != null && commonCofigStore.size() != 0) {
-                    StrSubstitutor strSubstitutor = new StrSubstitutor(commonCofigStore);
-                    String realValue = strSubstitutor.replace(String.valueOf(allConfigList.get(i).get("TEST_VALUE")));
-                    store.put(String.valueOf(allConfigList.get(i).get("CONFIG_KEY")), realValue);
-                } else {
-                    store.put(String.valueOf(allConfigList.get(i).get("CONFIG_KEY")), String.valueOf(allConfigList.get(i).get("TEST_VALUE")));
-                }
-            }
-        } else if ("build".equals(type)) {
-            for (int i = 0; i < allConfigList.size(); i++) {
-                String str = PlaceHolderUtil.findPlaceHolderVar(String.valueOf(allConfigList.get(i).get("BUILD_VALUE")));
-                if (str != null && commonCofigStore.size() != 0) {
-                    StrSubstitutor strSubstitutor = new StrSubstitutor(commonCofigStore);
-                    String realValue = strSubstitutor.replace(String.valueOf(allConfigList.get(i).get("BUILD_VALUE")));
-                    store.put(String.valueOf(allConfigList.get(i).get("CONFIG_KEY")), realValue);
-                } else {
-                    store.put(String.valueOf(allConfigList.get(i).get("CONFIG_KEY")), String.valueOf(allConfigList.get(i).get("BUILD_VALUE")));
-                }
-            }
-        }
-        return store;
+    public Map<String, String> replaceByCommonConfigs(int projectId, String type, Map<String, String> commonConfigs) {
+        return replaceByCommonConfigs(projectId, type, commonConfigs, null);
     }
 
     public Map<String, String> replaceByCommonConfigs(int projectId, String type, Map<String, String> commonCofigStore, String[] encryptPropNameArr) {
-        Map<String, String> store = new HashMap<>();
+        Map<String, String> store;
         List<Map<String, Object>> allConfigList = configDao.queryConfigs(projectId, type);
-        if ("development".equals(type)) {
-            for (int i = 0; i < allConfigList.size(); i++) {
-                String str = PlaceHolderUtil.findPlaceHolderVar(String.valueOf(allConfigList.get(i).get("CONFIG_VALUE")));
-                if (str != null && commonCofigStore.size() != 0) {
-                    StrSubstitutor strSubstitutor = new StrSubstitutor(commonCofigStore);
-                    String realValue = strSubstitutor.replace(String.valueOf(allConfigList.get(i).get("CONFIG_VALUE")));
-                    store.put(String.valueOf(allConfigList.get(i).get("CONFIG_KEY")), realValue);
-                } else {
-                    String value;
-                    if (ArrayUtils.contains(encryptPropNameArr, String.valueOf(allConfigList.get(i).get("CONFIG_KEY")))) {
-                        value = "$[" + String.valueOf(allConfigList.get(i).get("CONFIG_VALUE")) + "]";
-                    } else {
-                        value = String.valueOf(allConfigList.get(i).get("CONFIG_VALUE"));
-                    }
-                    store.put(String.valueOf(allConfigList.get(i).get("CONFIG_KEY")), value);
-                }
-            }
-        } else if ("production".equals(type)) {
-            for (int i = 0; i < allConfigList.size(); i++) {
-                String str = PlaceHolderUtil.findPlaceHolderVar(String.valueOf(allConfigList.get(i).get("PRODUCTION_VALUE")));
-                if (str != null && commonCofigStore.size() != 0) {
-                    StrSubstitutor strSubstitutor = new StrSubstitutor(commonCofigStore);
-                    String realValue = strSubstitutor.replace(String.valueOf(allConfigList.get(i).get("PRODUCTION_VALUE")));
-                    store.put(String.valueOf(allConfigList.get(i).get("CONFIG_KEY")), realValue);
-                } else {
-                    String value;
-                    if (ArrayUtils.contains(encryptPropNameArr, String.valueOf(allConfigList.get(i).get("CONFIG_KEY")))) {
-                        value = "$[" + String.valueOf(allConfigList.get(i).get("PRODUCTION_VALUE")) + "]";
-                    } else {
-                        value = String.valueOf(allConfigList.get(i).get("PRODUCTION_VALUE"));
-                    }
-                    store.put(String.valueOf(allConfigList.get(i).get("CONFIG_KEY")), value);
-                }
-            }
+
+        if ("production".equals(type)) {
+            store = doConfigReplace(commonCofigStore, allConfigList, "PRODUCTION_VALUE", encryptPropNameArr);
         } else if ("test".equals(type)) {
-            for (int i = 0; i < allConfigList.size(); i++) {
-                String str = PlaceHolderUtil.findPlaceHolderVar(String.valueOf(allConfigList.get(i).get("TEST_VALUE")));
-                if (str != null && commonCofigStore.size() != 0) {
-                    StrSubstitutor strSubstitutor = new StrSubstitutor(commonCofigStore);
-                    String realValue = strSubstitutor.replace(String.valueOf(allConfigList.get(i).get("TEST_VALUE")));
-                    store.put(String.valueOf(allConfigList.get(i).get("CONFIG_KEY")), realValue);
-                } else {
-                    String value;
-                    if (ArrayUtils.contains(encryptPropNameArr, String.valueOf(allConfigList.get(i).get("CONFIG_KEY")))) {
-                        value = "$[" + String.valueOf(allConfigList.get(i).get("TEST_VALUE")) + "]";
-                    } else {
-                        value = String.valueOf(allConfigList.get(i).get("TEST_VALUE"));
-                    }
-                    store.put(String.valueOf(allConfigList.get(i).get("CONFIG_KEY")), value);
-                }
-            }
+            store = doConfigReplace(commonCofigStore, allConfigList, "TEST_VALUE", encryptPropNameArr);
         } else if ("build".equals(type)) {
-            for (int i = 0; i < allConfigList.size(); i++) {
-                String str = PlaceHolderUtil.findPlaceHolderVar(String.valueOf(allConfigList.get(i).get("BUILD_VALUE")));
-                if (str != null && commonCofigStore.size() != 0) {
-                    StrSubstitutor strSubstitutor = new StrSubstitutor(commonCofigStore);
-                    String realValue = strSubstitutor.replace(String.valueOf(allConfigList.get(i).get("BUILD_VALUE")));
-                    store.put(String.valueOf(allConfigList.get(i).get("CONFIG_KEY")), realValue);
+            store = doConfigReplace(commonCofigStore, allConfigList, "BUILD_VALUE", encryptPropNameArr);
+        } else { // defualt use "development"
+            store = doConfigReplace(commonCofigStore, allConfigList, "CONFIG_VALUE", encryptPropNameArr);
+        }
+
+        return store;
+    }
+
+    private Map<String, String> doConfigReplace(Map<String, String> commonConfigs, List<Map<String, Object>> configList, String configValueProfileKey, String[] encryptPropNameArr) {
+        Map<String, String> store = new HashMap<>();
+
+        for (Map<String, Object> config : configList) {
+            String configVal = String.valueOf(config.get(configValueProfileKey));
+            String str = PlaceHolderUtil.findPlaceHolderVar(configVal);
+            if (str != null ) {
+
+                if(commonConfigs == null || commonConfigs.size() == 0) {
+                    store.put(String.valueOf(config.get("CONFIG_KEY")), ERROR_REPLACE_TOKEN + configVal);
                 } else {
-                    String value;
-                    if (ArrayUtils.contains(encryptPropNameArr, String.valueOf(allConfigList.get(i).get("CONFIG_KEY")))) {
-                        value = "$[" + String.valueOf(allConfigList.get(i).get("BUILD_VALUE")) + "]";
-                    } else {
-                        value = String.valueOf(allConfigList.get(i).get("BUILD_VALUE"));
+                    StrSubstitutor strSubstitutor = new StrSubstitutor(commonConfigs);
+                    String realValue = strSubstitutor.replace(configVal);
+                    if(realValue.equals(configVal)) { // 替换完成之后和原值一样，则认为替换失败
+                        realValue = ERROR_REPLACE_TOKEN + configVal;
                     }
-                    store.put(String.valueOf(allConfigList.get(i).get("CONFIG_KEY")), value);
+                    store.put(String.valueOf(config.get("CONFIG_KEY")), realValue);
                 }
+            } else {
+
+                String value;
+                if (encryptPropNameArr != null && ArrayUtils.contains(encryptPropNameArr, String.valueOf(config.get("CONFIG_KEY")))) {
+                    value = "$[" + configVal + "]";
+                } else {
+                    value = configVal;
+                }
+                store.put(String.valueOf(config.get("CONFIG_KEY")), value);
             }
         }
+
         return store;
     }
 
