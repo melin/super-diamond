@@ -1,5 +1,6 @@
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <a class="brand" href="/superdiamond/index">首页</a> >> <b><c:out value="${project.PROJ_NAME}"/> - <c:out
         value="${type}"/></b> <br/><br/>
@@ -127,7 +128,7 @@
     <tr>
         <th width="60">Module</th>
         <th width="100">Key</th>
-        <th>Config</th>
+        <th width="70">Config</th>
         <th>Value</th>
         <th width="100">描述</th>
         <th width="45">操作人</th>
@@ -137,7 +138,8 @@
     </thead>
     <tbody>
     <c:forEach items="${configs}" var="config">
-        <tr id='row-<c:out value="${config.CONFIG_ID}"/>'>
+        <tr id='row-<c:out value="${config.CONFIG_ID}"/>'   <c:if
+                test="${fn:startsWith(config.REAL_BUILD_VALUE, 'RPF:')}"> style=" background: yellow; color: red; font-weight: bold;" title="配置替换失败" </c:if>>
             <td value='<c:out value="${config.MODULE_ID}"/>'>
                 <c:out value="${config.MODULE_NAME}"/>
             </td>
@@ -147,28 +149,22 @@
             <td title='<c:out value="${config.BUILD_VALUE}"/>'>
                 <script type="text/javascript">
                     var value = '<c:out value="${config.BUILD_VALUE}"/>';
-                    if (value.length > 30)
-                        document.write(value.substring(0, 30) + "...");
-                    else
-                        document.write(value);
+                    document.write(value.length > 30 ? value.substring(0, 30) + "..." : value);
                 </script>
             </td>
-            <td title='<c:out value="${config.REAL_BUILD_VALUE}"/>'>
+            <td title='<c:out value="${fn:replace(config.REAL_BUILD_VALUE,\"RPF:\",\"\")}"/>'>
                 <script type="text/javascript">
                     var value = '<c:out value="${config.REAL_BUILD_VALUE}"/>';
-                    if (value.length > 30)
-                        document.write(value.substring(0, 30) + "...");
-                    else
-                        document.write(value);
+                    if (value.indexOf("RPF:") == 0) {
+                        value = value.replace("RPF:", "");
+                    }
+                    document.write(value.length > 30 ? value.substring(0, 30) + "..." : value);
                 </script>
             </td>
             <td title='<c:out value="${config.CONFIG_DESC}"/>'>
                 <script type="text/javascript">
                     var value = '<c:out value="${config.CONFIG_DESC}"/>';
-                    if (value.length > 15)
-                        document.write(value.substring(0, 15) + "...");
-                    else
-                        document.write(value);
+                    document.write(value.length > 15 ? value.substring(0, 15) + "..." : value);
                 </script>
             </td>
             <td>
@@ -260,12 +256,12 @@
 
         $("#saveConfig").click(function (e) {
             var re_key = $("#config-configKey").val();
-            re_key ="\${" + re_key + "}";
+            re_key = "\${" + re_key + "}";
             var key_value = $("#config-configValue").val();
-            var re = new RegExp("\\"+re_key);
+            var re = new RegExp("\\" + re_key);
             if (!$("#config-configValue").val()) {
                 $("#configTip").text("configValue不能为空");
-            }else if(re.test(key_value)){
+            } else if (re.test(key_value)) {
                 $("#configTip").text("configValue不能引用自身的configKey值");
             } else {
                 $("#configForm")[0].submit();
@@ -275,14 +271,14 @@
         $('#isDefaultConfig').change(function (e) {
             if ($('#isDefaultConfig').is(':checked')) {
                 var moduleId = $("#sel-queryModule").val();
-                var url = '/superdiamond/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>?isShow=true'+"&page=<c:out value="${currentPage}"/>&moduleId=<c:out value="${moduleId}"/>&recordLimit=<c:out value="${recordLimit}" />";
+                var url = '/superdiamond/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>?isShow=true' + "&page=<c:out value="${currentPage}"/>&moduleId=<c:out value="${moduleId}"/>&recordLimit=<c:out value="${recordLimit}" />";
                 if (moduleId) {
                     url = url + "&moduleId=" + moduleId;
                 }
                 window.location.href = url;
             } else {
                 var moduleId = $("#sel-queryModule").val();
-                var url = '/superdiamond/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>?isShow=false'+"&page=<c:out value="${currentPage}"/>&moduleId=<c:out value="${moduleId}"/>&recordLimit=<c:out value="${recordLimit}" />";
+                var url = '/superdiamond/profile/<c:out value="${type}"/>/<c:out value="${projectId}"/>?isShow=false' + "&page=<c:out value="${currentPage}"/>&moduleId=<c:out value="${moduleId}"/>&recordLimit=<c:out value="${recordLimit}" />";
                 if (moduleId) {
                     url = url + "&moduleId=" + moduleId;
                 }

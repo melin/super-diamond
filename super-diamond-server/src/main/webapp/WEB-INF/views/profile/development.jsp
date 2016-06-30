@@ -267,7 +267,7 @@
     <tr>
         <th width="60">Module</th>
         <th width="100">Key</th>
-        <th>Config</th>
+        <th width="70">Config</th>
         <th>Value</th>
         <th width="100">描述</th>
         <th width="45">操作人</th>
