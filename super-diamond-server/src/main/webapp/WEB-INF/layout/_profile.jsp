@@ -60,6 +60,7 @@
     <div class="navbar-inner">
         <div class="container">
             <a class="brand" href="/superdiamond/index">SuperDiamond 配置管理服务器</a>
+            <a class="brand" href="javascript: void(0);" style="font-size: 12px; position: relative; bottom: -3px;">Version: <c:out value="${requestScope.get('version')}"></c:out></a>
 
             <div class="pull-right">
                 <p class="navbar-text">
