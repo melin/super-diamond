@@ -11,6 +11,7 @@ import com.github.diamond.client.event.EventSource;
 import com.github.diamond.client.event.EventType;
 import com.github.diamond.client.netty.ClientChannelInitializer;
 import com.github.diamond.client.netty.Netty4Client;
+import com.github.diamond.client.util.EnvUtil;
 import com.github.diamond.client.util.FileUtils;
 import com.github.diamond.client.util.NamedThreadFactory;
 import com.github.diamond.client.util.PropertiesFileUtils;
@@ -225,7 +226,7 @@ public class PropertiesConfiguration extends EventSource {
         Assert.notNull(projCode, "连接superdiamond， projCode不能为空");
 
         final String clientMsg = "superdiamond={\"projCode\": \"" + projCode + "\", \"profile\": \"" + profile + "\", "
-                + "\"modules\": \"" + modules + "\", \"version\": \"1.1.0\"}";
+                + "\"modules\": \"" + modules + "\", \"version\": \"" + EnvUtil.getBuildVersion() +" \"}";
         String[] hostArr = StringUtils.split(host, ",");
         try {
             if (hostArr.length >= 2) {
