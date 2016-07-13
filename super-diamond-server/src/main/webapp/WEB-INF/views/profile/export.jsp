@@ -220,7 +220,6 @@
         });
 
         function getJson(URL) {
-            debugger
             var jsonString = null;
             $.ajax({
                 type: "get",

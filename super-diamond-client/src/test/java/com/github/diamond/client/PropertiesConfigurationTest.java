@@ -6,9 +6,6 @@ package com.github.diamond.client;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
 
 /**
  * Create on @2013-9-1 @下午9:38:08 
@@ -56,7 +53,12 @@ public class PropertiesConfigurationTest {
 
 		Assert.assertEquals(System.getProperty("java.version"), configuration.getString("javaVersion"));
 	}
-	
+
+	/**
+	 * 测试从环境变量中加载配置
+	 *
+	 * @throws ConfigurationRuntimeException
+	 */
 	@Test
 	public void testSysEvns() throws ConfigurationRuntimeException  {
 		String config = "javaHome = ${env:JAVA_HOME}/lib \r\n";

@@ -14,10 +14,10 @@ public class Project {
     private String code;
     private String name;
     private int ownerId;
-
+    /*** 是否是公共项目 */
+    private boolean common;
     private String userCode;
     private String userName;
-
     private List<String> roles;
 
     public int getId() {
@@ -78,5 +78,13 @@ public class Project {
 
     public void setRoles(List<String> roles) {
         this.roles = roles;
+    }
+
+    public boolean isCommon() {
+        return common;
+    }
+
+    public void setCommon(boolean common) {
+        this.common = common;
     }
 }

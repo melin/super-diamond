@@ -22,6 +22,7 @@
     <c:forEach items="${projects}" var="project">
         <tr>
             <td>
+                <c:if test="${project.common}"><img style="position:relative; width: 20px; top: -2px;" title="公共项目,可在其他非公共项目中进行配置引用" src="../resources/images/refrence.png"> </c:if>
                 <c:out value="${project.code}"/>
             </td>
             <td>

@@ -54,7 +54,6 @@
         <div class="row">
             <div class="login-form">
                 <h2>Login</h2>
-
                 <form action='<c:url value="/login" />' method="post" autocomplete="off" id="loginForm">
                     <fieldset>
                         <c:if test="${sessionScope.message != null}">
@@ -78,12 +77,25 @@
             </div>
         </div>
     </div>
+    <div style="text-align: center;">
+        <a class="brand" href="javascript: void(0);" style="font-size: 12px;  text-decoration: none;; position: relative; bottom: -3px;">Version: <c:out value="${requestScope.get('version')}"></c:out></a>
+    </div>
+
 </div>
 <!-- /container -->
 
 <script type="text/javascript">
     $(document).ready(function () {
-        $("#login").click(function (e) {
+
+
+        $("#login").click(doLogin);
+        $("#password").keyup(function(e){
+            if(e.keyCode == 13) {
+                doLogin();
+            }
+        })
+
+        function doLogin(){
             $("#userCodeTip, #passwordTip").text("");
 
             if (!$("#userCode").val().trim()) {
@@ -93,7 +105,7 @@
             } else {
                 $("#loginForm")[0].submit();
             }
-        });
+        }
     });
 </script>
 </body>

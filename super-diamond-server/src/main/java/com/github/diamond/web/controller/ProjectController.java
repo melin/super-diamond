@@ -41,7 +41,7 @@ public class ProjectController extends BaseController {
     @RequestMapping("/project/index")
     public void queryProjects(ModelMap modelMap, @RequestParam(defaultValue = "1") int page,HttpSession session) {
         User user = (User) SessionHolder.getSession().getAttribute("sessionUser");
-        List<Project> projects = projectService.queryProjects(user, PageUtil.getOffset(page, LIMIT), LIMIT);
+        List<Project> projects = projectService.queryProjects(user, true, PageUtil.getOffset(page, LIMIT), LIMIT);
 
         modelMap.addAttribute("projects", projects);
         session.setAttribute("page", page);

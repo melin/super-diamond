@@ -8,7 +8,7 @@
 	</parent>
 	<artifactId>super-diamond-server</artifactId>
 	<packaging>jar</packaging>
-	<version>1.2.1-SNAPSHOT</version>
+	<version>1.2.2-SNAPSHOT</version>
 	
 	<dependencies>
 		<dependency>
@@ -134,17 +134,6 @@
 			<version>1.2.7</version>
 		</dependency>
 
-		<!--<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-core</artifactId>
-			<version>2.3.3</version>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-			<version>2.3.3</version>
-		</dependency>-->
-
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-io</artifactId>
@@ -183,6 +172,11 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 				<configuration>
+					<archive>
+						<manifestEntries>
+							<version>${project.version}</version>
+						</manifestEntries>
+					</archive>
 					<includes>
 						<include>**/*.class</include>
 					</includes>
