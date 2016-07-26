@@ -9,7 +9,7 @@
 - client支持自定义备份文件的本地路径。
 - client支持本地环境变量与系统参数的解析替换功能。
 - client 提供ConfigurationListener，当某个属性发生变化（add、update、clear）, ConfigurationListener能够接收到ConfigurationEvent。
-- server 支持配置跨工程替换（包含对加解密的处理）。
+- server 支持配置跨工程引用，可将公共配置放在独立工程中，从其他工程中引用。
 - 支持php项目从superdiamond中获取配置参数。
 - 支持服务端配置的导入导出功能（目前导入导出的格式分别为Json, properties）。
 - 支持配置管理页面列表中一些关键配置的隐藏与显示功能以及控制列表显示的记录数量。
@@ -24,7 +24,7 @@
 项目profile请参考：http://melin.iteye.com/blog/1339060
 
 ###super-diamond-server 安装
-1. 下载super-diamond代码： git clone https://github.com/melin/super-diamond.git
+1. 下载super-diamond代码： git clone https://github.com/talywy/super-diamond.git
 2. 进入super-diamond目录，构建super-diamond父工程： mvn install
 3. super-diamond-server中嵌入jetty运行，构建部署包：mvn install assembly:single -Pproduction，生成super-diamond-server-${version}-bin.tar.gz文件，
 解压运行bin/server.sh start命令。
