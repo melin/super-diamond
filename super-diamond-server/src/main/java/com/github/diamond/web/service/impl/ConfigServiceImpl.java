@@ -81,9 +81,22 @@ public class ConfigServiceImpl implements ConfigService {
             if (str != null && !ProjectIdUtil.isIdExistsInCommonId(projectId, commonProjectId)) {
                 StrSubstitutor strSubstitutor = new StrSubstitutor(store);
                 String realValue = strSubstitutor.replace(store.get(config.get("CONFIG_KEY")));
+                // add
+                if (PlaceHolderUtil.findPlaceHolderVar(realValue) != null) { //发现有${}【但除了${env:}或${sys:}】符号，则认为替换失败
+                    realValue = ERROR_REPLACE_TOKEN + realValue;
+                }
                 config.put(realConfigValKey, realValue);
             } else {
-                config.put(realConfigValKey, store.get(config.get("CONFIG_KEY")));
+
+                // 对于公共项目内自身引用的处理
+                StrSubstitutor strSubstitutor = new StrSubstitutor(store);
+                String realValue = strSubstitutor.replace(store.get(config.get("CONFIG_KEY")));
+                // add
+                if (PlaceHolderUtil.findPlaceHolderVar(realValue) != null) { // 发现有${}【但除了${env:}或${sys:}】符号，则认为替换失败
+                    realValue = ERROR_REPLACE_TOKEN + realValue;
+                }
+                config.put(realConfigValKey, realValue);
+//                config.put(realConfigValKey, store.get(config.get("CONFIG_KEY")));
             }
         }
 
@@ -641,13 +654,11 @@ public class ConfigServiceImpl implements ConfigService {
             if (str != null) {
 
                 if (commonConfigs == null || commonConfigs.size() == 0) {
-                    store.put(String.valueOf(config.get("CONFIG_KEY")), ERROR_REPLACE_TOKEN + configVal);
+//                    store.put(String.valueOf(config.get("CONFIG_KEY")), ERROR_REPLACE_TOKEN + configVal);
+                    store.put(String.valueOf(config.get("CONFIG_KEY")), configVal);
                 } else {
                     StrSubstitutor strSubstitutor = new StrSubstitutor(commonConfigs);
                     String realValue = strSubstitutor.replace(configVal);
-                    if (realValue.equals(configVal)) { // 替换完成之后和原值一样，则认为替换失败
-                        realValue = ERROR_REPLACE_TOKEN + configVal;
-                    }
                     store.put(String.valueOf(config.get("CONFIG_KEY")), realValue);
                 }
             } else {
