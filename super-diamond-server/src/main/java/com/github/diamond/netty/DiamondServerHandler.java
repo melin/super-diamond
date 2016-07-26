@@ -28,6 +28,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Sharable
 public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
 
+    public final String HEART_BEAT_MSG = "heartbeat";
+
     public static ConcurrentHashMap<ClientKey /*projcode+profile*/, List<ClientInfo>/*client address*/> clients =
             new ConcurrentHashMap<>();
 
@@ -49,59 +51,66 @@ public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
     @SuppressWarnings("unchecked")
     @Override
     public void channelRead0(ChannelHandlerContext ctx, String request) throws Exception {
-        String config;
+        String returnMsg = "";
         String clientAddr = ctx.channel().remoteAddress().toString();
         logger.info("连接的clientAddr为:{}, 请求内容为:{}", clientAddr, request);
 
-        if (request != null && (request.startsWith("superdiamond=") || request.startsWith("superdiamond,"))) {
-            String projCode;
-            String profile;
-            String modules;
 
-            logger.info("连接的clientAddr为：" + clientAddr);
-            if (request.startsWith("superdiamond=")) {
-                request = request.substring("superdiamond=".length());
-                Map<String, String> params = (Map<String, String>) JSONUtils.parse(request);
-                projCode = params.get("projCode");
-                modules = params.get("modules");
-                profile = params.get("profile");
-            } else {
-                // 兼容老版本客户端
-                String[] projInfo = StringUtils.split(request, ",");
-                projCode = projInfo[1];
-                modules = "";
-                profile = projInfo[2];
-                logger.warn("Old version client found, clientAddr: {}, projCode: {}, profile: {}", clientAddr, projCode, profile);
+        if (!StringUtils.isBlank(request)) {
+            if (request.equals(HEART_BEAT_MSG)) {
+                // TODO: handle client heartbeat
+                returnMsg = HEART_BEAT_MSG;
+            } else if (request.startsWith("superdiamond=") || request.startsWith("superdiamond,")) {
+                String projCode;
+                String profile;
+                String modules;
+                String clientVersion;
+
+                logger.info("连接的clientAddr为：" + clientAddr);
+                if (request.startsWith("superdiamond=")) {
+                    request = request.substring("superdiamond=".length());
+                    Map<String, String> params = (Map<String, String>) JSONUtils.parse(request);
+                    projCode = params.get("projCode");
+                    modules = params.get("modules");
+                    profile = params.get("profile");
+                    clientVersion = params.get("version");
+                } else {
+                    // 兼容老版本客户端
+                    String[] projInfo = StringUtils.split(request, ",");
+                    projCode = projInfo[1];
+                    modules = "";
+                    profile = projInfo[2];
+                    clientVersion = "";
+                    logger.warn("Old version client found, clientAddr: {}, projCode: {}, profile: {}", clientAddr, projCode, profile);
+                }
+
+                String[] moduleArr = StringUtils.split(modules, ",");
+
+                ClientKey key = new ClientKey();
+                key.setProjCode(projCode);
+                key.setProfile(profile);
+                key.setModuleArr(moduleArr);
+                key.setVersion(clientVersion);
+
+                List<ClientInfo> addrs = clients.get(key);
+                if (addrs == null) {
+                    addrs = new ArrayList<>();
+                }
+
+                ClientInfo clientInfo = new ClientInfo(clientAddr, new Date());
+                addrs.add(clientInfo);
+                clients.put(key, addrs);
+                channels.put(clientAddr, ctx);
+
+                if (StringUtils.isNotBlank(modules)) {
+                    returnMsg = configServiceImpl.queryConfigs(projCode, moduleArr, profile, "");
+                } else {
+                    returnMsg = configServiceImpl.queryConfigs(projCode, profile, "");
+                }
             }
-
-            String[] moduleArr = StringUtils.split(modules, ",");
-
-            ClientKey key = new ClientKey();
-            key.setProjCode(projCode);
-            key.setProfile(profile);
-            key.setModuleArr(moduleArr);
-            //String version = params.get("version");
-
-            List<ClientInfo> addrs = clients.get(key);
-            if (addrs == null) {
-                addrs = new ArrayList<>();
-            }
-
-            ClientInfo clientInfo = new ClientInfo(clientAddr, new Date());
-            addrs.add(clientInfo);
-            clients.put(key, addrs);
-            channels.put(clientAddr, ctx);
-
-            if (StringUtils.isNotBlank(modules)) {
-                config = configServiceImpl.queryConfigs(projCode, moduleArr, profile, "");
-            } else {
-                config = configServiceImpl.queryConfigs(projCode, profile, "");
-            }
-        } else {
-            config = "";
         }
 
-        sendMessage(ctx, config);
+        sendMessage(ctx, returnMsg);
     }
 
     @Override
@@ -193,6 +202,7 @@ public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
         String projCode;
         String[] moduleArr;
         String profile;
+        String version;
 
         public String getProjCode() {
             return projCode;
@@ -216,6 +226,14 @@ public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
 
         public void setProfile(String profile) {
             this.profile = profile;
+        }
+
+        public String getVersion() {
+            return version;
+        }
+
+        public void setVersion(String version) {
+            this.version = version;
         }
 
         @Override
@@ -266,6 +284,7 @@ public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
     public static class ClientInfo {
         private String address;
         private Date connectTime;
+        private Date lastUpdateTime;
 
         public ClientInfo(String address, Date connectTime) {
             this.address = address;
@@ -286,6 +305,14 @@ public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
 
         public void setConnectTime(Date connectTime) {
             this.connectTime = connectTime;
+        }
+
+        public Date getLastUpdateTime() {
+            return lastUpdateTime;
+        }
+
+        public void setLastUpdateTime(Date lastUpdateTime) {
+            this.lastUpdateTime = lastUpdateTime;
         }
 
         @Override
@@ -316,7 +343,12 @@ public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
             } else if (!address.equals(other.address)) {
                 return false;
             }
+
             return true;
+        }
+
+        private void updateClientInfo() {
+
         }
     }
 }

@@ -11,11 +11,12 @@
         <th>Profile</th>
         <th>客户端地址</th>
         <th>连接Server时间</th>
+        <th>客户端版本</th>
     </tr>
     </thead>
     <tbody>
     <c:forEach items="${clients}" var="client">
-        <tr  style="background: red">
+    <tr>
         <td>
             <c:out value="${client.projcode}"/>
         </td>
@@ -27,6 +28,9 @@
         </td>
         <td>
             <c:out value="${client.connectTime}"/>
+        </td>
+        <td>
+            <c:out value="${client.version}"/>
         </td>
     </tr>
     </c:forEach>
