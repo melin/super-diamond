@@ -189,7 +189,7 @@ public class DiamondServerHandler extends SimpleChannelInboundHandler<String> {
         ctx.writeAndFlush(message);
     }
 
-    private static class ClientKey {
+    public static class ClientKey {
         String projCode;
         String[] moduleArr;
         String profile;
