@@ -10,6 +10,7 @@ import com.github.diamond.netty.DiamondServerHandler.ClientKey;
 import com.github.diamond.utils.PageUtil;
 import com.github.diamond.utils.SessionHolder;
 import com.github.diamond.web.model.Project;
+import com.github.diamond.web.model.ProjectQueryMode;
 import com.github.diamond.web.model.User;
 import com.github.diamond.web.service.ProjectService;
 import org.apache.commons.lang.StringUtils;
@@ -42,7 +43,7 @@ public class ClientContoller extends BaseController {
     public void queryClients(ModelMap modelMap) {
 
         User user = (User) SessionHolder.getSession().getAttribute("sessionUser");
-        List<Project> projects = projectService.queryProjects(user, true, 0, Integer.MAX_VALUE);
+        List<Project> projects = projectService.queryProjects(user, ProjectQueryMode.Administrative, 0, Integer.MAX_VALUE);
         List<String> projectCodes = new ArrayList<>();
         for(Project project : projects) {
             projectCodes.add(project.getCode());

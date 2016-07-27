@@ -7,6 +7,7 @@ package com.github.diamond.web.controller;
 import com.github.diamond.utils.PageUtil;
 import com.github.diamond.utils.SessionHolder;
 import com.github.diamond.web.model.Project;
+import com.github.diamond.web.model.ProjectQueryMode;
 import com.github.diamond.web.model.User;
 import com.github.diamond.web.service.ProjectService;
 import com.github.diamond.web.service.impl.ProjectServiceImpl;
@@ -41,7 +42,7 @@ public class ProjectController extends BaseController {
     @RequestMapping("/project/index")
     public void queryProjects(ModelMap modelMap, @RequestParam(defaultValue = "1") int page,HttpSession session) {
         User user = (User) SessionHolder.getSession().getAttribute("sessionUser");
-        List<Project> projects = projectService.queryProjects(user, true, PageUtil.getOffset(page, LIMIT), LIMIT);
+        List<Project> projects = projectService.queryProjects(user, ProjectQueryMode.Administrative, PageUtil.getOffset(page, LIMIT), LIMIT);
 
         modelMap.addAttribute("projects", projects);
         session.setAttribute("page", page);

@@ -1,6 +1,7 @@
 package com.github.diamond.web.dao;
 
 import com.github.diamond.web.model.Project;
+import com.github.diamond.web.model.ProjectQueryMode;
 import com.github.diamond.web.model.User;
 
 import java.util.List;
@@ -49,7 +50,7 @@ public interface ProjectDao {
 
     List<User> queryProjUsers(int projectId);
 
-    List<Project> queryProjects(User user, boolean onlyOwn, int offset, int limit);
+    List<Project> queryProjects(User user, ProjectQueryMode mode, int offset, int limit);
 
     int queryProjectCount(User user);
 

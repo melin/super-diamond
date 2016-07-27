@@ -3,6 +3,7 @@ package com.github.diamond.web.service.impl;
 import com.github.diamond.web.dao.ProjectDao;
 import com.github.diamond.web.model.ConfigExportData;
 import com.github.diamond.web.model.Project;
+import com.github.diamond.web.model.ProjectQueryMode;
 import com.github.diamond.web.model.User;
 import com.github.diamond.web.service.ProjectService;
 import org.apache.commons.lang.StringUtils;
@@ -30,8 +31,8 @@ public class ProjectServiceImpl implements ProjectService {
     @Autowired
     private ProjectDao projectDao;
 
-    public List<Project> queryProjects(User user, boolean onlyOwn, int offset, int limit) {
-        return projectDao.queryProjects(user, onlyOwn, offset, limit);
+    public List<Project> queryProjects(User user,ProjectQueryMode mode, int offset, int limit) {
+        return projectDao.queryProjects(user, mode, offset, limit);
     }
 
     public int queryProjectCount(User user) {

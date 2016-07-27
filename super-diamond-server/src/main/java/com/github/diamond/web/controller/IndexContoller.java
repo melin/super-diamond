@@ -7,6 +7,7 @@ package com.github.diamond.web.controller;
 import com.github.diamond.utils.PageUtil;
 import com.github.diamond.utils.SessionHolder;
 import com.github.diamond.web.model.Project;
+import com.github.diamond.web.model.ProjectQueryMode;
 import com.github.diamond.web.model.User;
 import com.github.diamond.web.service.ProjectService;
 import com.github.diamond.web.service.impl.ProjectServiceImpl;
@@ -33,7 +34,7 @@ public class IndexContoller extends BaseController {
     @RequestMapping("/index")
     public void index(ModelMap modelMap, @RequestParam(defaultValue = "1") int page) {
         User user = (User) SessionHolder.getSession().getAttribute("sessionUser");
-        List<Project> projects = projectService.queryProjects(user, false, PageUtil.getOffset(page, LIMIT), LIMIT);
+        List<Project> projects = projectService.queryProjects(user, ProjectQueryMode.Participant, PageUtil.getOffset(page, LIMIT), LIMIT);
         for (Project project : projects) {
             List<String> roles = projectService.queryRoles(project.getId(), user.getId());
             project.setRoles(roles);

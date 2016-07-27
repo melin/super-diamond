@@ -4,6 +4,7 @@ import com.github.diamond.web.dao.ConfigDao;
 import com.github.diamond.web.dao.ModuleDao;
 import com.github.diamond.web.dao.ProjectDao;
 import com.github.diamond.web.model.Project;
+import com.github.diamond.web.model.ProjectQueryMode;
 import com.github.diamond.web.model.User;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -254,12 +255,20 @@ public class ProjectDaoImpl implements ProjectDao {
         return users;
     }
 
-    public List<Project> queryProjects(User user, boolean onlyOwn, int offset, int limit) {
+    public List<Project> queryProjects(User user, ProjectQueryMode mode, int offset, int limit) {
 
         String sql;
         if (!"admin".equals(user.getUserCode())) {
-            sql = "SELECT b.ID, b.PROJ_CODE, b.PROJ_NAME, a.USER_NAME, b.OWNER_ID, b.IS_COMMON FROM CONF_USER a JOIN CONF_PROJECT_USER c ON a.ID = c.USER_ID \n" +
-                    "JOIN  CONF_PROJECT b ON b.ID=c.PROJ_ID WHERE " + (onlyOwn ? " b.OWNER_ID=" : "c.USER_ID = ") + " ? AND b.DELETE_FLAG = 0 ORDER BY b.id asc limit ?,?";
+            sql = "SELECT DISTINCT b.ID, b.PROJ_CODE, b.PROJ_NAME, a.USER_NAME, b.OWNER_ID, b.IS_COMMON ";
+
+            if (mode == ProjectQueryMode.Administrative) {
+                sql += ",c.ROLE_CODE FROM CONF_PROJECT b JOIN  CONF_PROJECT_USER_ROLE c ON b.ID = c.PROJ_ID AND c.USER_ID = ? AND c.ROLE_CODE=\"admin\" JOIN conf_user a ON c.USER_ID = a.ID ";
+            } else if (mode == ProjectQueryMode.Participant) {
+                sql += " FROM CONF_PROJECT b JOIN CONF_PROJECT_USER c ON b.ID = c.PROJ_ID AND c.USER_ID = ? JOIN conf_user a ON c.USER_ID = a.ID ";
+            }
+
+            sql += " WHERE b.DELETE_FLAG = 0 ORDER BY b.id asc limit ?,?";
+
 
             return jdbcTemplate.query(sql, new ProjectRowMapper(), user.getId(), offset, limit);
         } else {
