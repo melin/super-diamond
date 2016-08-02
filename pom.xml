@@ -8,7 +8,6 @@
 	<modules>
 		<module>super-diamond-client</module>
 		<module>super-diamond-server</module>
-		<module>super-diamond-sample</module>
 	</modules>
 
 	<properties>
