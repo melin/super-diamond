@@ -6,6 +6,8 @@ package com.github.diamond.client.netty;
 
 import com.github.diamond.client.util.NamedThreadFactory;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
@@ -16,6 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
+import java.nio.charset.Charset;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -23,7 +28,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Create on @2013-8-24 @下午6:48:30 
+ * Create on @2013-8-24 @下午6:48:30
+ *
  * @author bsli@ustcinfo.com
  */
 public class Netty4Client {
@@ -32,6 +38,9 @@ public class Netty4Client {
     private int port;
     private int timeout = 1000;
     private int connectTimeout = 3000;
+    private Timer heartbeatTimer = new Timer();
+    private final int HEARTBEAT_INTERVAL = 20000; // 心跳间隔时间20s
+    public static final String HEART_BEAT_MSG = "heartbeat";
 
     private final EventLoopGroup group = new NioEventLoopGroup();
     private ClientChannelInitializer channelInitializer;
@@ -63,7 +72,7 @@ public class Netty4Client {
         }
         try {
             connect();
-
+            sendHeartbeat();
             logger.info("Start " + getClass().getSimpleName() + " " + NetUtils.getLocalAddress() + " connect to the server " + host);
         } catch (Throwable t) {
             throw new Exception("Failed to start " + getClass().getSimpleName() + " " + NetUtils.getLocalAddress()
@@ -231,5 +240,18 @@ public class Netty4Client {
 
     public int getConnectTimeout() {
         return connectTimeout;
+    }
+
+    private void sendHeartbeat() {
+
+//        heartbeatTimer.schedule(new TimerTask() {
+//            @Override
+//            public void run() {
+//                if (isConnected()) {
+//                    ByteBuf encoded = Unpooled.copiedBuffer("heartbeat\r\n", Charset.forName("UTF-8"));
+//                    channel.pipeline().writeAndFlush(encoded);
+//                }
+//            }
+//        }, 1000, HEARTBEAT_INTERVAL);
     }
 }

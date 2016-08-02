@@ -280,11 +280,16 @@ public class PropertiesConfiguration extends EventSource {
                             if (client.isConnected()) {
                                 String message = client.receiveMessage();
 
-                                if (message != null) {
-                                    String versionStr = message.substring(0, message.indexOf("\r\n"));
-                                    logger.info("重新加载配置信息，项目编码：{}，Profile：{}, Version：{}", projCode, profile, versionStr.split(" = ")[1]);
-                                    FileUtils.saveData(projCode, profile, message, localFilePath);
-                                    load(new StringReader(message), true);
+                                if (StringUtils.isNotBlank(message)) {
+
+                                    if(message.equals(Netty4Client.HEART_BEAT_MSG)) {
+                                        // TODO: handle heartbeat response message
+                                    } else {
+                                        String versionStr = message.substring(0, message.indexOf("\r\n"));
+                                        logger.info("重新加载配置信息，项目编码：{}，Profile：{}, Version：{}", projCode, profile, versionStr.split(" = ")[1]);
+                                        FileUtils.saveData(projCode, profile, message, localFilePath);
+                                        load(new StringReader(message), true);
+                                    }
                                 }
                             } else {
                                 TimeUnit.SECONDS.sleep(1);
