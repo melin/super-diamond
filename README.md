@@ -1,9 +1,9 @@
-[![Gitter](https://badges.gitter.im/super-diamond/Lobby.svg)](https://gitter.im/super-diamond/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Build Status](https://travis-ci.org/talywy/super-diamond.svg?branch=master)](https://travis-ci.org/talywy/super-diamond)
+[![Gitter](https://badges.gitter.im/super-diamond/Lobby.svg)](https://gitter.im/super-diamond/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Build Status](https://travis-ci.org/talywy/super-diamond.svg?branch=master)](https://travis-ci.org/talywy/super-diamond) [![codecov](https://codecov.io/gh/talywy/super-diamond/branch/master/graph/badge.svg)](https://codecov.io/gh/talywy/super-diamond)
 
 #SuperDiamond
 
 ###简介
-SuperDiamond是集中化配置系统，用来将分散在各业务系统中的配置进行集中化管理，便于开发/测试/运维人员进行配置管理。原作者已暂停该项目的维护，我们fork了一份代码进行持续优化改进。
+SuperDiamond是集中化配置系统，用来将分散在各业务系统中的配置进行集中统一管理，便于开发/测试/运维人员进行配置的操作。由于原作者已暂停了该项目的维护，所以我们fork了一份代码进行持续优化改进。
 
 ### 功能特性
 #### 客户端
@@ -34,4 +34,4 @@ SuperDiamond是集中化配置系统，用来将分散在各业务系统中的�
 - logback
 
 ### LICENSE
-Copyright 2011-2016 - IFLYTEK, Released under The MIT License (MIT)
+Copyright 2011-2016 - IFLYTEK, Released under The MIT License (MIT) http://opensource.org/licenses/MIT

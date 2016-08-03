@@ -7,3 +7,6 @@ jdk:
 install: mvn clean install -Dmaven.test.skip=true -Dmaven.javadoc.skip=true -B -V
   
 script: mvn package install -Dmaven.test.skip=true -Pproduction
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash) -t b615eb2a-f2d6-4adb-aae3-a189372d44a6
