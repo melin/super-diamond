@@ -1,4 +1,4 @@
-[![Gitter](https://badges.gitter.im/super-diamond/Lobby.svg)](https://gitter.im/super-diamond/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Build Status](https://travis-ci.org/talywy/super-diamond.svg?branch=master)](https://travis-ci.org/talywy/super-diamond) [![codecov](https://codecov.io/gh/talywy/super-diamond/branch/master/graph/badge.svg)](https://codecov.io/gh/talywy/super-diamond)
+[![Gitter](https://badges.gitter.im/super-diamond/Lobby.svg)](https://gitter.im/super-diamond/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Build Status](https://travis-ci.org/talywy/super-diamond.svg?branch=master)](https://travis-ci.org/talywy/super-diamond) [![codecov](https://codecov.io/gh/talywy/super-diamond/branch/master/graph/badge.svg)](https://codecov.io/gh/talywy/super-diamond) [![MIT](https://camo.githubusercontent.com/890acbdcb87868b382af9a4b1fac507b9659d9bf/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f6c6963656e73652d4d49542d626c75652e737667)](http://opensource.org/licenses/MIT)
 
 #SuperDiamond
 
