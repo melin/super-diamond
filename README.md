@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/talywy/super-diamond.svg?branch=master)](https://travis-ci.org/talywy/super-diamond)
+[![Gitter](https://badges.gitter.im/super-diamond/Lobby.svg)](https://gitter.im/super-diamond/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Build Status](https://travis-ci.org/talywy/super-diamond.svg?branch=master)](https://travis-ci.org/talywy/super-diamond)
 
 #SuperDiamond
 
@@ -34,4 +34,4 @@ SuperDiamond是集中化配置系统，用来将分散在各业务系统中的�
 - logback
 
 ### LICENSE
-Copyright 2011-2016 - IFLYTEK, Release under The MIT License (MIT)
+Copyright 2011-2016 - IFLYTEK, Released under The MIT License (MIT)
