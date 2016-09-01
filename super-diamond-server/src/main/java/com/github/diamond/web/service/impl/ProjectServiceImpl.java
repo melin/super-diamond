@@ -31,7 +31,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Autowired
     private ProjectDao projectDao;
 
-    public List<Project> queryProjects(User user,ProjectQueryMode mode, int offset, int limit) {
+    public List<Project> queryProjects(User user, ProjectQueryMode mode, int offset, int limit) {
         return projectDao.queryProjects(user, mode, offset, limit);
     }
 
@@ -114,6 +114,12 @@ public class ProjectServiceImpl implements ProjectService {
 
     public Map<String, Object> queryProject(int projectId) {
         return projectDao.queryProject(projectId);
+    }
+
+    @Override
+    public boolean isProjectAdmin(int projectId, int userId) {
+        List<Integer> adminList = projectDao.queryProjectAdmins(projectId);
+        return adminList != null && adminList.contains(userId);
     }
 
     public void copyProjConfig(int projId, String projCode, String userCode) {

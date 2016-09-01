@@ -117,6 +117,20 @@ public class ProjectDaoImpl implements ProjectDao {
         return jdbcTemplate.queryForMap(sql, projectId);
     }
 
+    @Override
+    public List<Integer> queryProjectAdmins(int projectId) {
+
+        String sql = "SELECT USER_ID from CONF_PROJECT_USER_ROLE WHERE PROJ_ID = ? and  ROLE_CODE = \"admin\"";
+
+        List<Integer> adminIdList = jdbcTemplate.query(sql, new RowMapper<Integer>() {
+            @Override
+            public Integer mapRow(ResultSet resultSet, int i) throws SQLException {
+                return resultSet.getInt(1);
+            }
+        }, projectId);
+        return adminIdList;
+    }
+
     public void copyProjConfig(int projId, String projCode, String userCode) {
         String sql = "SELECT b.MODULE_ID, b.MODULE_NAME FROM CONF_PROJECT a, CONF_PROJECT_MODULE b "
                 + "WHERE a.ID = b.PROJ_ID AND a.PROJ_CODE = ?";

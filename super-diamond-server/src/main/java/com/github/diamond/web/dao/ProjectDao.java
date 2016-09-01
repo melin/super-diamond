@@ -28,6 +28,8 @@ public interface ProjectDao {
 
     Map<String, Object> queryProject(int projectId);
 
+    List<Integer> queryProjectAdmins(int projectId);
+
     void copyProjConfig(int projId, String projCode, String userCode);
 
     List<Map<String, Object>> getProject(int projectId);

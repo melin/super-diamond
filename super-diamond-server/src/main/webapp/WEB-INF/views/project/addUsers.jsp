@@ -71,7 +71,7 @@
                     <c:out value="${user.userName}"/>
                 </td>
                 <td>
-                    <%--<input type="checkbox" name="admin" value="admin"> admin &nbsp;--%>
+                    <input type="checkbox" name="admin" value="admin"> admin &nbsp;
                     <input type="checkbox" name="development" value="development"> development &nbsp;
                     <input type="checkbox" name="test" value="test"> test &nbsp;
                     <input type="checkbox" name="build" value="build"> build &nbsp;
@@ -99,7 +99,7 @@
                 <input type="hidden" name="userId" id="auth-userId">
                 <input type="hidden" name="projectId" value='<c:out value="${project.ID}" />'>
 
-                <%--<input type="checkbox" name="admin" value="admin" id="adminId"> admin &nbsp;--%>
+                <input type="checkbox" name="admin" value="admin" id="adminId"> admin &nbsp;
                 <input type="checkbox" name="development" value="development" id="developmentId"> development &nbsp;
                 <input type="checkbox" name="test" value="test" id="testId"> test &nbsp;
                 <input type="checkbox" name="build" value="build" id="buildId"> build &nbsp;

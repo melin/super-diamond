@@ -5,6 +5,8 @@
 package com.github.diamond.web.controller;
 
 import com.github.diamond.utils.PageUtil;
+import com.github.diamond.utils.SessionHolder;
+import com.github.diamond.web.model.User;
 import com.github.diamond.web.service.ConfigService;
 import com.github.diamond.web.service.ModuleService;
 import com.github.diamond.web.service.ProjectService;
@@ -18,8 +20,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.naming.Context;
+import javax.servlet.http.HttpSession;
+
 /**
- * Create on @2013-8-21 @下午6:55:09 
+ * Create on @2013-8-21 @下午6:55:09
+ *
  * @author bsli@ustcinfo.com
  */
 @Controller
@@ -38,18 +44,21 @@ public class ProfileController extends BaseController {
                           ModelMap modelMap,
                           @RequestParam(defaultValue = "1") int page,
                           @RequestParam(defaultValue = "false") boolean isShow,
-                          @RequestParam(defaultValue = "10") int recordLimit) {
+                          @RequestParam(defaultValue = "10") int recordLimit, HttpSession session) {
         modelMap.addAttribute("modules", moduleService.queryModules(projectId));
         modelMap.addAttribute("configs", configService.queryConfigs(projectId, type, moduleId,
                 PageUtil.getOffset(page, recordLimit), recordLimit, isShow));
         modelMap.addAttribute("moduleId", moduleId);
         modelMap.addAttribute("project", projectService.queryProject(projectId));
 
+        User user = (User) SessionHolder.getSession().getAttribute("sessionUser");
+        boolean isAdmin = projectService.isProjectAdmin(projectId, user.getId());
         long recordCount = configService.queryConfigCount(projectId, moduleId, isShow);
         modelMap.addAttribute("totalPages", PageUtil.pageCount(recordCount, recordLimit));
         modelMap.addAttribute("currentPage", page);
         modelMap.addAttribute("isShow", isShow);
         modelMap.addAttribute("recordLimit", recordLimit);
+        modelMap.addAttribute("isAdmin", isAdmin);
 
         return "profile/" + type;
     }

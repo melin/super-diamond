@@ -54,6 +54,8 @@ public interface ProjectService {
 
     Map<String, Object> queryProject(int projectId);
 
+    boolean isProjectAdmin(int projectId, int userId);
+
     void copyProjConfig(int projId, String projCode, String userCode);
 
     ConfigExportData getConfigExportData(int projectId, String userName);
