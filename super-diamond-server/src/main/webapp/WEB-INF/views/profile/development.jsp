@@ -264,16 +264,16 @@
 
 <table class="table table-striped table-bordered">
     <thead>
-    <tr>
-        <th width="60">Module</th>
-        <th width="100">Key</th>
-        <th width="70">Config</th>
-        <th>Value</th>
-        <th width="100">描述</th>
-        <th width="45">操作人</th>
-        <th width="120">操作时间</th>
-        <th width="30">操作</th>
-    </tr>
+        <tr>
+            <th style="min-width: 60px; width: 10%">Module</th>
+            <th style="min-width: 60px; width: 10%">Key</th>
+            <th style="min-width: 100px; width: 15%">Config</th>
+            <th style="min-width: 100px; width: 20%">Value</th>
+            <th style="min-width: 100px; width: 15%">描述</th>
+            <th style="min-width: 50px; width: 10%">操作人</th>
+            <th style="min-width: 60px; width: 10%">操作时间</th>
+            <th style="min-width: 35px; width: 10%">操作</th>
+        </tr>
     </thead>
     <tbody>
     <c:forEach items="${configs}" var="config">
@@ -282,40 +282,20 @@
             <td value='<c:out value="${config.MODULE_ID}"/>'>
                 <c:out value="${config.MODULE_NAME}"/>
             </td>
-            <td value='<c:out value="${config.CONFIG_KEY}"/>'>
-                <c:out value="${config.CONFIG_KEY}"/>
-            </td>
-            <td title='<c:out value="${config.CONFIG_VALUE}"/>'>
-                <script type="text/javascript">
-                    var value = '<c:out value="${config.CONFIG_VALUE}"/>';
-                    document.write(value.length > 30 ? value.substring(0, 30) + "..." : value);
-                </script>
-            </td>
+            <td value='<c:out value="${config.CONFIG_KEY}"/>'><c:out value="${config.CONFIG_KEY}"/></td>
+            <td title='<c:out value="${config.CONFIG_VALUE}"/>'><c:out value="${config.CONFIG_VALUE}"/></td>
             <td title="<c:out value='${fn:replace(config.REAL_CONFIG_VALUE,\"RPF:\",\"\")}' />" >
                 <script type="text/javascript">
                     var value = '<c:out value="${config.REAL_CONFIG_VALUE}"/>';
                     if(value.indexOf("RPF:") == 0) {
                         value = value.replace("RPF:","");
                     }
-                    document.write(value.length > 30 ? value.substring(0, 30) + "..." : value);
+                    document.write(value);
                 </script>
             </td>
-            <td title='<c:out value="${config.CONFIG_DESC}"/>'>
-                    <%--<td title='${config.CONFIG_DESC}'>--%>
-                <script type="text/javascript">
-                    var value = '<c:out value="${config.CONFIG_DESC}"/>';
-                    if (value.length > 15)
-                        document.write(value.substring(0, 15) + "...");
-                    else
-                        document.write(value);
-                </script>
-            </td>
-            <td>
-                <c:out value="${config.OPT_USER}"/>
-            </td>
-            <td>
-                <c:out value="${config.OPT_TIME}"/>
-            </td>
+            <td title='<c:out value="${config.CONFIG_DESC}"/>'><c:out value="${config.CONFIG_DESC}"/></td>
+            <td><c:out value="${config.OPT_USER}"/></td>
+            <td><c:out value="${config.OPT_TIME}"/></td>
             <td>
                 <a href='javascript:viewConfig(<c:out value="${config.CONFIG_ID}"/>, <c:out value="${config.IS_SHOW}"/>)'
                    title="查看"><i class="icon-search"></i></a>
