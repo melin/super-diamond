@@ -12,7 +12,7 @@
 
 
     <bean id="propertyConfigurer"
-          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+          class="com.github.diamond.DiamondPropertyPlaceholderConfigurer">
         <property name="location" value="classpath:/META-INF/res/config-${profiles.active}.properties"/>
     </bean>
 
