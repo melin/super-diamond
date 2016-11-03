@@ -78,7 +78,7 @@ public class ConfigServiceImpl implements ConfigService {
                 config.put("CONFIG_DESC", desc);
             }
             String str = PlaceHolderUtil.findPlaceHolderVar(store.get(config.get("CONFIG_KEY")));
-            if (str != null && !ProjectIdUtil.isIdExistsInCommonId(projectId, commonProjectId)) {
+            if (str != null && commonProjectId != null && !ProjectIdUtil.isIdExistsInCommonId(projectId, commonProjectId)) {
                 StrSubstitutor strSubstitutor = new StrSubstitutor(store);
                 String realValue = strSubstitutor.replace(store.get(config.get("CONFIG_KEY")));
                 // add
