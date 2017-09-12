@@ -21,6 +21,7 @@
 			<fileMode>0755</fileMode>
 			<includes>
 				<include>*.sh</include>
+				<include>*.cmd</include>
 			</includes>
 		</fileSet>
 		<fileSet>
