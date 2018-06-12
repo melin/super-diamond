@@ -4,6 +4,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.charset.Charset;
 
@@ -16,6 +18,8 @@ import java.nio.charset.Charset;
  */
 public class SendConnectInfoHandler extends ChannelInboundHandlerAdapter {
 
+    private static final Logger logger = LoggerFactory.getLogger(SendConnectInfoHandler.class);
+
     private String clientMsg;
 
     private final Charset charset;
@@ -27,6 +31,7 @@ public class SendConnectInfoHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        logger.info("client channel is active...");
         String msg = clientMsg + "\r\n";
         ByteBuf encoded = Unpooled.copiedBuffer(msg, charset);
         ctx.channel().writeAndFlush(encoded);

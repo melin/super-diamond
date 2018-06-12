@@ -28,7 +28,7 @@ import java.io.File;
  * @author libinsong1204@gmail.com
  */
 public class JettyServer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(JettyServer.class);
+    private static final Logger logger = LoggerFactory.getLogger(JettyServer.class);
 
     private static int maxThreads;
     private static int minThreads;
@@ -40,14 +40,14 @@ public class JettyServer {
             org.apache.commons.configuration.Configuration config =
                     new PropertiesConfiguration("META-INF/res/jetty.properties");
 
-            LOGGER.info("加载jetty.properties");
+            logger.info("加载jetty.properties");
 
             maxThreads = config.getInt("thread.pool.max.size", 100);
             minThreads = config.getInt("thread.pool.min.size", 10);
             serverPort = config.getInt("server.port", 8080);
             serverHost = config.getString("server.host");
         } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
         }
     }
 
@@ -59,7 +59,6 @@ public class JettyServer {
 
         WebAppContext context = new WebAppContext();
         context.setResourceBase(SystemPropertyUtil.get("BASE_HOME") + File.separator + "webapp");
-        //context.setResourceBase("H:\\codes\\opensources\\github\\super-diamond\\super-diamond-server\\src\\main\\webapp");
         context.setContextPath("/superdiamond");
         context.setConfigurations(new Configuration[]{
                 new AnnotationConfiguration(), new WebInfConfigurationExt(),
@@ -77,7 +76,7 @@ public class JettyServer {
             server.start();
             server.join();
         } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
         }
     }
 
@@ -108,10 +107,11 @@ public class JettyServer {
         }
         connector.setHost(serverHost);
 
-        LOGGER.info("jetty host={}, port={}", serverHost, serverPort);
+        logger.info("jetty host={}, port={}", serverHost, serverPort);
 
         connector.setReuseAddress(true);
-        connector.setAcceptQueueSize(1024);//backlog值
+        //backlog值
+        connector.setAcceptQueueSize(1024);
         connector.setIdleTimeout(30000);
         connector.setSoLingerTime(-1);
 
@@ -124,14 +124,15 @@ public class JettyServer {
     private static void addShutdownHook(final Server server) {
         //为了保证TaskThread不在中途退出，添加ShutdownHook
         Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
             public void run() {
-                LOGGER.info("收到关闭信号，hook起动，开始检测线程状态 ...");
+                logger.info("收到关闭信号，hook起动，开始检测线程状态 ...");
 
                 try {
                     server.stop();
                     server.destroy();
                 } catch (Exception e) {
-                    LOGGER.error(e.getMessage(), e);
+                    logger.error(e.getMessage(), e);
                 }
 
                 System.out.println("================服务器停止成功================");

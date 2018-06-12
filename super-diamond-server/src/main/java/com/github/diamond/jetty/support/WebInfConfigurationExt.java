@@ -4,6 +4,8 @@ import com.github.diamond.utils.SystemPropertyUtil;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +17,8 @@ import java.util.Locale;
  * @author libinsong1204@gmail.com
  */
 public class WebInfConfigurationExt extends WebInfConfiguration {
+
+    private  static  Logger logger = LoggerFactory.getLogger(WebInfConfigurationExt.class);
 
     @Override
     protected List<Resource> findJars(WebAppContext context) throws Exception {
@@ -34,7 +38,6 @@ public class WebInfConfigurationExt extends WebInfConfiguration {
     protected List<Resource> findWebInfLibJars(WebAppContext context)
             throws Exception {
         Resource baseHome = Resource.newResource(SystemPropertyUtil.get("BASE_HOME"));
-        //Resource baseHome = Resource.newResource("D:/");
         if (baseHome == null || !baseHome.exists()) {
             return null;
         }
@@ -49,13 +52,11 @@ public class WebInfConfigurationExt extends WebInfConfiguration {
                     String fnlc = file.getName().toLowerCase(Locale.ENGLISH);
                     int dot = fnlc.lastIndexOf('.');
                     String extension = (dot < 0 ? null : fnlc.substring(dot));
-                    if (extension != null
-                            && (extension.equals(".jar") || extension
-                            .equals(".zip"))) {
+                    if (extension != null && (".jar".equals(extension) || ".zip".equals(extension))) {
                         jarResources.add(file);
                     }
                 } catch (Exception ex) {
-                    //LOG.warn(Log.EXCEPTION, ex);
+                    logger.warn("", ex);
                 }
             }
         }

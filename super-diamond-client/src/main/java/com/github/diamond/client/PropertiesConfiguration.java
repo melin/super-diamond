@@ -15,7 +15,6 @@ import com.github.diamond.client.util.EnvUtil;
 import com.github.diamond.client.util.FileUtils;
 import com.github.diamond.client.util.NamedThreadFactory;
 import com.github.diamond.client.util.PropertiesFileUtils;
-import io.netty.util.internal.StringUtil;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrLookup;
@@ -27,10 +26,7 @@ import org.springframework.util.Assert;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Properties;
@@ -47,21 +43,16 @@ public class PropertiesConfiguration extends EventSource {
 
     private static final Logger logger = LoggerFactory.getLogger(PropertiesConfiguration.class);
 
-
     private StrSubstitutor substitutor;
 
     private Map<String, String> store = null;
 
     private Netty4Client client = null;
 
-    private Netty4Client clientBak = null;
-
     private volatile boolean reloadable = true;
 
     private static final ExecutorService reloadExecutorService = Executors.newSingleThreadExecutor(
             new NamedThreadFactory("ReloadConfigExecutorService", true));
-    private static final ExecutorService reloadExecutorServiceBak = Executors.newSingleThreadExecutor(
-            new NamedThreadFactory("ReloadConfigExecutorServiceBak", true));
 
     /***
      * 服务端地址
@@ -93,7 +84,10 @@ public class PropertiesConfiguration extends EventSource {
      */
     private static String _localFilePath;
 
-    private static final long FIRST_CONNECT_TIMEOUT = 2;
+    /**
+     * 获取配置等待时间，单位s
+     */
+    private static final long FIRST_CONNECT_TIMEOUT = 5;
 
     /**
      * 从jvm参数中获取 projCode、profile、host和port值.
@@ -226,38 +220,15 @@ public class PropertiesConfiguration extends EventSource {
         Assert.notNull(projCode, "连接superdiamond， projCode不能为空");
 
         final String clientMsg = "superdiamond={\"projCode\": \"" + projCode + "\", \"profile\": \"" + profile + "\", "
-                + "\"modules\": \"" + modules + "\", \"version\": \"" + EnvUtil.getBuildVersion() +" \"}";
-        String[] hostArr = StringUtils.split(host, ",");
+                + "\"modules\": \"" + modules + "\", \"version\": \"" + EnvUtil.getBuildVersion() + " \"}";
         try {
-            if (hostArr.length >= 2) {
-                client = new Netty4Client(hostArr[0], port, new ClientChannelInitializer(clientMsg));
-                clientBak = new Netty4Client(hostArr[1], port, new ClientChannelInitializer(clientMsg));
-            } else if (hostArr.length == 1) {
-                client = new Netty4Client(hostArr[0], port, new ClientChannelInitializer(clientMsg));
-            }
+            client = new Netty4Client(host, port, new ClientChannelInitializer(clientMsg));
+
             if (client != null && client.isConnected()) {
-                String message = client.receiveMessage(FIRST_CONNECT_TIMEOUT);
-                if (StringUtils.isNotBlank(message)) {
-                    String versionStr = message.substring(0, message.indexOf("\r\n"));
-                    logger.info("加载配置信息，项目编码：{}，Profile：{}, Version：{}", projCode, profile, versionStr.split(" = ")[1]);
-
-                    FileUtils.saveData(projCode, profile, message, localFilePath);
-                    load(new StringReader(message), false);
-                } else {
-                    throw new ConfigurationRuntimeException("从服务器端获取配置信息为空，Client 请求信息为：" + clientMsg);
-                }
-            } else if (clientBak != null && clientBak.isConnected()) {
-                String message = clientBak.receiveMessage(FIRST_CONNECT_TIMEOUT);
-                if (StringUtils.isNotBlank(message)) {
-                    String versionStr = message.substring(0, message.indexOf("\r\n"));
-                    logger.info("加载配置信息，项目编码：{}，Profile：{}, Version：{}", projCode, profile, versionStr.split(" = ")[1]);
-
-                    FileUtils.saveData(projCode, profile, message, localFilePath);
-                    load(new StringReader(message), false);
-                } else {
-                    throw new ConfigurationRuntimeException("从服务器端获取配置信息为空，Client 请求信息为：" + clientMsg);
-                }
+                logger.info("使用正常客户端连接");
+                saveRemoteConfigContent(client, projCode, profile, localFilePath, clientMsg);
             } else {
+                logger.warn("客户端连接异常，使用本地配置进行加载");
                 String message = FileUtils.readConfigFromLocal(projCode, profile, localFilePath);
                 if (message != null) {
                     String versionStr = message.substring(0, message.indexOf("\r\n"));
@@ -266,10 +237,8 @@ public class PropertiesConfiguration extends EventSource {
                     load(new StringReader(message), false);
                 } else {
                     throw new ConfigurationRuntimeException("本地没有备份配置数据，PropertiesConfiguration 初始化失败。");
-//                    createClientBak(_hostBak, port, projCode, profile, clientMsg, localFilePath);
                 }
             }
-
 
             reloadExecutorService.submit(new Runnable() {
 
@@ -282,57 +251,44 @@ public class PropertiesConfiguration extends EventSource {
 
                                 if (StringUtils.isNotBlank(message)) {
 
-                                    if(message.equals(Netty4Client.HEART_BEAT_MSG)) {
+                                    if (message.equals(Netty4Client.HEART_BEAT_MSG)) {
                                         // TODO: handle heartbeat response message
                                     } else {
-                                        String versionStr = message.substring(0, message.indexOf("\r\n"));
-                                        logger.info("重新加载配置信息，项目编码：{}，Profile：{}, Version：{}", projCode, profile, versionStr.split(" = ")[1]);
-                                        FileUtils.saveData(projCode, profile, message, localFilePath);
-                                        load(new StringReader(message), true);
+                                        writeLocalFile(projCode, profile, localFilePath, message, true);
                                     }
                                 }
                             } else {
                                 TimeUnit.SECONDS.sleep(1);
                             }
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            logger.error("reloadExecutorService exception", e);
                         }
                     }
                 }
             });
-            if (hostArr.length >= 2) {
-                reloadExecutorServiceBak.submit(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        while (reloadable) {
-                            try {
-                                if (clientBak.isConnected()) {
-                                    String message = clientBak.receiveMessage();
-
-                                    if (message != null) {
-                                        String versionStr = message.substring(0, message.indexOf("\r\n"));
-                                        logger.info("重新加载配置信息，项目编码：{}，Profile：{}, Version：{}", projCode, profile, versionStr.split(" = ")[1]);
-                                        FileUtils.saveData(projCode, profile, message, localFilePath);
-                                        load(new StringReader(message), true);
-                                    }
-                                } else {
-                                    TimeUnit.SECONDS.sleep(1);
-                                }
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                });
-            }
-
         } catch (Exception e) {
             if (client != null) {
                 client.close();
             }
             throw new ConfigurationRuntimeException(e.getMessage(), e);
         }
+    }
+
+    private void saveRemoteConfigContent(Netty4Client client, String projCode, String profile, String localFilePath, String clientMsg) {
+        String message = client.receiveMessage(FIRST_CONNECT_TIMEOUT);
+        if (StringUtils.isNotBlank(message)) {
+            writeLocalFile(projCode, profile, localFilePath, message, false);
+        } else {
+            throw new ConfigurationRuntimeException("从服务器端获取配置信息为空，Client 请求信息为：" + clientMsg);
+        }
+    }
+
+    private void writeLocalFile(String projCode, String profile, String localFilePath, String message, boolean reload) {
+        String versionStr = message.substring(0, message.indexOf("\r\n"));
+        logger.info("加载配置信息，项目编码：{}，Profile：{}, Version：{}", projCode, profile, versionStr.split(" = ")[1]);
+
+        FileUtils.saveData(projCode, profile, message, localFilePath);
+        load(new StringReader(message), reload);
     }
 
     public void close() {
@@ -355,7 +311,7 @@ public class PropertiesConfiguration extends EventSource {
      * @throws Exception
      */
     public void load(Reader in, boolean reload) throws ConfigurationRuntimeException {
-        Map<String, String> tmpStore = new LinkedHashMap<String, String>();
+        Map<String, String> tmpStore = new LinkedHashMap<>();
 
         PropertiesReader reader = new PropertiesReader(in);
         try {
@@ -384,7 +340,7 @@ public class PropertiesConfiguration extends EventSource {
             try {
                 reader.close();
             } catch (IOException e) {
-                ;
+                logger.error("load config exception", e);
             }
         }
 

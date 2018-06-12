@@ -193,6 +193,7 @@ public class Netty4Client {
         if (channel == null) {
             return false;
         }
+
         return channel.isActive();
     }
 

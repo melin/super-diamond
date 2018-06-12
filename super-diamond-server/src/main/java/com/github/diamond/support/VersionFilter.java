@@ -6,7 +6,7 @@ import java.io.IOException;
 import javax.servlet.*;
 
 /**
- * Author: yuwang@iflytek.com
+ * @author yuwang@iflytek.com
  * Date: 2016/7/1 12:08
  */
 public class VersionFilter  implements Filter {
