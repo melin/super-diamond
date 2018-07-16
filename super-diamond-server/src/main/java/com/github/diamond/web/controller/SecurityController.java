@@ -1,30 +1,30 @@
 package com.github.diamond.web.controller;
 
-import javax.servlet.http.HttpServletRequest;
-
+import com.github.diamond.web.model.User;
+import com.github.diamond.web.service.UserService;
+import com.github.diamond.web.service.impl.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.github.diamond.web.model.User;
-import com.github.diamond.web.service.UserService;
+import javax.servlet.http.HttpServletRequest;
 
 @Controller
 public class SecurityController extends BaseController {
     @Autowired
     private UserService userService;
 
-    @RequestMapping(value="/login",method = RequestMethod.POST)
+    @RequestMapping(value = "/login", method = RequestMethod.POST)
     public String login(HttpServletRequest request, String userCode, String password) {
-    	Object result = userService.login(userCode, password);
+        Object result = userService.login(userCode, password);
         if (result instanceof User) {
-        	request.getSession().removeAttribute("message");
+            request.getSession().removeAttribute("message");
             request.getSession().setAttribute("sessionUser", result);
             return "redirect:/index";
         } else {
-        	request.getSession().setAttribute("userCode", userCode);
-        	request.getSession().setAttribute("message", result);
+            request.getSession().setAttribute("userCode", userCode);
+            request.getSession().setAttribute("message", result);
             return "redirect:/";
         }
     }
@@ -35,11 +35,11 @@ public class SecurityController extends BaseController {
         return "redirect:/";
     }
 
-	public UserService getUserService() {
-		return userService;
-	}
+    public UserService getUserService() {
+        return userService;
+    }
 
-	public void setUserService(UserService userService) {
-		this.userService = userService;
-	}
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
 }

@@ -1,5 +1,7 @@
 package com.github.diamond.support;
 
+import com.github.diamond.utils.SessionHolder;
+
 import java.io.IOException;
 
 import javax.servlet.Filter;
@@ -12,14 +14,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.github.diamond.utils.SessionHolder;
+
 
 public class AuthorizationFilter implements Filter {
 
     public void destroy() {
 
     }
-
 
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
             ServletException {
@@ -28,16 +29,15 @@ public class AuthorizationFilter implements Filter {
         SessionHolder.setSession(session);
         try {
             // 判断是否登录，没有就跳转到登录页面
-            if (session.getAttribute("sessionUser") == null)
+            if (session.getAttribute("sessionUser") == null) {
                 ((HttpServletResponse) response).sendRedirect(httpRequest.getContextPath() + "/");
-            else
+            } else {
                 chain.doFilter(httpRequest, response);
-        }
-        finally {
+            }
+        } finally {
             SessionHolder.remove();
         }
     }
-
 
     public void init(FilterConfig filterConfig) throws ServletException {
     }

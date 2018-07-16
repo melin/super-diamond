@@ -7,7 +7,7 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>super-diamond-client</module>
-		<!-- <module>super-diamond-server</module> -->
+		<module>super-diamond-server</module>
 	</modules>
 
 	<properties>
@@ -29,6 +29,7 @@
 		<netty.verison>4.0.24.Final</netty.verison>
 		<commons-lang.version>2.6</commons-lang.version>
 		<commons-io.version>2.3</commons-io.version>
+		<commons-fileupload.version>1.3.1</commons-fileupload.version>
 		<commons-configuration.version>1.10</commons-configuration.version>
 
 		<junit.version>4.11</junit.version>
@@ -116,6 +117,12 @@
 				<groupId>org.slf4j</groupId>
 				<artifactId>jcl-over-slf4j</artifactId>
 				<version>${org.slf4j.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.alibaba</groupId>
+				<artifactId>fastjson</artifactId>
+				<version>1.2.7</version>
 			</dependency>
 
 			<dependency>
@@ -208,8 +215,55 @@
 		          <argLine>-Dfile.encoding=UTF-8</argLine>
 		     	</configuration>
 		  	</plugin>
+
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.7.5.201505241946</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!--<plugin>-->
+				<!--<groupId>org.apache.maven.plugins</groupId>-->
+				<!--<artifactId>maven-shade-plugin</artifactId>-->
+				<!--<version>2.3</version>-->
+				<!--<executions>-->
+					<!--<execution>-->
+						<!--<phase>package</phase>-->
+						<!--<goals>-->
+							<!--<goal>shade</goal>-->
+						<!--</goals>-->
+						<!--<configuration>-->
+							<!--&lt;!&ndash;<minimizeJar>true</minimizeJar>&ndash;&gt;-->
+							<!--<transformers>-->
+								<!--<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">-->
+									<!--<manifestEntries>-->
+										<!--<Build-Number>${project.version}</Build-Number>-->
+									<!--</manifestEntries>-->
+								<!--</transformer>-->
+							<!--</transformers>-->
+						<!--</configuration>-->
+					<!--</execution>-->
+				<!--</executions>-->
+			<!--</plugin>-->
 		</plugins>
 	</build>
+
+
+
 	<distributionManagement>
 		<repository>
 			<id>nexus-releases</id>

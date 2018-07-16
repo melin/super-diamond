@@ -1,6 +1,7 @@
 /**        
  * Copyright (c) 2013 by 苏州科大国创信息技术有限公司.    
- */    
+ */
+
 package com.github.diamond.client;
 
 import org.junit.Assert;
@@ -10,10 +11,11 @@ import org.junit.Test;
  * Create on @2013-9-1 @下午9:38:08 
  * @author bsli@ustcinfo.com
  */
+
 public class PropertiesConfigurationTest {
 	
 	@Test
-	public void testConfig() throws ConfigurationRuntimeException  {
+	public void testConfig() throws ConfigurationRuntimeException {
 		String config = "username = melin \r\n";
 		config += "port=8000 \r\n";
 		config += "reload=true \r\n";
@@ -43,20 +45,44 @@ public class PropertiesConfigurationTest {
 	@Test
 	public void testSysProperties() throws ConfigurationRuntimeException  {
 		String config = "javaVersion = ${sys:java.version} \r\n";
-		
-		PropertiesConfiguration configuration = new PropertiesConfiguration();
+
+//		PropertiesConfiguration configuration = new PropertiesConfiguration();
+		PropertiesConfiguration configuration = new PropertiesConfiguration("127.0.0.1",8283,"cloud-service-mobile","development");
+
 		configuration.load(config);
-		
+
 		Assert.assertEquals(System.getProperty("java.version"), configuration.getString("javaVersion"));
 	}
-	
+
+	/**
+	 * 测试从环境变量中加载配置
+	 *
+	 * @throws ConfigurationRuntimeException
+	 */
 	@Test
 	public void testSysEvns() throws ConfigurationRuntimeException  {
 		String config = "javaHome = ${env:JAVA_HOME}/lib \r\n";
-		
-		PropertiesConfiguration configuration = new PropertiesConfiguration();
+//		PropertiesConfiguration configuration = new PropertiesConfiguration();
+		PropertiesConfiguration configuration = new PropertiesConfiguration("127.0.0.1",8283,"cloud-service-mobile","development");
+
 		configuration.load(config);
 		
 		Assert.assertEquals(System.getenv("JAVA_HOME") + "/lib", configuration.getString("javaHome"));
 	}
+
+
+    @Test
+    public void testSysProperties1() throws ConfigurationRuntimeException  {
+
+	  String str = System.getProperty("java.version1");
+	  System.out.print(str);
+    }
+
+    @Test
+    public void testSysEvns1() throws ConfigurationRuntimeException  {
+
+	  String str = System.getenv("testbb");
+	  System.out.print(str);
+    }
+
 }

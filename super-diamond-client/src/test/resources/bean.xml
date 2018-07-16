@@ -1,20 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation= "http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 
-	<bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
-		<property name="properties" ref="propertiesConfiguration" />
-	</bean>
-	
-	<bean id="propertiesConfiguration" class="com.github.diamond.client.PropertiesConfigurationFactoryBean">
-		<constructor-arg index="0" value="localhost" />
-		<constructor-arg index="1" value="8283" />
-		<constructor-arg index="2" value="test" />
-		<constructor-arg index="3" value="development" />
-	</bean>
-	
-	<bean class="com.github.diamond.client.DatasourceTest">
-		<property name="url" value="${jdbc.url}" />
-	</bean>
+	<beans profile="development">
+		<bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+			<property name="properties" ref="propertiesConfiguration_development" />
+		</bean>
+		<bean id="propertiesConfiguration_development" class="com.github.diamond.client.PropertiesConfigurationFactoryBean">
+			<constructor-arg index="0" value="usercenter" />
+			<constructor-arg index="1" value="development" />
+		</bean>
+	</beans>
+
+	<beans profile="test">
+		<bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+			<property name="properties" ref="propertiesConfiguration_test" />
+		</bean>
+		<bean id="propertiesConfiguration_test" class="com.github.diamond.client.PropertiesConfigurationFactoryBean">
+			<constructor-arg index="0" value="usercenter" />
+			<constructor-arg index="1" value="test" />
+		</bean>
+	</beans>
+
+	<beans profile="production">
+		<bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+			<property name="properties" ref="propertiesConfiguration_production" />
+		</bean>
+		<bean id="propertiesConfiguration_production" class="com.github.diamond.client.PropertiesConfigurationFactoryBean">
+			<constructor-arg index="0" value="usercenter" />
+			<constructor-arg index="1" value="production" />
+		</bean>
+	</beans>
+
+	<beans>
+		<bean id="localProperties" class="com.github.diamond.client.PropertiesConfigurationFactoryBean"></bean>
+	</beans>
+
 </beans>

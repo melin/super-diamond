@@ -8,6 +8,7 @@
 	</parent>
 	<artifactId>super-diamond-server</artifactId>
 	<packaging>jar</packaging>
+	<version>1.3.3</version>
 	
 	<dependencies>
 		<dependency>
@@ -128,6 +129,24 @@
 		</dependency>
 
 		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+			<version>1.2.7</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>1.3.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+			<version>1.3.1</version>
+		</dependency>
+
+		<dependency>
 			<groupId>opensymphony</groupId>
 			<artifactId>sitemesh</artifactId>
 			<version>2.4.2</version>
@@ -139,6 +158,7 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
 
 	<build>
 		<resources>
@@ -152,6 +172,11 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 				<configuration>
+					<archive>
+						<manifestEntries>
+							<version>${project.version}</version>
+						</manifestEntries>
+					</archive>
 					<includes>
 						<include>**/*.class</include>
 					</includes>
@@ -163,7 +188,7 @@
 				<version>${jetty.version}</version>
 				<configuration>
 					<httpConnector>
-						<port>8090</port>
+						<port>8099</port>
 					</httpConnector>
 					<webApp>
 						<contextPath>/superdiamond</contextPath>

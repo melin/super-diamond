@@ -1,13 +1,14 @@
-/**        
- * Copyright (c) 2013 by 苏州科大国创信息技术有限公司.    
- */    
+/**
+ * Copyright (c) 2013 by 苏州科大国创信息技术有限公司.
+ */
+
 package com.github.diamond.client.config;
+
+import org.apache.commons.lang.text.StrLookup;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.commons.lang.text.StrLookup;
 
 /**
  * <p>
@@ -89,8 +90,7 @@ import org.apache.commons.lang.text.StrLookup;
  * href="http://commons.apache.org/configuration/team-list.html">Commons
  * Configuration team</a>
  */
-public class ConfigurationInterpolator extends StrLookup
-{
+public class ConfigurationInterpolator extends StrLookup {
     /**
      * Constant for the prefix of the standard lookup object for resolving
      * system properties.
@@ -128,10 +128,8 @@ public class ConfigurationInterpolator extends StrLookup
     /**
      * Creates a new instance of {@code ConfigurationInterpolator}.
      */
-    public ConfigurationInterpolator()
-    {
-        synchronized (globalLookups)
-        {
+    public ConfigurationInterpolator() {
+        synchronized (globalLookups) {
             localLookups = new HashMap<String, StrLookup>(globalLookups);
         }
     }
@@ -148,20 +146,16 @@ public class ConfigurationInterpolator extends StrLookup
      * @param lookup the lookup object to be used for this prefix (must not be
      * <b>null</b>)
      */
-    public static void registerGlobalLookup(String prefix, StrLookup lookup)
-    {
-        if (prefix == null)
-        {
+    public static void registerGlobalLookup(String prefix, StrLookup lookup) {
+        if (prefix == null) {
             throw new IllegalArgumentException(
                     "Prefix for lookup object must not be null!");
         }
-        if (lookup == null)
-        {
+        if (lookup == null) {
             throw new IllegalArgumentException(
                     "Lookup object must not be null!");
         }
-        synchronized (globalLookups)
-        {
+        synchronized (globalLookups) {
             globalLookups.put(prefix, lookup);
         }
     }
@@ -176,10 +170,8 @@ public class ConfigurationInterpolator extends StrLookup
      * @return a flag whether for this prefix a lookup object had been
      * registered
      */
-    public static boolean deregisterGlobalLookup(String prefix)
-    {
-        synchronized (globalLookups)
-        {
+    public static boolean deregisterGlobalLookup(String prefix) {
+        synchronized (globalLookups) {
             return globalLookups.remove(prefix) != null;
         }
     }
@@ -193,15 +185,12 @@ public class ConfigurationInterpolator extends StrLookup
      * @param lookup the lookup object to be used for this prefix (must not be
      * <b>null</b>)
      */
-    public void registerLookup(String prefix, StrLookup lookup)
-    {
-        if (prefix == null)
-        {
+    public void registerLookup(String prefix, StrLookup lookup) {
+        if (prefix == null) {
             throw new IllegalArgumentException(
                     "Prefix for lookup object must not be null!");
         }
-        if (lookup == null)
-        {
+        if (lookup == null) {
             throw new IllegalArgumentException(
                     "Lookup object must not be null!");
         }
@@ -216,8 +205,7 @@ public class ConfigurationInterpolator extends StrLookup
      * @return a flag whether for this prefix a lookup object had been
      * registered
      */
-    public boolean deregisterLookup(String prefix)
-    {
+    public boolean deregisterLookup(String prefix) {
         return localLookups.remove(prefix) != null;
     }
 
@@ -228,8 +216,7 @@ public class ConfigurationInterpolator extends StrLookup
      *
      * @return a set with the registered variable prefixes
      */
-    public Set<String> prefixSet()
-    {
+    public Set<String> prefixSet() {
         return localLookups.keySet();
     }
 
@@ -238,8 +225,7 @@ public class ConfigurationInterpolator extends StrLookup
      *
      * @return the default lookup object
      */
-    public StrLookup getDefaultLookup()
-    {
+    public StrLookup getDefaultLookup() {
         return defaultLookup;
     }
 
@@ -250,8 +236,7 @@ public class ConfigurationInterpolator extends StrLookup
      *
      * @param defaultLookup the new default lookup object
      */
-    public void setDefaultLookup(StrLookup defaultLookup)
-    {
+    public void setDefaultLookup(StrLookup defaultLookup) {
         this.defaultLookup = defaultLookup;
     }
 
@@ -268,31 +253,25 @@ public class ConfigurationInterpolator extends StrLookup
      * resolved
      */
     @Override
-    public String lookup(String var)
-    {
-        if (var == null)
-        {
+    public String lookup(String var) {
+        if (var == null) {
             return null;
         }
 
         int prefixPos = var.indexOf(PREFIX_SEPARATOR);
-        if (prefixPos >= 0)
-        {
+        if (prefixPos >= 0) {
             String prefix = var.substring(0, prefixPos);
             String name = var.substring(prefixPos + 1);
             String value = fetchLookupForPrefix(prefix).lookup(name);
-            if (value == null && getParentInterpolator() != null)
-            {
+            if (value == null && getParentInterpolator() != null) {
                 value = getParentInterpolator().lookup(name);
             }
-            if (value != null)
-            {
+            if (value != null) {
                 return value;
             }
         }
         String value = fetchNoPrefixLookup().lookup(var);
-        if (value == null && getParentInterpolator() != null)
-        {
+        if (value == null && getParentInterpolator() != null) {
             value = getParentInterpolator().lookup(var);
         }
         return value;
@@ -306,8 +285,7 @@ public class ConfigurationInterpolator extends StrLookup
      *
      * @return the lookup object to be used for variables without a prefix
      */
-    protected StrLookup fetchNoPrefixLookup()
-    {
+    protected StrLookup fetchNoPrefixLookup() {
         return (getDefaultLookup() != null) ? getDefaultLookup() : StrLookup.noneLookup();
     }
 
@@ -320,11 +298,9 @@ public class ConfigurationInterpolator extends StrLookup
      * @param prefix the prefix
      * @return the lookup object to be used for this prefix
      */
-    protected StrLookup fetchLookupForPrefix(String prefix)
-    {
+    protected StrLookup fetchLookupForPrefix(String prefix) {
         StrLookup lookup = localLookups.get(prefix);
-        if (lookup == null)
-        {
+        if (lookup == null) {
             lookup = StrLookup.noneLookup();
         }
         return lookup;
@@ -336,8 +312,7 @@ public class ConfigurationInterpolator extends StrLookup
      * @param interpolator the instance receiving the local lookups
      * @since upcoming
      */
-    public void registerLocalLookups(ConfigurationInterpolator interpolator)
-    {
+    public void registerLocalLookups(ConfigurationInterpolator interpolator) {
         interpolator.localLookups.putAll(localLookups);
     }
 
@@ -348,8 +323,7 @@ public class ConfigurationInterpolator extends StrLookup
      * @param parentInterpolator the parent interpolator object or <b>null</b>
      * @since upcoming
      */
-    public void setParentInterpolator(ConfigurationInterpolator parentInterpolator)
-    {
+    public void setParentInterpolator(ConfigurationInterpolator parentInterpolator) {
         this.parentInterpolator = parentInterpolator;
     }
 
@@ -360,14 +334,12 @@ public class ConfigurationInterpolator extends StrLookup
      * @return the parent interpolator or <b>null</b>
      * @since upcoming
      */
-    public ConfigurationInterpolator getParentInterpolator()
-    {
+    public ConfigurationInterpolator getParentInterpolator() {
         return this.parentInterpolator;
     }
 
     // static initializer, sets up the map with the standard lookups
-    static
-    {
+    static {
         globalLookups = new HashMap<String, StrLookup>();
         globalLookups.put(PREFIX_SYSPROPERTIES, StrLookup.systemPropertiesLookup());
         globalLookups.put(PREFIX_ENVIRONMENT, new EnvironmentLookup());

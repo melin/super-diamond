@@ -1,6 +1,7 @@
 /**        
  * Copyright (c) 2013 by 苏州科大国创信息技术有限公司.    
- */    
+ */
+
 package com.github.diamond.client.event;
 
 /**
@@ -8,6 +9,5 @@ package com.github.diamond.client.event;
  * @author bsli@ustcinfo.com
  */
 public interface ConfigurationListener {
-
 	void configurationChanged(ConfigurationEvent event);
 }
