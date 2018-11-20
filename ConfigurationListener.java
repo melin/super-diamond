@@ -100,6 +100,9 @@
             }
         }
 
+	/**
+	* AutoUpdateConfigBean AutoUpdateConfigField表示2个之前自定义的注解
+	*/
         private void processBean(String name,ApplicationContext ctx,String propName,Object propValue){
             Object bean = ctx.getBean(name);
             if(bean.getClass().getAnnotation(AutoUpdateConfigBean.class) != null){
