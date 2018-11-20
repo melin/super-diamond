@@ -21,6 +21,11 @@
          * 			</list>
          * 		</constructor-arg>
          * 	</bean>
+         
+         <bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+		<property name="properties" ref="propertiesConfiguration" />
+		<property name="ignoreUnresolvablePlaceholders" value="true"/>
+	</bean>
          */
         public ConfigChangeHandler() {
             new Thread(new Runnable() {
