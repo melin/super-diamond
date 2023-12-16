@@ -62,12 +62,12 @@
 		<repository>
 			<id>edu-releases</id>
 			<name>iflytek edu Releases Repository</name>
-			<url>http://maven.iflytek.com:8081/nexus/content/repositories/edu-releases/</url>
+			<url>https://maven.iflytek.com:8081/nexus/content/repositories/edu-releases/</url>
 		</repository>
 		<snapshotRepository>
 			<id>edu-snapshots</id>
 			<name>iflytek edu Snapshots Repository</name>
-			<url>http://maven.iflytek.com:8081/nexus/content/repositories/edu-snapshots/</url>
+			<url>https://maven.iflytek.com:8081/nexus/content/repositories/edu-snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
 </project>
