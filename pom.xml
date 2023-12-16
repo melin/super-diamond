@@ -269,14 +269,14 @@
 			<id>nexus-releases</id>
 			<name>Nexuss Releses Repository</name>
 			<url>
-				http://repos.iflytek.com:8081/nexus/content/repositories/releases/
+				https://repos.iflytek.com:8081/nexus/content/repositories/releases/
 			</url>
 		</repository>
 		<snapshotRepository>
 			<id>nexus-snapshots</id>
 			<name>Nexuss Snapshots Repository</name>
 			<url>
-				http://repos.iflytek.com:8081/nexus/content/repositories/snapshots/
+				https://repos.iflytek.com:8081/nexus/content/repositories/snapshots/
 			</url>
 		</snapshotRepository>
 	</distributionManagement>
